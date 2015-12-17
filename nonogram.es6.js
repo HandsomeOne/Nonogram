@@ -22,7 +22,6 @@ class Nonogram {
     this.correctColor = '#0cf';
     this.wrongColor = '#f69';
     this.meshColor = '#999';
-    this.width = 300;
   }
 
   getSingleLine(direction, i) {
@@ -248,7 +247,7 @@ class NonogramAuto extends Nonogram {
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.width;
+    this.canvas.width = width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
@@ -468,14 +467,15 @@ class NonogramAuto extends Nonogram {
 
       let ctx = cycle.getContext('2d');
       ctx.translate(controllerSize / 2, controllerSize / 2);
-      ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI * 3 / 2, Math.PI * 5.1 / 4);
+      ctx.rotate(Math.PI);
+      ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9);
       ctx.lineWidth = borderWidth;
       ctx.strokeStyle = filledColor;
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(-(controllerSize / 2 + borderWidth) * Math.SQRT1_2, - (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
-      ctx.lineTo(-(controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, - (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
-      ctx.lineTo(-(controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, - (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2);
+      ctx.moveTo((controllerSize / 2 + borderWidth) * Math.SQRT1_2, (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
+      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2);
+      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
       ctx.closePath();
       ctx.fillStyle = filledColor;
       ctx.fill();
@@ -547,7 +547,7 @@ class NonogramEdit extends Nonogram {
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.width;
+    this.canvas.width = width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
@@ -610,14 +610,14 @@ class NonogramEdit extends Nonogram {
 
       let ctx = cycle.getContext('2d');
       ctx.translate(controllerSize / 2, controllerSize / 2);
-      ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI * 3 / 2, Math.PI * 5.1 / 4);
+      ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9);
       ctx.lineWidth = borderWidth;
       ctx.strokeStyle = filledColor;
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(-(controllerSize / 2 + borderWidth) * Math.SQRT1_2, - (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
-      ctx.lineTo(-(controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, - (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2);
-      ctx.lineTo(-(controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, - (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
+      ctx.moveTo((controllerSize / 2 + borderWidth) * Math.SQRT1_2, (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
+      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2);
+      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, (controllerSize / 2 + borderWidth) * Math.SQRT1_2);
       ctx.closePath();
       ctx.fillStyle = filledColor;
       ctx.fill();
@@ -651,7 +651,7 @@ class NonogramPlay extends Nonogram {
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.width;
+    this.canvas.width = width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('mousedown', this.mousedown);
