@@ -583,6 +583,7 @@
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
     this.print();
+    this.canvas.dispatchEvent(this.hintChange);
   }
   NonogramEdit.prototype = assign(new Nonogram(), {
     constructor: NonogramEdit,

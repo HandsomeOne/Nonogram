@@ -553,6 +553,7 @@ class NonogramEdit extends Nonogram {
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
     this.print();
+    this.canvas.dispatchEvent(this.hintChange);
   }
 
   click(e) {
