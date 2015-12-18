@@ -103,7 +103,7 @@ then the output is mostly like to be
 ```NonogramEdit::hintChange``` : a custom event on the canvas, event name is ```'hintchange'```. triggerred when its hints have any change. For example, to automatically create a new ```NonogramSolve``` instance upon ```'hintchange'```, you can use
 ```javascript
 document.getElementById('canvas2').addEventListener('hintchange', function () {
-  new NonogramAuto(this.nonogram.rowHints, this.nonogram.colHints, 'canvas1').solve();
+  new NonogramSolve(this.nonogram.rowHints, this.nonogram.colHints, 'canvas1').solve();
 });
 new NonogramEdit(4, 4, 'canvas2');
 ```
