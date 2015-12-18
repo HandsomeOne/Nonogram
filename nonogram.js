@@ -550,7 +550,6 @@
   function NonogramEdit(m, n, canvasId, width, thresholdOrGrid) {
     this.m = m;
     this.n = n;
-    this.threshold = 0.5;
     if (typeOf(thresholdOrGrid) === '[object Array]') {
       this.grid = deepCopy(thresholdOrGrid);
     } else {
@@ -590,6 +589,7 @@
     fontColor: '#f69',
     filledColor: '#f69',
     hintChange: new Event('hintchange'),
+    threshold: 0.5,
 
     click: function (e) {
       var self = this.nonogram;
