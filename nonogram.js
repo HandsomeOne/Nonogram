@@ -239,8 +239,8 @@
     },
   };
 
-  window.NonogramAuto = NonogramAuto;
-  function NonogramAuto(rowHints, colHints, canvasId, width) {
+  window.NonogramSolve = NonogramSolve;
+  function NonogramSolve(rowHints, colHints, canvasId, width) {
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.m = rowHints.length;
@@ -266,9 +266,10 @@
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
+    this.print();
   }
-  NonogramAuto.prototype = assign(new Nonogram(), {
-    constructor: NonogramAuto,
+  NonogramSolve.prototype = assign(new Nonogram(), {
+    constructor: NonogramSolve,
     demoMode: true,
     delay: 50,
 
@@ -582,6 +583,7 @@
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
+    this.print();
   }
   NonogramEdit.prototype = assign(new Nonogram(), {
     constructor: NonogramEdit,
@@ -699,6 +701,7 @@
     this.meshed = true;
     this.brushMode = 'color';
     this.draw = {};
+    this.print();
   }
   NonogramPlay.prototype = assign(new Nonogram(), {
     constructor: NonogramPlay,

@@ -221,7 +221,7 @@ class Nonogram {
   }
 }
 
-class NonogramAuto extends Nonogram {
+class NonogramSolve extends Nonogram {
   constructor(rowHints, colHints, canvasId, width) {
     super();
     this.demoMode = true;
@@ -251,6 +251,7 @@ class NonogramAuto extends Nonogram {
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
+    this.print();
   }
 
   click(e) {
@@ -551,6 +552,7 @@ class NonogramEdit extends Nonogram {
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
+    this.print();
   }
 
   click(e) {
@@ -662,6 +664,7 @@ class NonogramPlay extends Nonogram {
     this.meshed = true;
     this.brushMode = 'color';
     this.draw = {};
+    this.print();
   }
 
   mousedown(e) {
@@ -855,4 +858,4 @@ class NonogramPlay extends Nonogram {
   }
 }
 
-export {NonogramAuto, NonogramEdit, NonogramPlay};
+export {NonogramSolve, NonogramEdit, NonogramPlay};
