@@ -37,6 +37,14 @@ class Nonogram {
     }
     return g;
   }
+  removeZeroHints() {
+    this.rowHints.forEach(removeZeroElement);
+    this.colHints.forEach(removeZeroElement);
+
+    function removeZeroElement(array, j, self) {
+      self[j] = array.filter(hint => hint);
+    }
+  }
   getHints(direction, i) {
     return deepCopy(this[`${direction}Hints`][i]);
   }
@@ -228,6 +236,7 @@ class NonogramSolve extends Nonogram {
     this.delay = 50;
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
+    this.removeZeroHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
@@ -636,6 +645,7 @@ class NonogramPlay extends Nonogram {
     this.filledColor = '#0cf';
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
+    this.removeZeroHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);

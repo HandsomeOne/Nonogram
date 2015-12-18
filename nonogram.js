@@ -55,6 +55,16 @@
       }
       return g;
     },
+    removeZeroHints: function () {
+      this.rowHints.forEach(removeZeroElement);
+      this.colHints.forEach(removeZeroElement);
+
+      function removeZeroElement(array, j, self) {
+        self[j] = array.filter(function (hint) {
+          return hint;
+        });
+      }
+    },
     getHints: function (direction, i) {
       return deepCopy(this[direction + 'Hints'][i]);
     },
@@ -243,6 +253,7 @@
   function NonogramSolve(rowHints, colHints, canvasId, width) {
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
+    this.removeZeroHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
@@ -670,6 +681,7 @@
   function NonogramPlay(rowHints, colHints, canvasId, width) {
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
+    this.removeZeroHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
