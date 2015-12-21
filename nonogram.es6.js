@@ -15,13 +15,14 @@ const VOID = -Infinity;
 
 class Nonogram {
   constructor() {
+    this.backgroundColor = '#fff';
     this.filledColor = '#999';
-    this.emptyColor = '#fff';
     this.unsetColor = '#ccc';
-    this.fontColor = '#999';
     this.correctColor = '#0cf';
     this.wrongColor = '#f69';
     this.meshColor = '#999';
+    this.meshed = false;
+    this.boldMeshGap = 5;
   }
 
   getSingleLine(direction, i) {
@@ -99,7 +100,7 @@ class Nonogram {
     let h = this.canvas.height;
     let d = w * 2 / 3 / (this.n + 1);
 
-    ctx.fillStyle = this.emptyColor;
+    ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
     if (this.meshed) {
       this.printMesh();
@@ -120,7 +121,7 @@ class Nonogram {
             ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
             break;
           case VOID:
-            ctx.strokeStyle = this.wrongColor;
+            ctx.strokeStyle = '#f69';
             ctx.lineWidth = d / 15;
             ctx.beginPath();
             ctx.moveTo(d * 0.3, d * 0.3);
@@ -145,7 +146,7 @@ class Nonogram {
     for (let i = 1; i < this.m; i++) {
       ctx.moveTo(0, i * d);
       ctx.lineTo(this.n * d, i * d);
-      if (i % 5 === 0) {
+      if (i % this.boldMeshGap === 0) {
         ctx.moveTo(0, i * d - 1);
         ctx.lineTo(this.n * d, i * d - 1);
         ctx.moveTo(0, i * d + 1);
@@ -155,7 +156,7 @@ class Nonogram {
     for (let j = 1; j < this.n; j++) {
       ctx.moveTo(j * d, 0);
       ctx.lineTo(j * d, this.m * d);
-      if (j % 5 === 0) {
+      if (j % this.boldMeshGap === 0) {
         ctx.moveTo(j * d - 1, 0);
         ctx.lineTo(j * d - 1, this.m * d);
         ctx.moveTo(j * d + 1, 0);
@@ -174,19 +175,13 @@ class Nonogram {
     let h = this.canvas.height;
     let d = w * 2 / 3 / (this.n + 1);
 
-    ctx.fillStyle = this.emptyColor;
+    ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1);
     ctx.fillRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1);
     ctx.save();
     ctx.translate(d / 2, d / 2);
-    let color;
     for (let i = 0; i < this.m; i++) {
-      color = this.fontColor;
-      if (this.rowHints[i].isCorrect) {
-        color = this.correctColor;
-      } else if (this.rowHints[i].isWrong) {
-        color = this.wrongColor;
-      }
+      let color = this.rowHints[i].isCorrect ? this.correctColor : this.wrongColor;
       for (let j = 0; j < this.rowHints[i].length; j++) {
         printSingleHint.call(this, 'row', i, j, color);
       }
@@ -195,12 +190,7 @@ class Nonogram {
       }
     }
     for (let j = 0; j < this.n; j++) {
-      color = this.fontColor;
-      if (this.colHints[j].isCorrect) {
-        color = this.correctColor;
-      } else if (this.colHints[j].isWrong) {
-        color = this.wrongColor;
-      }
+      let color = this.colHints[j].isCorrect ? this.correctColor : this.wrongColor;
       for (let i = 0; i < this.colHints[j].length; i++) {
         printSingleHint.call(this, 'col', j, i, color);
       }
@@ -230,10 +220,13 @@ class Nonogram {
 }
 
 class NonogramSolve extends Nonogram {
-  constructor(rowHints, colHints, canvasId, width) {
+  constructor(rowHints, colHints, canvasId, config) {
     super();
+    this.correctColor = '#999';
     this.demoMode = true;
     this.delay = 50;
+
+    Object.assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.removeZeroHints();
@@ -244,10 +237,10 @@ class NonogramSolve extends Nonogram {
       this.grid[i] = new Array(this.n);
     }
     for (let i = 0; i < this.m; i++) {
-      this.rowHints[i].isWrong = true;
+      this.rowHints[i].isCorrect = false;
     }
     for (let j = 0; j < this.n; j++) {
-      this.colHints[j].isWrong = true;
+      this.colHints[j].isCorrect = false;
     }
 
     let canvas = document.getElementById(canvasId);
@@ -256,7 +249,7 @@ class NonogramSolve extends Nonogram {
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.canvas.clientWidth;
+    this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
@@ -285,10 +278,10 @@ class NonogramSolve extends Nonogram {
         self.grid[i] = new Array(self.n);
       }
       for (let i = 0; i < self.m; i++) {
-        self.rowHints[i].isWrong = true;
+        self.rowHints[i].isCorrect = false;
       }
       for (let j = 0; j < self.n; j++) {
-        self.colHints[j].isWrong = true;
+        self.colHints[j].isCorrect = false;
       }
 
       self.solve();
@@ -306,7 +299,7 @@ class NonogramSolve extends Nonogram {
       do {
         updateScanner.call(this);
       }
-      while (!this[`${this.scanner.direction}Hints`][this.scanner.i].isWrong && this.linesToChange);
+      while (this[`${this.scanner.direction}Hints`][this.scanner.i].isCorrect && this.linesToChange);
 
       if (this.demoMode) {
         this.print();
@@ -370,7 +363,7 @@ class NonogramSolve extends Nonogram {
       this.setBackToGrid(direction, i);
     }
     if (this.checkCorrectness(direction, i)) {
-      this[`${direction}Hints`][i].isWrong = undefined;
+      this[`${direction}Hints`][i].isCorrect = true;
       if (finished) {
         this.linePass = true;
       }
@@ -458,7 +451,7 @@ class NonogramSolve extends Nonogram {
     let controllerSize = Math.min(w, h) / 4;
     let filledColor = this.filledColor;
 
-    ctx.fillStyle = this.emptyColor;
+    ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
     if (this.canvas.hasAttribute('occupied')) {
       return;
@@ -505,11 +498,7 @@ class NonogramSolve extends Nonogram {
 
     ctx.save();
     ctx.translate(d / 2, d / 2);
-    if (this.scanner.error) {
-      ctx.fillStyle = this.wrongColor;
-    } else {
-      ctx.fillStyle = this.correctColor;
-    }
+    ctx.fillStyle = this.scanner.error ? this.wrongColor : this.correctColor;
     ctx.globalAlpha = 0.5;
     if (this.scanner.direction === 'row') {
       ctx.fillRect(0, d * this.scanner.i, w, d);
@@ -521,20 +510,17 @@ class NonogramSolve extends Nonogram {
 }
 
 class NonogramEdit extends Nonogram {
-  constructor(m, n, canvasId, width, thresholdOrGrid) {
+  constructor(m, n, canvasId, config) {
     super();
-    this.fontColor = '#f69';
     this.filledColor = '#f69';
+    this.correctColor = '#f69';
     this.hintChange = new Event('hintchange');
+    this.threshold = 0.5;
+
+    Object.assign(this, config);
     this.m = m;
     this.n = n;
-    this.threshold = 0.5;
-    if (typeOf(thresholdOrGrid) === '[object Array]') {
-      this.grid = deepCopy(thresholdOrGrid);
-    } else {
-      if (typeOf(thresholdOrGrid) === '[object Number]') {
-        this.threshold = thresholdOrGrid;
-      }
+    if (!this.grid) {
       this.grid = new Array(this.m);
       for (let i = 0; i < this.m; i++) {
         this.grid[i] = new Array(this.n);
@@ -547,9 +533,11 @@ class NonogramEdit extends Nonogram {
     this.colHints = new Array(n);
     for (let i = 0; i < this.m; i++) {
       this.rowHints[i] = this.calculateHints('row', i);
+      this.rowHints[i].isCorrect = true;
     }
     for (let j = 0; j < this.n; j++) {
       this.colHints[j] = this.calculateHints('col', j);
+      this.colHints[j].isCorrect = true;
     }
     let canvas = document.getElementById(canvasId);
     if (!canvas || canvas.hasAttribute('occupied')) {
@@ -557,7 +545,7 @@ class NonogramEdit extends Nonogram {
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.canvas.clientWidth;
+    this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
@@ -607,7 +595,7 @@ class NonogramEdit extends Nonogram {
     let controllerSize = Math.min(w, h) / 4;
     let filledColor = this.filledColor;
 
-    ctx.fillStyle = this.emptyColor;
+    ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
     ctx.save();
     ctx.translate(w * 0.7, h * 0.7);
@@ -640,9 +628,13 @@ class NonogramEdit extends Nonogram {
 }
 
 class NonogramPlay extends Nonogram {
-  constructor(rowHints, colHints, canvasId, width) {
+  constructor(rowHints, colHints, canvasId, config) {
     super();
     this.filledColor = '#0cf';
+    this.wrongColor = '#999';
+    this.meshed = true;
+
+    Object.assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.removeZeroHints();
@@ -653,10 +645,10 @@ class NonogramPlay extends Nonogram {
       this.grid[i] = new Array(this.n).fill(EMPTY);
     }
     for (let i = 0; i < this.m; i++) {
-      this.rowHints[i].isCorrect = this.checkCorrectness('row', i) ? true : undefined;
+      this.rowHints[i].isCorrect = this.checkCorrectness('row', i) ? true : false;
     }
     for (let j = 0; j < this.n; j++) {
-      this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : undefined;
+      this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
     }
     let canvas = document.getElementById(canvasId);
     if (!canvas || canvas.hasAttribute('occupied')) {
@@ -664,7 +656,7 @@ class NonogramPlay extends Nonogram {
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.canvas.clientWidth;
+    this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('mousedown', this.mousedown);
@@ -672,7 +664,6 @@ class NonogramPlay extends Nonogram {
     this.canvas.addEventListener('mouseup', this.brushUp);
     this.canvas.addEventListener('mouseleave', this.brushUp);
 
-    this.meshed = true;
     this.brushMode = 'color';
     this.draw = {};
     this.print();
@@ -741,8 +732,8 @@ class NonogramPlay extends Nonogram {
   switchCell(i, j) {
     if (this.brushMode === 'color' && this.grid[i][j] !== VOID) {
       this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : EMPTY;
-      this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : undefined;
-      this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : undefined;
+      this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : false;
+      this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : false;
       this.print();
       let finished = this.rowHints.every(singleRow => singleRow.isCorrect)
         && this.colHints.every(singleCol => singleCol.isCorrect);
@@ -765,7 +756,7 @@ class NonogramPlay extends Nonogram {
     let borderWidth = controllerSize / 20;
     let innerSize = outerSize - 2 * borderWidth;
 
-    ctx.fillStyle = this.emptyColor;
+    ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
     ctx.save();
     ctx.translate(w * 0.7, h * 0.7);
@@ -793,9 +784,9 @@ class NonogramPlay extends Nonogram {
       ctx.translate(0, offset);
       ctx.fillStyle = this.meshColor;
       ctx.fillRect(0, 0, outerSize, outerSize);
-      ctx.fillStyle = this.emptyColor;
+      ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(borderWidth, borderWidth, innerSize, innerSize);
-      ctx.strokeStyle = this.wrongColor;
+      ctx.strokeStyle = '#f69';
       ctx.lineWidth = borderWidth;
       ctx.beginPath();
       ctx.moveTo(outerSize * 0.3, outerSize * 0.3);

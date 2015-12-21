@@ -16,8 +16,12 @@
     return object1.toString() === object2.toString();
   }
   function assign(target, source) {
-    for (var attr in source) {
-      target[attr] = source[attr];
+    if (!source) {
+      return;
+    }
+    var keys = Object.keys(source);
+    for (var i = 0, l = keys.length; i < l; i++) {
+      target[keys[i]] = source[keys[i]];
     }
     return target;
   }
@@ -34,13 +38,14 @@
     return;
   }
   Nonogram.prototype = {
+    backgroundColor: '#fff',
     filledColor: '#999',
-    emptyColor: '#fff',
     unsetColor: '#ccc',
-    fontColor: '#999',
     correctColor: '#0cf',
     wrongColor: '#f69',
     meshColor: '#999',
+    meshed: false,
+    boldMeshGap: 5,
 
     getSingleLine: function (direction, i) {
       var g = [];
@@ -119,7 +124,7 @@
       var h = this.canvas.height;
       var d = w * 2 / 3 / (this.n + 1);
 
-      ctx.fillStyle = this.emptyColor;
+      ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
       if (this.meshed) {
         this.printMesh();
@@ -140,7 +145,7 @@
               ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
               break;
             case VOID:
-              ctx.strokeStyle = this.wrongColor;
+              ctx.strokeStyle = '#f69';
               ctx.lineWidth = d / 15;
               ctx.beginPath();
               ctx.moveTo(d * 0.3, d * 0.3);
@@ -165,7 +170,7 @@
       for (var i = 1; i < this.m; i++) {
         ctx.moveTo(0, i * d);
         ctx.lineTo(this.n * d, i * d);
-        if (i % 5 === 0) {
+        if (i % this.boldMeshGap === 0) {
           ctx.moveTo(0, i * d - 1);
           ctx.lineTo(this.n * d, i * d - 1);
           ctx.moveTo(0, i * d + 1);
@@ -175,7 +180,7 @@
       for (var j = 1; j < this.n; j++) {
         ctx.moveTo(j * d, 0);
         ctx.lineTo(j * d, this.m * d);
-        if (j % 5 === 0) {
+        if (j % this.boldMeshGap === 0) {
           ctx.moveTo(j * d - 1, 0);
           ctx.lineTo(j * d - 1, this.m * d);
           ctx.moveTo(j * d + 1, 0);
@@ -194,19 +199,14 @@
       var h = this.canvas.height;
       var d = w * 2 / 3 / (this.n + 1);
 
-      ctx.fillStyle = this.emptyColor;
+      ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1);
       ctx.fillRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1);
       ctx.save();
       ctx.translate(d / 2, d / 2);
       var color;
       for (var i = 0; i < this.m; i++) {
-        color = this.fontColor;
-        if (this.rowHints[i].isCorrect) {
-          color = this.correctColor;
-        } else if (this.rowHints[i].isWrong) {
-          color = this.wrongColor;
-        }
+        color = this.rowHints[i].isCorrect ? this.correctColor : this.wrongColor;
         for (var j = 0; j < this.rowHints[i].length; j++) {
           printSingleHint.call(this, 'row', i, j, color);
         }
@@ -215,12 +215,7 @@
         }
       }
       for (var j = 0; j < this.n; j++) {
-        color = this.fontColor;
-        if (this.colHints[j].isCorrect) {
-          color = this.correctColor;
-        } else if (this.colHints[j].isWrong) {
-          color = this.wrongColor;
-        }
+        color = this.colHints[j].isCorrect ? this.correctColor : this.wrongColor;
         for (var i = 0; i < this.colHints[j].length; i++) {
           printSingleHint.call(this, 'col', j, i, color);
         }
@@ -250,7 +245,8 @@
   };
 
   window.NonogramSolve = NonogramSolve;
-  function NonogramSolve(rowHints, colHints, canvasId, width) {
+  function NonogramSolve(rowHints, colHints, canvasId, config) {
+    assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.removeZeroHints();
@@ -261,10 +257,10 @@
       this.grid[i] = new Array(this.n);
     }
     for (var i = 0; i < this.m; i++) {
-      this.rowHints[i].isWrong = true;
+      this.rowHints[i].isCorrect = false;
     }
     for (var j = 0; j < this.n; j++) {
-      this.colHints[j].isWrong = true;
+      this.colHints[j].isCorrect = false;
     }
 
     var canvas = document.getElementById(canvasId);
@@ -273,7 +269,7 @@
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.canvas.clientWidth;
+    this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
@@ -281,6 +277,7 @@
   }
   NonogramSolve.prototype = assign(new Nonogram(), {
     constructor: NonogramSolve,
+    correctColor: '#999',
     demoMode: true,
     delay: 50,
 
@@ -306,10 +303,10 @@
           self.grid[i] = new Array(self.n);
         }
         for (var i = 0; i < self.m; i++) {
-          self.rowHints[i].isWrong = true;
+          self.rowHints[i].isCorrect = false;
         }
         for (var j = 0; j < self.n; j++) {
-          self.colHints[j].isWrong = true;
+          self.colHints[j].isCorrect = false;
         }
 
         self.solve();
@@ -327,7 +324,7 @@
         do {
           updateScanner.call(this);
         }
-        while (!this[this.scanner.direction + 'Hints'][this.scanner.i].isWrong && this.linesToChange);
+        while (this[this.scanner.direction + 'Hints'][this.scanner.i].isCorrect && this.linesToChange);
 
         if (this.demoMode) {
           this.print();
@@ -397,7 +394,7 @@
         this.setBackToGrid(direction, i);
       }
       if (this.checkCorrectness(direction, i)) {
-        this[direction + 'Hints'][i].isWrong = undefined;
+        this[direction + 'Hints'][i].isCorrect = true;
         if (finished) {
           this.linePass = true;
         }
@@ -495,7 +492,7 @@
       var controllerSize = Math.min(w, h) / 4;
       var filledColor = this.filledColor;
 
-      ctx.fillStyle = this.emptyColor;
+      ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
       if (this.canvas.hasAttribute('occupied')) {
         return;
@@ -542,11 +539,7 @@
 
       ctx.save();
       ctx.translate(d / 2, d / 2);
-      if (this.scanner.error) {
-        ctx.fillStyle = this.wrongColor;
-      } else {
-        ctx.fillStyle = this.correctColor;
-      }
+      ctx.fillStyle = this.scanner.error ? this.wrongColor : this.correctColor;
       ctx.globalAlpha = 0.5;
       if (this.scanner.direction === 'row') {
         ctx.fillRect(0, d * this.scanner.i, w, d);
@@ -558,15 +551,11 @@
   });
 
   window.NonogramEdit = NonogramEdit;
-  function NonogramEdit(m, n, canvasId, width, thresholdOrGrid) {
+  function NonogramEdit(m, n, canvasId, config) {
+    assign(this, config);
     this.m = m;
     this.n = n;
-    if (typeOf(thresholdOrGrid) === '[object Array]') {
-      this.grid = deepCopy(thresholdOrGrid);
-    } else {
-      if (typeOf(thresholdOrGrid) === '[object Number]') {
-        this.threshold = thresholdOrGrid;
-      }
+    if (!this.grid) {
       this.grid = new Array(this.m);
       for (var i = 0; i < this.m; i++) {
         this.grid[i] = new Array(this.n);
@@ -579,9 +568,11 @@
     this.colHints = new Array(n);
     for (var i = 0; i < this.m; i++) {
       this.rowHints[i] = this.calculateHints('row', i);
+      this.rowHints[i].isCorrect = true;
     }
     for (var j = 0; j < this.n; j++) {
       this.colHints[j] = this.calculateHints('col', j);
+      this.colHints[j].isCorrect = true;
     }
     var canvas = document.getElementById(canvasId);
     if (!canvas || canvas.hasAttribute('occupied')) {
@@ -589,7 +580,7 @@
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.canvas.clientWidth;
+    this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
@@ -598,8 +589,8 @@
   }
   NonogramEdit.prototype = assign(new Nonogram(), {
     constructor: NonogramEdit,
-    fontColor: '#f69',
     filledColor: '#f69',
+    correctColor: '#f69',
     hintChange: new Event('hintchange'),
     threshold: 0.5,
 
@@ -645,7 +636,7 @@
       var controllerSize = Math.min(w, h) / 4;
       var filledColor = this.filledColor;
 
-      ctx.fillStyle = this.emptyColor;
+      ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
       ctx.save();
       ctx.translate(w * 0.7, h * 0.7);
@@ -678,7 +669,8 @@
   });
 
   window.NonogramPlay = NonogramPlay;
-  function NonogramPlay(rowHints, colHints, canvasId, width) {
+  function NonogramPlay(rowHints, colHints, canvasId, config) {
+    assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.removeZeroHints();
@@ -692,10 +684,10 @@
       }
     }
     for (var i = 0; i < this.m; i++) {
-      this.rowHints[i].isCorrect = this.checkCorrectness('row', i) ? true : undefined;
+      this.rowHints[i].isCorrect = this.checkCorrectness('row', i) ? true : false;
     }
     for (var j = 0; j < this.n; j++) {
-      this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : undefined;
+      this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
     }
     var canvas = document.getElementById(canvasId);
     if (!canvas || canvas.hasAttribute('occupied')) {
@@ -703,7 +695,7 @@
     }
 
     this.canvas = canvas;
-    this.canvas.width = width || this.canvas.clientWidth;
+    this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('mousedown', this.mousedown);
@@ -711,7 +703,6 @@
     this.canvas.addEventListener('mouseup', this.brushUp);
     this.canvas.addEventListener('mouseleave', this.brushUp);
 
-    this.meshed = true;
     this.brushMode = 'color';
     this.draw = {};
     this.print();
@@ -719,6 +710,8 @@
   NonogramPlay.prototype = assign(new Nonogram(), {
     constructor: NonogramPlay,
     filledColor: '#0cf',
+    wrongColor: '#999',
+    meshed: true,
 
     mousedown: function (e) {
       var self = this.nonogram;
@@ -783,8 +776,8 @@
     switchCell: function (i, j) {
       if (this.brushMode === 'color' && this.grid[i][j] !== VOID) {
         this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : EMPTY;
-        this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : undefined;
-        this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : undefined;
+        this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : false;
+        this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : false;
         this.print();
         var finished = this.rowHints.every(function (singleRow) {
           return singleRow.isCorrect;
@@ -810,7 +803,7 @@
       var borderWidth = controllerSize / 20;
       var innerSize = outerSize - 2 * borderWidth;
 
-      ctx.fillStyle = this.emptyColor;
+      ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
       ctx.save();
       ctx.translate(w * 0.7, h * 0.7);
@@ -838,9 +831,9 @@
         ctx.translate(0, offset);
         ctx.fillStyle = this.meshColor;
         ctx.fillRect(0, 0, outerSize, outerSize);
-        ctx.fillStyle = this.emptyColor;
+        ctx.fillStyle = this.backgroundColor;
         ctx.fillRect(borderWidth, borderWidth, innerSize, innerSize);
-        ctx.strokeStyle = this.wrongColor;
+        ctx.strokeStyle = '#f69';
         ctx.lineWidth = borderWidth;
         ctx.beginPath();
         ctx.moveTo(outerSize * 0.3, outerSize * 0.3);
