@@ -13,14 +13,14 @@ For examples, please check the [live demo](http://handsomeone.github.io/Nonogram
 First, you need to add
 
 ```html
-<script src="https://raw.githubusercontent.com/HandsomeOne/Nonogram/master/nonogram.js"></script>
+<script src="https://cdn.rawgit.com/HandsomeOne/Nonogram/master/nonogram.js"></script>
 ```
 
 in the head of your HTML file. A ```<canvas>``` element with a unique id is required for each nonogram instance.
 
 In the future, you may use ES6 instead of ES5:
 ```javascript
-import {NonogramSolve, NonogramEdit, NonogramPlay} from "https://raw.githubusercontent.com/HandsomeOne/Nonogram/master/nonogram.es6.js"
+import {NonogramSolve, NonogramEdit, NonogramPlay} from "https://cdn.rawgit.com/HandsomeOne/Nonogram/master/nonogram.es6.js"
 ```
 
 ## APIs
