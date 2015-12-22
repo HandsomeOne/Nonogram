@@ -10,8 +10,8 @@ const EMPTY = false;
 const UNSET = undefined;
 const TEMPORARILY_FILLED = 1;
 const TEMPORARILY_EMPTY = -1;
-const INCONSTANT = null;
-const VOID = -Infinity;
+const INCONSTANT = 0;
+const VOID = null;
 
 class Nonogram {
   constructor() {
@@ -225,6 +225,13 @@ class NonogramSolve extends Nonogram {
     this.correctColor = '#999';
     this.demoMode = true;
     this.delay = 50;
+    this.cellValueMap = (function () {
+      var t = new Map();
+      t.set(TEMPORARILY_FILLED, FILLED);
+      t.set(TEMPORARILY_EMPTY, EMPTY);
+      t.set(INCONSTANT, UNSET);
+      return t;
+    })();
 
     Object.assign(this, config);
     this.rowHints = deepCopy(rowHints);
@@ -415,24 +422,16 @@ class NonogramSolve extends Nonogram {
   setBackToGrid(direction, i) {
     if (direction === 'row') {
       this.line.forEach((cell, j) => {
-        this.grid[i][j] = this.convertCellValue(cell);
+        if (this.cellValueMap.has(cell)) {
+          this.grid[i][j] = this.cellValueMap.get(cell);
+        }
       });
     } else if (direction === 'col') {
       this.line.forEach((cell, j) => {
-        this.grid[j][i] = this.convertCellValue(cell);
+        if (this.cellValueMap.has(cell)) {
+          this.grid[j][i] = this.cellValueMap.get(cell);
+        }
       });
-    }
-  }
-  convertCellValue(value) {
-    switch (value) {
-      case TEMPORARILY_FILLED:
-        return FILLED;
-      case TEMPORARILY_EMPTY:
-        return EMPTY;
-      case INCONSTANT:
-        return UNSET;
-      default:
-        return value;
     }
   }
 

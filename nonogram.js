@@ -31,8 +31,8 @@
   var UNSET = undefined;
   var TEMPORARILY_FILLED = 1;
   var TEMPORARILY_EMPTY = -1;
-  var INCONSTANT = null;
-  var VOID = -Infinity;
+  var INCONSTANT = 0;
+  var VOID = null;
 
   function Nonogram() {
     return;
@@ -280,6 +280,13 @@
     correctColor: '#999',
     demoMode: true,
     delay: 50,
+    cellValueMap: (function () {
+      var t = {};
+      t[TEMPORARILY_FILLED] = FILLED;
+      t[TEMPORARILY_EMPTY] = EMPTY;
+      t[INCONSTANT] = UNSET;
+      return t;
+    })(),
 
     click: function (e) {
       if (this.hasAttribute('occupied')) {
@@ -456,24 +463,16 @@
     setBackToGrid: function (direction, i) {
       if (direction === 'row') {
         this.line.forEach(function (cell, j) {
-          this.grid[i][j] = this.convertCellValue(cell);
+          if (cell in this.cellValueMap) {
+            this.grid[i][j] = this.cellValueMap[cell];
+          }
         }, this);
       } else if (direction === 'col') {
         this.line.forEach(function (cell, j) {
-          this.grid[j][i] = this.convertCellValue(cell);
+          if (cell in this.cellValueMap) {
+            this.grid[j][i] = this.cellValueMap[cell];
+          }
         }, this);
-      }
-    },
-    convertCellValue: function (value) {
-      switch (value) {
-        case TEMPORARILY_FILLED:
-          return FILLED;
-        case TEMPORARILY_EMPTY:
-          return EMPTY;
-        case INCONSTANT:
-          return UNSET;
-        default:
-          return value;
       }
     },
 
