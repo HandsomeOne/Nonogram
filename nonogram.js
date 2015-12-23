@@ -315,6 +315,7 @@
         for (var j = 0; j < self.n; j++) {
           self.colHints[j].isCorrect = false;
         }
+        self.scanner = undefined;
 
         self.solve();
       }
