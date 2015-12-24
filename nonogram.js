@@ -307,23 +307,33 @@
           self.solve();
         }
       } else if (self.getLocation(x, y) === 'controller') {
-        self.grid = new Array(self.m);
-        for (var i = 0; i < self.m; i++) {
-          self.grid[i] = new Array(self.n);
-        }
-        for (var i = 0; i < self.m; i++) {
-          self.rowHints[i].isCorrect = false;
-        }
-        for (var j = 0; j < self.n; j++) {
-          self.colHints[j].isCorrect = false;
-        }
-        self.scanner = undefined;
-
-        self.solve();
+        self.refresh();
       }
+    },
+    refresh: function () {
+      if (this.canvas.hasAttribute('occupied')) {
+        return;
+      }
+
+      this.grid = new Array(this.m);
+      for (var i = 0; i < this.m; i++) {
+        this.grid[i] = new Array(this.n);
+      }
+      for (var i = 0; i < this.m; i++) {
+        this.rowHints[i].isCorrect = false;
+      }
+      for (var j = 0; j < this.n; j++) {
+        this.colHints[j].isCorrect = false;
+      }
+      this.scanner = undefined;
+
+      this.solve();
     },
     solve: function () {
       if (this.canvas) {
+        if (this.canvas.hasAttribute('occupied')) {
+          return;
+        }
         this.canvas.setAttribute('occupied', '');
       } else {
         this.demoMode = false;

@@ -228,7 +228,7 @@ class NonogramSolve extends Nonogram {
     this.demoMode = true;
     this.delay = 50;
     this.cellValueMap = (function () {
-      var t = new Map();
+      let t = new Map();
       t.set(TEMPORARILY_FILLED, FILLED);
       t.set(TEMPORARILY_EMPTY, EMPTY);
       t.set(INCONSTANT, UNSET);
@@ -282,23 +282,33 @@ class NonogramSolve extends Nonogram {
         self.solve();
       }
     } else if (self.getLocation(x, y) === 'controller') {
-      self.grid = new Array(self.m);
-      for (let i = 0; i < self.m; i++) {
-        self.grid[i] = new Array(self.n);
-      }
-      for (let i = 0; i < self.m; i++) {
-        self.rowHints[i].isCorrect = false;
-      }
-      for (let j = 0; j < self.n; j++) {
-        self.colHints[j].isCorrect = false;
-      }
-      self.scanner = undefined;
-
-      self.solve();
+      self.refresh();
     }
+  }
+  refresh() {
+    if (this.canvas.hasAttribute('occupied')) {
+      return;
+    }
+
+    this.grid = new Array(this.m);
+    for (let i = 0; i < this.m; i++) {
+      this.grid[i] = new Array(this.n);
+    }
+    for (let i = 0; i < this.m; i++) {
+      this.rowHints[i].isCorrect = false;
+    }
+    for (let j = 0; j < this.n; j++) {
+      this.colHints[j].isCorrect = false;
+    }
+    this.scanner = undefined;
+
+    this.solve();
   }
   solve() {
     if (this.canvas) {
+      if (this.canvas.hasAttribute('occupied')) {
+        return;
+      }
       this.canvas.setAttribute('occupied', '');
     } else {
       this.demoMode = false;
@@ -823,7 +833,7 @@ class NonogramPlay extends Nonogram {
     let background = ctx.getImageData(0, 0, w, h);
     let t = 0;
     let tick = getTick();
-    var self = this;
+    let self = this;
     fadeTickIn();
 
     function fadeTickIn() {
