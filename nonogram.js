@@ -791,7 +791,6 @@
           return singleCol.isCorrect;
         })
         if (correct) {
-          this.canvas.dispatchEvent(this.success);
           this.succeed();
         }
       } else if (this.brushMode === 'void' && this.grid[i][j] !== FILLED) {
@@ -857,6 +856,7 @@
         return;
       }
 
+      this.canvas.dispatchEvent(this.success);
       this.canvas.removeEventListener('mousedown', this.mousedown);
       this.canvas.removeEventListener('mousemove', this.mousemove);
       this.canvas.removeEventListener('mouseup', this.brushUp);
@@ -870,7 +870,7 @@
       var background = ctx.getImageData(0, 0, w, h);
       var t = 0;
       var tick = getTick();
-      fadeTickIn();
+      fadeTickIn.call(this);
 
       function fadeTickIn() {
         ctx.putImageData(background, 0, 0);
