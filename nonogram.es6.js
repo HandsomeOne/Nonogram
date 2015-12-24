@@ -223,6 +223,8 @@ class NonogramSolve extends Nonogram {
   constructor(rowHints, colHints, canvasId, config) {
     super();
     this.correctColor = '#999';
+    this.success = new Event('success');
+    this.error = new Event('error');
     this.demoMode = true;
     this.delay = 50;
     this.cellValueMap = (function () {
@@ -321,6 +323,7 @@ class NonogramSolve extends Nonogram {
           if (this.canvas) {
             this.canvas.removeAttribute('occupied');
             this.print();
+            this.canvas.dispatchEvent(this.error);
           }
           return;
         }
@@ -334,6 +337,7 @@ class NonogramSolve extends Nonogram {
         if (this.canvas) {
           this.canvas.removeAttribute('occupied');
           this.print();
+          this.canvas.dispatchEvent(this.success);
         }
       }
     }
@@ -585,8 +589,8 @@ class NonogramEdit extends Nonogram {
     for (let j = 0; j < this.n; j++) {
       this.colHints[j] = this.calculateHints('col', j);
     }
-    this.canvas.dispatchEvent(this.hintChange);
     this.print();
+    this.canvas.dispatchEvent(this.hintChange);
   }
   printController() {
     let ctx = this.canvas.getContext('2d');
@@ -633,6 +637,8 @@ class NonogramPlay extends Nonogram {
     this.filledColor = '#0cf';
     this.wrongColor = '#999';
     this.meshed = true;
+    this.success = new Event('success');
+    this.animationFinish = new Event('animationfinish');
 
     Object.assign(this, config);
     this.rowHints = deepCopy(rowHints);
@@ -735,10 +741,11 @@ class NonogramPlay extends Nonogram {
       this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : false;
       this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : false;
       this.print();
-      let finished = this.rowHints.every(singleRow => singleRow.isCorrect)
+      let correct = this.rowHints.every(singleRow => singleRow.isCorrect)
         && this.colHints.every(singleCol => singleCol.isCorrect);
-      if (finished) {
-        this.congratulate();
+      if (correct) {
+        this.canvas.dispatchEvent(this.success);
+        this.succeed();
       }
     } else if (this.brushMode === 'void' && this.grid[i][j] !== FILLED) {
       this.grid[i][j] = (this.draw.mode === 'fill') ? VOID : EMPTY;
@@ -798,7 +805,7 @@ class NonogramPlay extends Nonogram {
     }
   }
 
-  congratulate() {
+  succeed() {
     if (!this.canvas) {
       return;
     }
@@ -820,7 +827,6 @@ class NonogramPlay extends Nonogram {
     fadeTickIn();
 
     function fadeTickIn() {
-      ctx.save();
       ctx.putImageData(background, 0, 0);
       t += 0.03;
       ctx.globalAlpha = f(t);
@@ -832,9 +838,10 @@ class NonogramPlay extends Nonogram {
         (2 - f(t)) * controllerSize,
         (2 - f(t)) * controllerSize);
       if (t <= 1) {
-        requestAnimationFrame(fadeTickIn);
+        return requestAnimationFrame(fadeTickIn);
+      } else {
+        this.canvas.dispatchEvent(this.animationFinish);
       }
-      ctx.restore();
     }
 
     function getTick() {

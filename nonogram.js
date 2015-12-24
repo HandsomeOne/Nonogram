@@ -278,6 +278,8 @@
   NonogramSolve.prototype = assign(new Nonogram(), {
     constructor: NonogramSolve,
     correctColor: '#999',
+    success: new Event('success'),
+    error: new Event('error'),
     demoMode: true,
     delay: 50,
     cellValueMap: (function () {
@@ -346,6 +348,7 @@
             if (this.canvas) {
               this.canvas.removeAttribute('occupied');
               this.print();
+              this.canvas.dispatchEvent(this.error);
             }
             return;
           }
@@ -359,6 +362,7 @@
           if (this.canvas) {
             this.canvas.removeAttribute('occupied');
             this.print();
+            this.canvas.dispatchEvent(this.success);
           }
         }
       }
@@ -626,8 +630,8 @@
       for (var j = 0; j < this.n; j++) {
         this.colHints[j] = this.calculateHints('col', j);
       }
-      this.canvas.dispatchEvent(this.hintChange);
       this.print();
+      this.canvas.dispatchEvent(this.hintChange);
     },
     printController: function () {
       var ctx = this.canvas.getContext('2d');
@@ -712,6 +716,8 @@
     filledColor: '#0cf',
     wrongColor: '#999',
     meshed: true,
+    success: new Event('success'),
+    animationFinish: new Event('animationfinish'),
 
     mousedown: function (e) {
       var self = this.nonogram;
@@ -779,13 +785,14 @@
         this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : false;
         this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : false;
         this.print();
-        var finished = this.rowHints.every(function (singleRow) {
+        var correct = this.rowHints.every(function (singleRow) {
           return singleRow.isCorrect;
         }) && this.colHints.every(function (singleCol) {
           return singleCol.isCorrect;
         })
-        if (finished) {
-          this.congratulate();
+        if (correct) {
+          this.canvas.dispatchEvent(this.success);
+          this.succeed();
         }
       } else if (this.brushMode === 'void' && this.grid[i][j] !== FILLED) {
         this.grid[i][j] = (this.draw.mode === 'fill') ? VOID : EMPTY;
@@ -845,7 +852,7 @@
       }
     },
 
-    congratulate: function () {
+    succeed: function () {
       if (!this.canvas) {
         return;
       }
@@ -866,7 +873,6 @@
       fadeTickIn();
 
       function fadeTickIn() {
-        ctx.save();
         ctx.putImageData(background, 0, 0);
         t += 0.03;
         ctx.globalAlpha = f(t);
@@ -878,9 +884,10 @@
           (2 - f(t)) * controllerSize,
           (2 - f(t)) * controllerSize);
         if (t <= 1) {
-          requestAnimationFrame(fadeTickIn);
+          return requestAnimationFrame(fadeTickIn);
+        } else {
+          this.canvas.dispatchEvent(this.animationFinish);
         }
-        ctx.restore();
       }
 
       function f(t) {
