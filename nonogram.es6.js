@@ -823,8 +823,8 @@ class NonogramPlay extends Nonogram {
     let background = ctx.getImageData(0, 0, w, h);
     let t = 0;
     let tick = getTick();
-
-    fadeTickIn.call(this);
+    var self = this;
+    fadeTickIn();
 
     function fadeTickIn() {
       ctx.putImageData(background, 0, 0);
@@ -840,7 +840,7 @@ class NonogramPlay extends Nonogram {
       if (t <= 1) {
         return requestAnimationFrame(fadeTickIn);
       } else {
-        this.canvas.dispatchEvent(this.animationFinish);
+        self.canvas.dispatchEvent(self.animationFinish);
       }
     }
 
