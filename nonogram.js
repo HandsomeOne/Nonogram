@@ -9,9 +9,6 @@
   function deepCopy(object) {
     return JSON.parse(JSON.stringify(object));
   }
-  function typeOf(something) {
-    return Object.prototype.toString.call(something);
-  }
   function eekwall(object1, object2) {
     return object1.toString() === object2.toString();
   }

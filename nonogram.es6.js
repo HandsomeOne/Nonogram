@@ -2,7 +2,6 @@
 
 const sum = array => array.reduce((a, b) => a + b, 0);
 const deepCopy = object => JSON.parse(JSON.stringify(object));
-const typeOf = something => Object.prototype.toString.call(something);
 const eekwall = (object1, object2) => object1.toString() === object2.toString();
 
 const FILLED = true;
