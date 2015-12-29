@@ -32,7 +32,7 @@ import {NonogramSolve, NonogramEdit, NonogramPlay}
 
 - ```rowHints```: a two-dimensional array, consisting of the hints of each row (which are arrays too).
 - ```colHints```: a two-dimensional array, consisting of the hints of each column.
-- ```canvasId```: the ```id``` property of the canvas to print the nonogram on.
+- ```canvas```: a canvas element, or the ```id``` property of the canvas to print the nonogram on.
 - ```config``` *optional*: an object, see [§ Configuration Items](#configuration-items).
 
 ```NonogramSolve::solve()```: Auto solves and print the nonogram by given hints.
@@ -76,7 +76,7 @@ then the output will be like this:
 
 - ```m```: number of rows, or the length of each column.
 - ```n```: number of columns, or the length of each row.
-- ```canvasId```: the ```id``` property of the canvas to print the nonogram on.
+- ```canvas```: a canvas element, or the ```id``` property of the canvas to print the nonogram on.
 - ```config``` *optional*: an object, see [§ Configuration Items](#configuration-items).
 
 ```NonogramEdit::refresh()```: randomly generate the grid again by the threshold.

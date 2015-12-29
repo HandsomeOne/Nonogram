@@ -219,7 +219,7 @@ class Nonogram {
 }
 
 class NonogramSolve extends Nonogram {
-  constructor(rowHints, colHints, canvasId, config) {
+  constructor(rowHints, colHints, canvas, config) {
     super();
     this.correctColor = '#999';
     this.success = new Event('success');
@@ -251,12 +251,11 @@ class NonogramSolve extends Nonogram {
       this.colHints[j].isCorrect = false;
     }
 
-    let canvas = document.getElementById(canvasId);
-    if (!canvas || canvas.hasAttribute('occupied')) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
 
-    this.canvas = canvas;
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
@@ -523,7 +522,7 @@ class NonogramSolve extends Nonogram {
 }
 
 class NonogramEdit extends Nonogram {
-  constructor(m, n, canvasId, config) {
+  constructor(m, n, canvas, config) {
     super();
     this.filledColor = '#f69';
     this.correctColor = '#f69';
@@ -552,12 +551,11 @@ class NonogramEdit extends Nonogram {
       this.colHints[j] = this.calculateHints('col', j);
       this.colHints[j].isCorrect = true;
     }
-    let canvas = document.getElementById(canvasId);
-    if (!canvas || canvas.hasAttribute('occupied')) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
 
-    this.canvas = canvas;
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
@@ -641,7 +639,7 @@ class NonogramEdit extends Nonogram {
 }
 
 class NonogramPlay extends Nonogram {
-  constructor(rowHints, colHints, canvasId, config) {
+  constructor(rowHints, colHints, canvas, config) {
     super();
     this.filledColor = '#0cf';
     this.wrongColor = '#999';
@@ -665,12 +663,11 @@ class NonogramPlay extends Nonogram {
     for (let j = 0; j < this.n; j++) {
       this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
     }
-    let canvas = document.getElementById(canvasId);
-    if (!canvas || canvas.hasAttribute('occupied')) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
 
-    this.canvas = canvas;
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;

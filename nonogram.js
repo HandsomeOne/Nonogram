@@ -242,7 +242,7 @@
   };
 
   window.NonogramSolve = NonogramSolve;
-  function NonogramSolve(rowHints, colHints, canvasId, config) {
+  function NonogramSolve(rowHints, colHints, canvas, config) {
     assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
@@ -260,12 +260,11 @@
       this.colHints[j].isCorrect = false;
     }
 
-    var canvas = document.getElementById(canvasId);
-    if (!canvas || canvas.hasAttribute('occupied')) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
 
-    this.canvas = canvas;
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
@@ -562,7 +561,7 @@
   });
 
   window.NonogramEdit = NonogramEdit;
-  function NonogramEdit(m, n, canvasId, config) {
+  function NonogramEdit(m, n, canvas, config) {
     assign(this, config);
     this.m = m;
     this.n = n;
@@ -585,12 +584,11 @@
       this.colHints[j] = this.calculateHints('col', j);
       this.colHints[j].isCorrect = true;
     }
-    var canvas = document.getElementById(canvasId);
-    if (!canvas || canvas.hasAttribute('occupied')) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
 
-    this.canvas = canvas;
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
@@ -680,7 +678,7 @@
   });
 
   window.NonogramPlay = NonogramPlay;
-  function NonogramPlay(rowHints, colHints, canvasId, config) {
+  function NonogramPlay(rowHints, colHints, canvas, config) {
     assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
@@ -700,12 +698,11 @@
     for (var j = 0; j < this.n; j++) {
       this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
     }
-    var canvas = document.getElementById(canvasId);
-    if (!canvas || canvas.hasAttribute('occupied')) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
 
-    this.canvas = canvas;
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
