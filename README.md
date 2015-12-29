@@ -95,7 +95,17 @@ then the output is mostly like to be
 1   2
 ```
 
-```NonogramEdit::hintChange```: a custom event on the canvas, event name is ```'hintchange'```. triggerred when its hints have any change. For example, to automatically create a new ```NonogramSolve``` instance upon ```'hintchange'```, you can use
+### ```class NonogramPlay```
+
+```NonogramPlay::constructor(rowHints, colHints, canvasId[, config])```: creates and prints a NonogramPlay instance on a canvas, and you can play it.
+
+All the parameters and their meanings are the same as those of ```NonogramSolve```'s. The only difference between them is that who solves the nonogram, you or the computer.
+
+## Custom Events
+
+### ```class NonogramEdit```
+
+```'hintchange'```: Triggerred when the nonogram's hints have any change. For example, to automatically create a new ```NonogramSolve``` instance upon ```'hintchange'```, you can use
 ```javascript
 document.getElementById('canvas2').addEventListener('hintchange', function () {
   new NonogramSolve(this.nonogram.rowHints, this.nonogram.colHints, 'canvas1').solve();
@@ -106,13 +116,9 @@ Here ```<HTMLCanvasElement>.nonogram``` refers to the nonogram instance on it.
 
 ### ```class NonogramPlay```
 
-```NonogramPlay::constructor(rowHints, colHints, canvasId[, config])```: creates and prints a NonogramPlay instance on a canvas, and you can play it.
+```'success'```: Triggerred when the player has finished the nonogram.
 
-All the parameters and their meanings are the same as those of ```NonogramSolve```'s. The only difference between them is that who solves the nonogram, you or the computer.
-
-```NonogramPlay::success```: a custom event on the canvas, event name is ```'success'```. Triggerred when the player has finished the nonogram.
-
-```NonogramPlay::animationFinish```: a custom event on the canvas, event name is ```'animationfinish'```. Triggerred when the success animation has been finished.
+```'animationfinish'```: Triggerred when the success animation has been finished.
 
 ## Configuration Items
 
