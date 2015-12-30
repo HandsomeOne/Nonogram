@@ -729,7 +729,7 @@
         self.draw.firstJ = Math.floor(x / d - 0.5);
         var cell = self.grid[self.draw.firstI][self.draw.firstJ];
         if (cell === UNSET || self.brush === cell) {
-          self.draw.mode = (self.brush === cell) ? 'empty' : 'fill';
+          self.draw.mode = (self.brush === cell) ? 'empty' : 'filling';
           self.isPressed = true;
           self.switchCell(self.draw.firstI, self.draw.firstJ);
         }
@@ -775,7 +775,7 @@
     },
     switchCell: function (i, j) {
       if (this.brush === FILLED && this.grid[i][j] !== EMPTY) {
-        this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : UNSET;
+        this.grid[i][j] = (this.draw.mode === 'filling') ? FILLED : UNSET;
         this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]);
         this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]);
         this.print();
@@ -788,7 +788,7 @@
           this.succeed();
         }
       } else if (this.brush === EMPTY && this.grid[i][j] !== FILLED) {
-        this.grid[i][j] = (this.draw.mode === 'fill') ? EMPTY : UNSET;
+        this.grid[i][j] = (this.draw.mode === 'filling') ? EMPTY : UNSET;
         this.print();
       }
     },
@@ -828,15 +828,15 @@
       ctx.save();
       ctx.translate(w * 0.7, h * 0.7);
       if (this.brush === FILLED) {
-        printVoidBrush.call(this);
-        printColorBrush.call(this);
+        printEmptyBrush.call(this);
+        printFillingBrush.call(this);
       } else if (this.brush === EMPTY) {
-        printColorBrush.call(this);
-        printVoidBrush.call(this);
+        printFillingBrush.call(this);
+        printEmptyBrush.call(this);
       }
       ctx.restore();
 
-      function printColorBrush() {
+      function printFillingBrush() {
         ctx.save();
         ctx.translate(offset, 0);
         ctx.fillStyle = this.meshColor;
@@ -846,7 +846,7 @@
         ctx.restore();
       }
 
-      function printVoidBrush() {
+      function printEmptyBrush() {
         ctx.save();
         ctx.translate(0, offset);
         ctx.fillStyle = this.meshColor;
