@@ -20,8 +20,7 @@ in the head of your HTML file. A ```<canvas>``` element with a unique id is requ
 
 In the future, you may use ES6 instead of ES5:
 ```javascript
-import {NonogramSolve, NonogramEdit, NonogramPlay}
-  from "path/to/nonogram.es6.js";
+import {NonogramSolve, NonogramEdit, NonogramPlay} from "path/to/nonogram.es6.js";
 ```
 
 ## APIs
