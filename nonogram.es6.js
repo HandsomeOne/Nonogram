@@ -251,7 +251,7 @@ class NonogramSolve extends Nonogram {
       this.colHints[j].isCorrect = false;
     }
 
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
@@ -324,10 +324,9 @@ class NonogramSolve extends Nonogram {
       }
 
       if (this.linesToChange) {
-        this.linePass = undefined;
+        this.scanner.error = true;
         this.solveSingleLine();
-        if (!this.linePass) {
-          this.scanner.error = true;
+        if (this.scanner.error) {
           if (this.canvas) {
             this.canvas.removeAttribute('occupied');
             this.print();
@@ -385,7 +384,7 @@ class NonogramSolve extends Nonogram {
     if (this.checkCorrectness(direction, i)) {
       this[`${direction}Hints`][i].isCorrect = true;
       if (finished) {
-        this.linePass = true;
+        this.scanner.error = false;
       }
     }
   }
@@ -415,7 +414,7 @@ class NonogramSolve extends Nonogram {
       return;
     }
 
-    this.linePass = true;
+    this.scanner.error = false;
     status.forEach((cell, i) => {
       if (cell === FILLED) {
         if (this.line[i] === TEMPORARILY_EMPTY) {
@@ -551,7 +550,7 @@ class NonogramEdit extends Nonogram {
       this.colHints[j] = this.calculateHints('col', j);
       this.colHints[j].isCorrect = true;
     }
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
@@ -663,7 +662,7 @@ class NonogramPlay extends Nonogram {
     for (let j = 0; j < this.n; j++) {
       this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
     }
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }

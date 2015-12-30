@@ -260,7 +260,7 @@
       this.colHints[j].isCorrect = false;
     }
 
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
@@ -347,10 +347,9 @@
         }
 
         if (this.linesToChange) {
-          this.linePass = undefined;
+          this.scanner.error = true;
           this.solveSingleLine();
-          if (!this.linePass) {
-            this.scanner.error = true;
+          if (this.scanner.error) {
             if (this.canvas) {
               this.canvas.removeAttribute('occupied');
               this.print();
@@ -414,7 +413,7 @@
       if (this.checkCorrectness(direction, i)) {
         this[direction + 'Hints'][i].isCorrect = true;
         if (finished) {
-          this.linePass = true;
+          this.scanner.error = false;
         }
       }
     },
@@ -454,7 +453,7 @@
         return;
       }
 
-      this.linePass = true;
+      this.scanner.error = false;
       status.forEach(function (cell, i) {
         if (cell === FILLED) {
           if (this.line[i] === TEMPORARILY_EMPTY) {
@@ -584,7 +583,7 @@
       this.colHints[j] = this.calculateHints('col', j);
       this.colHints[j].isCorrect = true;
     }
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
@@ -698,7 +697,7 @@
     for (var j = 0; j < this.n; j++) {
       this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
     }
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);    
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
     }
