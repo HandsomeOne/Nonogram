@@ -21,7 +21,7 @@ in the head of your HTML file. A ```<canvas>``` element with a unique id is requ
 In the future, you may use ES6 instead of ES5:
 ```javascript
 import {NonogramSolve, NonogramEdit, NonogramPlay}
-  from "https://cdn.rawgit.com/HandsomeOne/Nonogram/master/nonogram.es6.js";
+  from "path/to/nonogram.es6.js";
 ```
 
 ## APIs
