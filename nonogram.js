@@ -436,18 +436,18 @@
       var status = [];
       for (var i = 0; i < this.hints.length; i++) {
         for (var j = 0; j < this.blanks[i]; j++) {
-          status.push(EMPTY);
+          status.push(TEMPORARILY_EMPTY);
         }
         for (var j = 0; j < this.hints[i]; j++) {
-          status.push(FILLED);
+          status.push(TEMPORARILY_FILLED);
         }
       }
       while (status.length < this.line.length) {
-        status.push(EMPTY);
+        status.push(TEMPORARILY_EMPTY);
       }
 
       var improper = status.some(function (cell, i) {
-        return (cell === EMPTY && this.line[i] === FILLED) || (cell === FILLED && this.line[i] === EMPTY);
+        return (cell === TEMPORARILY_EMPTY && this.line[i] === FILLED) || (cell === TEMPORARILY_FILLED && this.line[i] === EMPTY);
       }, this);
       if (improper) {
         return;
@@ -455,13 +455,13 @@
 
       this.scanner.error = false;
       status.forEach(function (cell, i) {
-        if (cell === FILLED) {
+        if (cell === TEMPORARILY_FILLED) {
           if (this.line[i] === TEMPORARILY_EMPTY) {
             this.line[i] = INCONSTANT;
           } else if (this.line[i] === UNSET) {
             this.line[i] = TEMPORARILY_FILLED;
           }
-        } else if (cell === EMPTY) {
+        } else if (cell === TEMPORARILY_EMPTY) {
           if (this.line[i] === TEMPORARILY_FILLED) {
             this.line[i] = INCONSTANT;
           } else if (this.line[i] === UNSET) {

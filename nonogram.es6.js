@@ -404,25 +404,25 @@ class NonogramSolve extends Nonogram {
   mergeSituation() {
     let status = [];
     for (let i = 0; i < this.hints.length; i++) {
-      status = status.concat(new Array(this.blanks[i]).fill(EMPTY));
-      status = status.concat(new Array(this.hints[i]).fill(FILLED));
+      status = status.concat(new Array(this.blanks[i]).fill(TEMPORARILY_EMPTY));
+      status = status.concat(new Array(this.hints[i]).fill(TEMPORARILY_FILLED));
     }
-    status = status.concat(new Array(this.line.length - status.length).fill(EMPTY));
+    status = status.concat(new Array(this.line.length - status.length).fill(TEMPORARILY_EMPTY));
 
-    let improper = status.some((cell, i) => (cell === EMPTY && this.line[i] === FILLED) || (cell === FILLED && this.line[i] === EMPTY));
+    let improper = status.some((cell, i) => (cell === TEMPORARILY_EMPTY && this.line[i] === FILLED) || (cell === TEMPORARILY_FILLED && this.line[i] === EMPTY));
     if (improper) {
       return;
     }
 
     this.scanner.error = false;
     status.forEach((cell, i) => {
-      if (cell === FILLED) {
+      if (cell === TEMPORARILY_FILLED) {
         if (this.line[i] === TEMPORARILY_EMPTY) {
           this.line[i] = INCONSTANT;
         } else if (this.line[i] === UNSET) {
           this.line[i] = TEMPORARILY_FILLED;
         }
-      } else if (cell === EMPTY) {
+      } else if (cell === TEMPORARILY_EMPTY) {
         if (this.line[i] === TEMPORARILY_FILLED) {
           this.line[i] = INCONSTANT;
         } else if (this.line[i] === UNSET) {
