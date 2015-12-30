@@ -10,7 +10,6 @@ const UNSET = undefined;
 const TEMPORARILY_FILLED = 1;
 const TEMPORARILY_EMPTY = -1;
 const INCONSTANT = 0;
-const VOID = null;
 
 class Nonogram {
   constructor() {
@@ -110,30 +109,25 @@ class Nonogram {
       for (let j = 0; j < this.n; j++) {
         ctx.save();
         ctx.translate(d * j, d * i);
-        switch (this.grid[i][j]) {
-          case UNSET:
-            ctx.fillStyle = this.unsetColor;
-            ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9);
-            break;
-          case FILLED:
-            ctx.fillStyle = this.filledColor;
-            ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
-            break;
-          case VOID:
-            ctx.strokeStyle = '#f69';
-            ctx.lineWidth = d / 15;
-            ctx.beginPath();
-            ctx.moveTo(d * 0.3, d * 0.3);
-            ctx.lineTo(d * 0.7, d * 0.7);
-            ctx.moveTo(d * 0.3, d * 0.7);
-            ctx.lineTo(d * 0.7, d * 0.3);
-            ctx.stroke();
-            break;
-        }
+        this.printCell(this.grid[i][j]);
         ctx.restore();
       }
     }
     ctx.restore();
+  }
+  printCell(status) {
+    let ctx = this.canvas.getContext('2d');
+    let d = this.canvas.width * 2 / 3 / (this.n + 1);
+    switch (status) {
+      case UNSET:
+        ctx.fillStyle = this.unsetColor;
+        ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9);
+        break;
+      case FILLED:
+        ctx.fillStyle = this.filledColor;
+        ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
+        break;
+    }
   }
   printMesh() {
     let ctx = this.canvas.getContext('2d');
@@ -641,6 +635,7 @@ class NonogramPlay extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super();
     this.filledColor = '#0cf';
+    this.emptyColor = '#f69';
     this.wrongColor = '#999';
     this.meshed = true;
     this.success = new Event('success');
@@ -654,13 +649,13 @@ class NonogramPlay extends Nonogram {
     this.n = colHints.length;
     this.grid = new Array(this.m);
     for (let i = 0; i < this.m; i++) {
-      this.grid[i] = new Array(this.n).fill(EMPTY);
+      this.grid[i] = new Array(this.n).fill(UNSET);
     }
     for (let i = 0; i < this.m; i++) {
-      this.rowHints[i].isCorrect = this.checkCorrectness('row', i) ? true : false;
+      this.rowHints[i].isCorrect = this.checkCorrectness('row', i);
     }
     for (let j = 0; j < this.n; j++) {
-      this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
+      this.colHints[j].isCorrect = this.checkCorrectness('col', j);
     }
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
@@ -675,7 +670,7 @@ class NonogramPlay extends Nonogram {
     this.canvas.addEventListener('mouseup', this.brushUp);
     this.canvas.addEventListener('mouseleave', this.brushUp);
 
-    this.brushMode = 'color';
+    this.brush = FILLED;
     this.draw = {};
     this.print();
   }
@@ -686,17 +681,13 @@ class NonogramPlay extends Nonogram {
     let y = e.clientY - this.getBoundingClientRect().top;
     let d = this.width * 2 / 3 / (self.n + 1);
     if (self.getLocation(x, y) === 'controller') {
-      self.switchBrushMode();
+      self.switchBrush();
     } else if (self.getLocation(x, y) === 'grid') {
       self.draw.firstI = Math.floor(y / d - 0.5);
       self.draw.firstJ = Math.floor(x / d - 0.5);
       let cell = self.grid[self.draw.firstI][self.draw.firstJ];
-      if (self.brushMode === 'color' && cell !== VOID) {
-        self.draw.mode = (cell === FILLED) ? 'empty' : 'fill';
-        self.isPressed = true;
-        self.switchCell(self.draw.firstI, self.draw.firstJ);
-      } else if (self.brushMode === 'void' && cell !== FILLED) {
-        self.draw.mode = (cell === VOID) ? 'empty' : 'fill';
+      if (cell === UNSET || self.brush === cell) {
+        self.draw.mode = (self.brush === cell) ? 'empty' : 'fill';
         self.isPressed = true;
         self.switchCell(self.draw.firstI, self.draw.firstJ);
       }
@@ -730,8 +721,8 @@ class NonogramPlay extends Nonogram {
       }
     }
   }
-  switchBrushMode() {
-    this.brushMode = (this.brushMode === 'void') ? 'color' : 'void';
+  switchBrush() {
+    this.brush = (this.brush === EMPTY) ? FILLED : EMPTY;
     this.printController();
   }
   brushUp() {
@@ -741,22 +732,42 @@ class NonogramPlay extends Nonogram {
     self.draw.mode = undefined;
   }
   switchCell(i, j) {
-    if (this.brushMode === 'color' && this.grid[i][j] !== VOID) {
-      this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : EMPTY;
-      this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : false;
-      this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : false;
+    if (this.brush === FILLED && this.grid[i][j] !== EMPTY) {
+      this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : UNSET;
+      this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]);
+      this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]);
       this.print();
       let correct = this.rowHints.every(singleRow => singleRow.isCorrect)
         && this.colHints.every(singleCol => singleCol.isCorrect);
       if (correct) {
         this.succeed();
       }
-    } else if (this.brushMode === 'void' && this.grid[i][j] !== FILLED) {
-      this.grid[i][j] = (this.draw.mode === 'fill') ? VOID : EMPTY;
+    } else if (this.brush === EMPTY && this.grid[i][j] !== FILLED) {
+      this.grid[i][j] = (this.draw.mode === 'fill') ? EMPTY : UNSET;
       this.print();
     }
   }
 
+  printCell(status) {
+    let ctx = this.canvas.getContext('2d');
+    let d = this.canvas.width * 2 / 3 / (this.n + 1);
+    switch (status) {
+      case FILLED:
+        ctx.fillStyle = this.filledColor;
+        ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
+        break;
+      case EMPTY:
+        ctx.strokeStyle = this.emptyColor;
+        ctx.lineWidth = d / 15;
+        ctx.beginPath();
+        ctx.moveTo(d * 0.3, d * 0.3);
+        ctx.lineTo(d * 0.7, d * 0.7);
+        ctx.moveTo(d * 0.3, d * 0.7);
+        ctx.lineTo(d * 0.7, d * 0.3);
+        ctx.stroke();
+        break;
+    }
+  }
   printController() {
     let ctx = this.canvas.getContext('2d');
     let w = this.canvas.width;
@@ -771,10 +782,10 @@ class NonogramPlay extends Nonogram {
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
     ctx.save();
     ctx.translate(w * 0.7, h * 0.7);
-    if (this.brushMode === 'color') {
+    if (this.brush === FILLED) {
       printVoidBrush.call(this);
       printColorBrush.call(this);
-    } else if (this.brushMode === 'void') {
+    } else if (this.brush === EMPTY) {
       printColorBrush.call(this);
       printVoidBrush.call(this);
     }

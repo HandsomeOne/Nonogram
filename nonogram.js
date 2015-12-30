@@ -29,7 +29,6 @@
   var TEMPORARILY_FILLED = 1;
   var TEMPORARILY_EMPTY = -1;
   var INCONSTANT = 0;
-  var VOID = null;
 
   function Nonogram() {
     return;
@@ -132,30 +131,25 @@
         for (var j = 0; j < this.n; j++) {
           ctx.save();
           ctx.translate(d * j, d * i);
-          switch (this.grid[i][j]) {
-            case UNSET:
-              ctx.fillStyle = this.unsetColor;
-              ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9);
-              break;
-            case FILLED:
-              ctx.fillStyle = this.filledColor;
-              ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
-              break;
-            case VOID:
-              ctx.strokeStyle = '#f69';
-              ctx.lineWidth = d / 15;
-              ctx.beginPath();
-              ctx.moveTo(d * 0.3, d * 0.3);
-              ctx.lineTo(d * 0.7, d * 0.7);
-              ctx.moveTo(d * 0.3, d * 0.7);
-              ctx.lineTo(d * 0.7, d * 0.3);
-              ctx.stroke();
-              break;
-          }
+          this.printCell(this.grid[i][j]);
           ctx.restore();
         }
       }
       ctx.restore();
+    },
+    printCell: function (status) {
+      var ctx = this.canvas.getContext('2d');
+      var d = this.canvas.width * 2 / 3 / (this.n + 1);
+      switch (status) {
+        case UNSET:
+          ctx.fillStyle = this.unsetColor;
+          ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9);
+          break;
+        case FILLED:
+          ctx.fillStyle = this.filledColor;
+          ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
+          break;
+      }
     },
     printMesh: function () {
       var ctx = this.canvas.getContext('2d');
@@ -688,14 +682,14 @@
     for (var i = 0; i < this.m; i++) {
       this.grid[i] = new Array(this.n);
       for (var j = 0; j < this.n; j++) {
-        this.grid[i][j] = EMPTY;
+        this.grid[i][j] = UNSET;
       }
     }
     for (var i = 0; i < this.m; i++) {
-      this.rowHints[i].isCorrect = this.checkCorrectness('row', i) ? true : false;
+      this.rowHints[i].isCorrect = this.checkCorrectness('row', i);
     }
     for (var j = 0; j < this.n; j++) {
-      this.colHints[j].isCorrect = this.checkCorrectness('col', j) ? true : false;
+      this.colHints[j].isCorrect = this.checkCorrectness('col', j);
     }
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
@@ -710,13 +704,14 @@
     this.canvas.addEventListener('mouseup', this.brushUp);
     this.canvas.addEventListener('mouseleave', this.brushUp);
 
-    this.brushMode = 'color';
+    this.brush = FILLED;
     this.draw = {};
     this.print();
   }
   NonogramPlay.prototype = assign(new Nonogram(), {
     constructor: NonogramPlay,
     filledColor: '#0cf',
+    emptyColor: '#f69',
     wrongColor: '#999',
     meshed: true,
     success: new Event('success'),
@@ -728,17 +723,13 @@
       var y = e.clientY - this.getBoundingClientRect().top;
       var d = this.width * 2 / 3 / (self.n + 1);
       if (self.getLocation(x, y) === 'controller') {
-        self.switchBrushMode();
+        self.switchBrush();
       } else if (self.getLocation(x, y) === 'grid') {
         self.draw.firstI = Math.floor(y / d - 0.5);
         self.draw.firstJ = Math.floor(x / d - 0.5);
         var cell = self.grid[self.draw.firstI][self.draw.firstJ];
-        if (self.brushMode === 'color' && cell !== VOID) {
-          self.draw.mode = (cell === FILLED) ? 'empty' : 'fill';
-          self.isPressed = true;
-          self.switchCell(self.draw.firstI, self.draw.firstJ);
-        } else if (self.brushMode === 'void' && cell !== FILLED) {
-          self.draw.mode = (cell === VOID) ? 'empty' : 'fill';
+        if (cell === UNSET || self.brush === cell) {
+          self.draw.mode = (self.brush === cell) ? 'empty' : 'fill';
           self.isPressed = true;
           self.switchCell(self.draw.firstI, self.draw.firstJ);
         }
@@ -772,8 +763,8 @@
         }
       }
     },
-    switchBrushMode: function () {
-      this.brushMode = (this.brushMode === 'void') ? 'color' : 'void';
+    switchBrush: function () {
+      this.brush = (this.brush === EMPTY) ? FILLED : EMPTY;
       this.printController();
     },
     brushUp: function () {
@@ -783,10 +774,10 @@
       self.draw.mode = undefined;
     },
     switchCell: function (i, j) {
-      if (this.brushMode === 'color' && this.grid[i][j] !== VOID) {
-        this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : EMPTY;
-        this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]) ? true : false;
-        this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]) ? true : false;
+      if (this.brush === FILLED && this.grid[i][j] !== EMPTY) {
+        this.grid[i][j] = (this.draw.mode === 'fill') ? FILLED : UNSET;
+        this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]);
+        this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]);
         this.print();
         var correct = this.rowHints.every(function (singleRow) {
           return singleRow.isCorrect;
@@ -796,12 +787,32 @@
         if (correct) {
           this.succeed();
         }
-      } else if (this.brushMode === 'void' && this.grid[i][j] !== FILLED) {
-        this.grid[i][j] = (this.draw.mode === 'fill') ? VOID : EMPTY;
+      } else if (this.brush === EMPTY && this.grid[i][j] !== FILLED) {
+        this.grid[i][j] = (this.draw.mode === 'fill') ? EMPTY : UNSET;
         this.print();
       }
     },
 
+    printCell: function (status) {
+      var ctx = this.canvas.getContext('2d');
+      var d = this.canvas.width * 2 / 3 / (this.n + 1);
+      switch (status) {
+        case FILLED:
+          ctx.fillStyle = this.filledColor;
+          ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1);
+          break;
+        case EMPTY:
+          ctx.strokeStyle = this.emptyColor;
+          ctx.lineWidth = d / 15;
+          ctx.beginPath();
+          ctx.moveTo(d * 0.3, d * 0.3);
+          ctx.lineTo(d * 0.7, d * 0.7);
+          ctx.moveTo(d * 0.3, d * 0.7);
+          ctx.lineTo(d * 0.7, d * 0.3);
+          ctx.stroke();
+          break;
+      }
+    },
     printController: function () {
       var ctx = this.canvas.getContext('2d');
       var w = this.canvas.width;
@@ -816,10 +827,10 @@
       ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
       ctx.save();
       ctx.translate(w * 0.7, h * 0.7);
-      if (this.brushMode === 'color') {
+      if (this.brush === FILLED) {
         printVoidBrush.call(this);
         printColorBrush.call(this);
-      } else if (this.brushMode === 'void') {
+      } else if (this.brush === EMPTY) {
         printColorBrush.call(this);
         printVoidBrush.call(this);
       }
