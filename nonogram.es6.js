@@ -194,7 +194,7 @@ class Nonogram {
     function printSingleHint(direction, i, j) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = d + 'pt monospace';
+      ctx.font = d + 'pt "Courier New", Inconsolata, Consolas, monospace';
       ctx.fillStyle = this[`${direction}Hints`][i].isCorrect ? this.correctColor : this.wrongColor;
       if (direction === 'row') {
         ctx.fillText(this.rowHints[i][j] || 0,
@@ -375,7 +375,7 @@ class NonogramSolve extends Nonogram {
   getAllSituations(max, array = [], index = 0) {
     if (index === this.hints.length) {
       this.blanks = array.slice(0, this.hints.length);
-      this.blanks[0] -= 1; 
+      this.blanks[0] -= 1;
       return this.mergeSituation();
     }
 
