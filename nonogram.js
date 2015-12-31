@@ -195,32 +195,29 @@
       ctx.fillRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1);
       ctx.save();
       ctx.translate(d / 2, d / 2);
-      var color;
       for (var i = 0; i < this.m; i++) {
-        color = this.rowHints[i].isCorrect ? this.correctColor : this.wrongColor;
         for (var j = 0; j < this.rowHints[i].length; j++) {
-          printSingleHint.call(this, 'row', i, j, color);
+          printSingleHint.call(this, 'row', i, j);
         }
         if (this.rowHints[i].length === 0) {
-          printSingleHint.call(this, 'row', i, 0, color);
+          printSingleHint.call(this, 'row', i, 0);
         }
       }
       for (var j = 0; j < this.n; j++) {
-        color = this.colHints[j].isCorrect ? this.correctColor : this.wrongColor;
         for (var i = 0; i < this.colHints[j].length; i++) {
-          printSingleHint.call(this, 'col', j, i, color);
+          printSingleHint.call(this, 'col', j, i);
         }
         if (this.colHints[j].length === 0) {
-          printSingleHint.call(this, 'col', j, 0, color);
+          printSingleHint.call(this, 'col', j, 0);
         }
       }
       ctx.restore();
 
-      function printSingleHint(direction, i, j, color) {
+      function printSingleHint(direction, i, j) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = d + 'pt monospace';
-        ctx.fillStyle = color;
+        ctx.fillStyle = this[direction + 'Hints'][i].isCorrect ? this.correctColor : this.wrongColor;
         if (direction === 'row') {
           ctx.fillText(this.rowHints[i][j] || 0,
             w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8);
@@ -247,12 +244,12 @@
     for (var i = 0; i < this.m; i++) {
       this.grid[i] = new Array(this.n);
     }
-    for (var i = 0; i < this.m; i++) {
-      this.rowHints[i].isCorrect = false;
-    }
-    for (var j = 0; j < this.n; j++) {
-      this.colHints[j].isCorrect = false;
-    }
+    this.rowHints.forEach(function (row) {
+      row.isCorrect = false;
+    });
+    this.colHints.forEach(function (col) {
+      col.isCorrect = false;
+    });
 
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
@@ -309,12 +306,12 @@
       for (var i = 0; i < this.m; i++) {
         this.grid[i] = new Array(this.n);
       }
-      for (var i = 0; i < this.m; i++) {
-        this.rowHints[i].isCorrect = false;
-      }
-      for (var j = 0; j < this.n; j++) {
-        this.colHints[j].isCorrect = false;
-      }
+      this.rowHints.forEach(function (row) {
+        row.isCorrect = false;
+      });
+      this.colHints.forEach(function (col) {
+        col.isCorrect = false;
+      });
       this.scanner = undefined;
 
       this.solve();
