@@ -341,7 +341,7 @@ class NonogramSolve extends Nonogram {
         };
         this.linesToChange = this.m + this.n;
       } else {
-        this.scanner.error = undefined;
+        this.scanner.error = false;
         this.scanner.i += 1;
         if (this[`${this.scanner.direction}Hints`][this.scanner.i] === undefined) {
           this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
@@ -357,7 +357,7 @@ class NonogramSolve extends Nonogram {
     if (!finished) {
       this.hints = this.getHints(direction, i);
       this.blanks = [];
-      this.getAllSituations(this.line.length - sum(this.hints) - this.hints.length + 1);
+      this.getAllSituations(this.line.length - sum(this.hints) + 1);
 
       let changed = this.line.some(cell => cell === TEMPORARILY_FILLED || cell === TEMPORARILY_EMPTY);
       if (changed) {
@@ -374,13 +374,12 @@ class NonogramSolve extends Nonogram {
   }
   getAllSituations(max, array = [], index = 0) {
     if (index === this.hints.length) {
-      for (let i = 0; i < this.hints.length; i++) {
-        this.blanks[i] = array[i] + (i ? 1 : 0);
-      }
+      this.blanks = array.slice(0, this.hints.length);
+      this.blanks[0] -= 1; 
       return this.mergeSituation();
     }
 
-    for (let i = 0; i <= max; i++) {
+    for (let i = 1; i <= max; i++) {
       array[index] = i;
       this.getAllSituations(max - array[index], array, index + 1);
     }

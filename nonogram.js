@@ -371,7 +371,7 @@
           };
           this.linesToChange = this.m + this.n;
         } else {
-          this.scanner.error = undefined;
+          this.scanner.error = false;
           this.scanner.i += 1;
           if (this[this.scanner.direction + 'Hints'][this.scanner.i] === undefined) {
             this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
@@ -391,7 +391,7 @@
       if (!finished) {
         this.hints = this.getHints(direction, i);
         this.blanks = [];
-        this.getAllSituations(this.line.length - sum(this.hints) - this.hints.length + 1);
+        this.getAllSituations(this.line.length - sum(this.hints) + 1);
 
         var changed = this.line.some(function (cell) {
           return (cell === TEMPORARILY_FILLED || cell === TEMPORARILY_EMPTY);
@@ -412,13 +412,12 @@
       array = array || [];
       index = index || 0;
       if (index === this.hints.length) {
-        for (var i = 0; i < this.hints.length; i++) {
-          this.blanks[i] = array[i] + (i ? 1 : 0);
-        }
+        this.blanks = array.slice(0, this.hints.length);
+        this.blanks[0] -= 1; 
         return this.mergeSituation();
       }
 
-      for (var i = 0; i <= max; i++) {
+      for (var i = 1; i <= max; i++) {
         array[index] = i;
         this.getAllSituations(max - array[index], array, index + 1);
       }
