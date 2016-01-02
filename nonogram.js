@@ -312,7 +312,7 @@
       this.colHints.forEach(function (col) {
         col.isCorrect = false;
       });
-      this.scanner = undefined;
+      delete this.scanner;
 
       this.solve();
     },
@@ -354,7 +354,7 @@
             return scan.call(this);
           }
         } else {
-          this.scanner = undefined;
+          delete this.scanner;
           if (this.canvas) {
             this.canvas.removeAttribute('occupied');
             this.print();
@@ -765,9 +765,8 @@
     },
     brushUp: function () {
       var self = this.nonogram;
-      self.isPressed = undefined;
-      self.draw.direction = undefined;
-      self.draw.mode = undefined;
+      delete self.isPressed;
+      self.draw = {};
     },
     switchCell: function (i, j) {
       if (this.brush === FILLED && this.grid[i][j] !== EMPTY) {
