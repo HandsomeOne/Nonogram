@@ -282,7 +282,7 @@ class NonogramSolve extends Nonogram {
     }
     this.rowHints.forEach(row => { row.isCorrect = false; });
     this.colHints.forEach(col => { col.isCorrect = false; });
-    this.scanner = undefined;
+    delete this.scanner;
 
     this.solve();
   }
@@ -324,7 +324,7 @@ class NonogramSolve extends Nonogram {
           return scan.call(this);
         }
       } else {
-        this.scanner = undefined;
+        delete this.scanner;
         if (this.canvas) {
           this.canvas.removeAttribute('occupied');
           this.print();
@@ -712,9 +712,8 @@ class NonogramPlay extends Nonogram {
   }
   brushUp() {
     const self = this.nonogram;
-    self.isPressed = undefined;
-    self.draw.direction = undefined;
-    self.draw.mode = undefined;
+    delete self.isPressed;
+    self.draw = {};
   }
   switchCell(i, j) {
     if (this.brush === FILLED && this.grid[i][j] !== EMPTY) {
