@@ -56,14 +56,12 @@
       }
       return g;
     },
-    removeZeroHints: function () {
-      this.rowHints.forEach(removeZeroElement);
-      this.colHints.forEach(removeZeroElement);
+    removeNonPositiveHints: function () {
+      this.rowHints.forEach(removeNonPositiveElement);
+      this.colHints.forEach(removeNonPositiveElement);
 
-      function removeZeroElement(array, j, self) {
-        self[j] = array.filter(function (hint) {
-          return hint;
-        });
+      function removeNonPositiveElement(array, j, self) {
+        self[j] = array.filter(Math.sign);
       }
     },
     getHints: function (direction, i) {
@@ -74,7 +72,7 @@
       var line = this.getSingleLine(direction, i);
       line.reduce(function (lastIsFilled, cell) {
         if (cell === FILLED) {
-          lastIsFilled ? hints[hints.length - 1] += 1 : hints.push(1);
+          lastIsFilled ? hints.push(hints.pop() + 1) : hints.push(1);
         }
         return cell === FILLED;
       }, false);
@@ -237,7 +235,7 @@
     assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
-    this.removeZeroHints();
+    this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
@@ -671,7 +669,7 @@
     assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
-    this.removeZeroHints();
+    this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
@@ -878,10 +876,9 @@
       var controllerSize = Math.min(w, h) / 4;
 
       var background = ctx.getImageData(0, 0, w, h);
-      var t = 0;
       var tick = getTick();
-      var self = this;
-      fadeTickIn();
+      var t = 0;
+      fadeTickIn.call(this);
 
       function fadeTickIn() {
         ctx.putImageData(background, 0, 0);
@@ -895,9 +892,9 @@
           (2 - f(t)) * controllerSize,
           (2 - f(t)) * controllerSize);
         if (t <= 1) {
-          return requestAnimationFrame(fadeTickIn);
+          return requestAnimationFrame(fadeTickIn.bind(this));
         } else {
-          self.canvas.dispatchEvent(self.animationFinish);
+          this.canvas.dispatchEvent(this.animationFinish);
         }
       }
 

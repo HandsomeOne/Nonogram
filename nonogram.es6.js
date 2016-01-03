@@ -24,7 +24,7 @@ class Nonogram {
   }
 
   getSingleLine(direction, i) {
-    let g = [];
+    const g = [];
     if (direction === 'row') {
       for (let j = 0; j < this.n; j++) {
         g[j] = this.grid[i][j];
@@ -36,23 +36,23 @@ class Nonogram {
     }
     return g;
   }
-  removeZeroHints() {
-    this.rowHints.forEach(removeZeroElement);
-    this.colHints.forEach(removeZeroElement);
+  removeNonPositiveHints() {
+    this.rowHints.forEach(removeNonPositiveElement);
+    this.colHints.forEach(removeNonPositiveElement);
 
-    function removeZeroElement(array, j, self) {
-      self[j] = array.filter(hint => hint);
+    function removeNonPositiveElement(array, j, self) {
+      self[j] = array.filter(Math.sign);
     }
   }
   getHints(direction, i) {
     return deepCopy(this[`${direction}Hints`][i]);
   }
   calculateHints(direction, i) {
-    let hints = [];
-    let line = this.getSingleLine(direction, i);
+    const hints = [];
+    const line = this.getSingleLine(direction, i);
     line.reduce((lastIsFilled, cell) => {
       if (cell === FILLED) {
-        lastIsFilled ? hints[hints.length - 1] += 1 : hints.push(1);
+        lastIsFilled ? hints.push(hints.pop() + 1) : hints.push(1);
       }
       return cell === FILLED;
     }, false);
@@ -63,11 +63,11 @@ class Nonogram {
   }
 
   getLocation(x, y) {
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let w23 = w * 2 / 3;
-    let h23 = h * 2 / 3;
-    let d = w23 / (this.n + 1);
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const w23 = w * 2 / 3;
+    const h23 = h * 2 / 3;
+    const d = w23 / (this.n + 1);
 
     if (x < 0 || x >= w || y < 0 || y >= h) {
       return 'outside';
@@ -93,10 +93,10 @@ class Nonogram {
     }
   }
   printGrid() {
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let d = w * 2 / 3 / (this.n + 1);
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const d = w * 2 / 3 / (this.n + 1);
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
@@ -116,8 +116,8 @@ class Nonogram {
     ctx.restore();
   }
   printCell(status) {
-    let ctx = this.canvas.getContext('2d');
-    let d = this.canvas.width * 2 / 3 / (this.n + 1);
+    const ctx = this.canvas.getContext('2d');
+    const d = this.canvas.width * 2 / 3 / (this.n + 1);
     switch (status) {
       case UNSET:
         ctx.fillStyle = this.unsetColor;
@@ -130,8 +130,8 @@ class Nonogram {
     }
   }
   printMesh() {
-    let ctx = this.canvas.getContext('2d');
-    let d = this.canvas.width * 2 / 3 / (this.n + 1);
+    const ctx = this.canvas.getContext('2d');
+    const d = this.canvas.width * 2 / 3 / (this.n + 1);
 
     ctx.save();
     ctx.translate(d / 2, d / 2);
@@ -163,10 +163,10 @@ class Nonogram {
     ctx.restore();
   }
   printHints() {
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let d = w * 2 / 3 / (this.n + 1);
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const d = w * 2 / 3 / (this.n + 1);
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1);
@@ -218,8 +218,8 @@ class NonogramSolve extends Nonogram {
     this.error = new Event('error');
     this.demoMode = true;
     this.delay = 50;
-    this.cellValueMap = (function () {
-      let t = new Map();
+    this.cellValueMap = (() => {
+      const t = new Map();
       t.set(TEMPORARILY_FILLED, FILLED);
       t.set(TEMPORARILY_EMPTY, EMPTY);
       t.set(INCONSTANT, UNSET);
@@ -229,7 +229,7 @@ class NonogramSolve extends Nonogram {
     Object.assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
-    this.removeZeroHints();
+    this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
@@ -257,12 +257,12 @@ class NonogramSolve extends Nonogram {
     }
 
     const self = this.nonogram;
-    let d = this.width * 2 / 3 / (self.n + 1);
-    let x = e.clientX - this.getBoundingClientRect().left;
-    let y = e.clientY - this.getBoundingClientRect().top;
+    const d = this.width * 2 / 3 / (self.n + 1);
+    const x = e.clientX - this.getBoundingClientRect().left;
+    const y = e.clientY - this.getBoundingClientRect().top;
     if (self.getLocation(x, y) === 'grid') {
-      let i = Math.floor(y / d - 0.5);
-      let j = Math.floor(x / d - 0.5);
+      const i = Math.floor(y / d - 0.5);
+      const j = Math.floor(x / d - 0.5);
       if (self.grid[i][j] === UNSET) {
         self.grid[i][j] = FILLED;
         self.solve();
@@ -353,13 +353,13 @@ class NonogramSolve extends Nonogram {
   }
   solveSingleLine(direction = this.scanner.direction, i = this.scanner.i) {
     this.line = this.getSingleLine(direction, i);
-    let finished = this.line.every(cell => cell !== UNSET);
+    const finished = this.line.every(cell => cell !== UNSET);
     if (!finished) {
       this.hints = this.getHints(direction, i);
       this.blanks = [];
       this.getAllSituations(this.line.length - sum(this.hints) + 1);
 
-      let changed = this.line.some(cell => cell === TEMPORARILY_FILLED || cell === TEMPORARILY_EMPTY);
+      const changed = this.line.some(cell => cell === TEMPORARILY_FILLED || cell === TEMPORARILY_EMPTY);
       if (changed) {
         this.linesToChange = this.m + this.n;
       }
@@ -385,14 +385,14 @@ class NonogramSolve extends Nonogram {
     }
   }
   mergeSituation() {
-    let status = [];
+    const status = [];
     for (let i = 0; i < this.hints.length; i++) {
-      status = status.concat(new Array(this.blanks[i]).fill(TEMPORARILY_EMPTY));
-      status = status.concat(new Array(this.hints[i]).fill(TEMPORARILY_FILLED));
+      status.push(...new Array(this.blanks[i]).fill(TEMPORARILY_EMPTY));
+      status.push(...new Array(this.hints[i]).fill(TEMPORARILY_FILLED));
     }
-    status = status.concat(new Array(this.line.length - status.length).fill(TEMPORARILY_EMPTY));
+    status.push(...new Array(this.line.length - status.length).fill(TEMPORARILY_EMPTY));
 
-    let improper = status.some((cell, i) => (cell === TEMPORARILY_EMPTY && this.line[i] === FILLED) || (cell === TEMPORARILY_FILLED && this.line[i] === EMPTY));
+    const improper = status.some((cell, i) => (cell === TEMPORARILY_EMPTY && this.line[i] === FILLED) || (cell === TEMPORARILY_FILLED && this.line[i] === EMPTY));
     if (improper) {
       return;
     }
@@ -439,11 +439,11 @@ class NonogramSolve extends Nonogram {
     }
   }
   printController() {
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let controllerSize = Math.min(w, h) / 4;
-    let filledColor = this.filledColor;
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const controllerSize = Math.min(w, h) / 4;
+    const filledColor = this.filledColor;
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
@@ -457,12 +457,12 @@ class NonogramSolve extends Nonogram {
     ctx.restore();
 
     function getCycle() {
-      let cycle = document.createElement('canvas');
-      let borderWidth = controllerSize / 10;
+      const cycle = document.createElement('canvas');
+      const borderWidth = controllerSize / 10;
       cycle.width = controllerSize;
       cycle.height = controllerSize;
 
-      let ctx = cycle.getContext('2d');
+      const ctx = cycle.getContext('2d');
       ctx.translate(controllerSize / 2, controllerSize / 2);
       ctx.rotate(Math.PI);
       ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9);
@@ -485,10 +485,10 @@ class NonogramSolve extends Nonogram {
       return;
     }
 
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let d = w * 2 / 3 / (this.n + 1);
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const d = w * 2 / 3 / (this.n + 1);
 
     ctx.save();
     ctx.translate(d / 2, d / 2);
@@ -548,12 +548,12 @@ class NonogramEdit extends Nonogram {
 
   click(e) {
     const self = this.nonogram;
-    let d = this.width * 2 / 3 / (self.n + 1);
-    let x = e.clientX - this.getBoundingClientRect().left;
-    let y = e.clientY - this.getBoundingClientRect().top;
+    const d = this.width * 2 / 3 / (self.n + 1);
+    const x = e.clientX - this.getBoundingClientRect().left;
+    const y = e.clientY - this.getBoundingClientRect().top;
     if (self.getLocation(x, y) === 'grid') {
-      let i = Math.floor(y / d - 0.5);
-      let j = Math.floor(x / d - 0.5);
+      const i = Math.floor(y / d - 0.5);
+      const j = Math.floor(x / d - 0.5);
       self.switchCell(i, j);
     } else if (self.getLocation(x, y) === 'controller') {
       self.refresh();
@@ -582,11 +582,11 @@ class NonogramEdit extends Nonogram {
     this.canvas.dispatchEvent(this.hintChange);
   }
   printController() {
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let controllerSize = Math.min(w, h) / 4;
-    let filledColor = this.filledColor;
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const controllerSize = Math.min(w, h) / 4;
+    const filledColor = this.filledColor;
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
@@ -596,12 +596,12 @@ class NonogramEdit extends Nonogram {
     ctx.restore();
 
     function getCycle() {
-      let cycle = document.createElement('canvas');
-      let borderWidth = controllerSize / 10;
+      const cycle = document.createElement('canvas');
+      const borderWidth = controllerSize / 10;
       cycle.width = controllerSize;
       cycle.height = controllerSize;
 
-      let ctx = cycle.getContext('2d');
+      const ctx = cycle.getContext('2d');
       ctx.translate(controllerSize / 2, controllerSize / 2);
       ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9);
       ctx.lineWidth = borderWidth;
@@ -633,7 +633,7 @@ class NonogramPlay extends Nonogram {
     Object.assign(this, config);
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
-    this.removeZeroHints();
+    this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
@@ -662,15 +662,15 @@ class NonogramPlay extends Nonogram {
 
   mousedown(e) {
     const self = this.nonogram;
-    let x = e.clientX - this.getBoundingClientRect().left;
-    let y = e.clientY - this.getBoundingClientRect().top;
-    let d = this.width * 2 / 3 / (self.n + 1);
+    const x = e.clientX - this.getBoundingClientRect().left;
+    const y = e.clientY - this.getBoundingClientRect().top;
+    const d = this.width * 2 / 3 / (self.n + 1);
     if (self.getLocation(x, y) === 'controller') {
       self.switchBrush();
     } else if (self.getLocation(x, y) === 'grid') {
       self.draw.firstI = Math.floor(y / d - 0.5);
       self.draw.firstJ = Math.floor(x / d - 0.5);
-      let cell = self.grid[self.draw.firstI][self.draw.firstJ];
+      const cell = self.grid[self.draw.firstI][self.draw.firstJ];
       if (cell === UNSET || self.brush === cell) {
         self.draw.mode = (self.brush === cell) ? 'empty' : 'filling';
         self.isPressed = true;
@@ -681,14 +681,14 @@ class NonogramPlay extends Nonogram {
     }
   }
   mousemove(e) {
-    let self = this.nonogram;
+    const self = this.nonogram;
     if (self.isPressed) {
-      let x = e.clientX - this.getBoundingClientRect().left;
-      let y = e.clientY - this.getBoundingClientRect().top;
-      let d = this.width * 2 / 3 / (self.n + 1);
+      const x = e.clientX - this.getBoundingClientRect().left;
+      const y = e.clientY - this.getBoundingClientRect().top;
+      const d = this.width * 2 / 3 / (self.n + 1);
       if (self.getLocation(x, y) === 'grid') {
-        let i = Math.floor(y / d - 0.5);
-        let j = Math.floor(x / d - 0.5);
+        const i = Math.floor(y / d - 0.5);
+        const j = Math.floor(x / d - 0.5);
         if (i != self.draw.lastI || j != self.draw.lastJ) {
           if (self.draw.direction === undefined) {
             if (i === self.draw.firstI) {
@@ -711,7 +711,7 @@ class NonogramPlay extends Nonogram {
     this.printController();
   }
   brushUp() {
-    let self = this.nonogram;
+    const self = this.nonogram;
     self.isPressed = undefined;
     self.draw.direction = undefined;
     self.draw.mode = undefined;
@@ -722,7 +722,7 @@ class NonogramPlay extends Nonogram {
       this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]);
       this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]);
       this.print();
-      let correct = this.rowHints.every(singleRow => singleRow.isCorrect)
+      const correct = this.rowHints.every(singleRow => singleRow.isCorrect)
         && this.colHints.every(singleCol => singleCol.isCorrect);
       if (correct) {
         this.succeed();
@@ -734,8 +734,8 @@ class NonogramPlay extends Nonogram {
   }
 
   printCell(status) {
-    let ctx = this.canvas.getContext('2d');
-    let d = this.canvas.width * 2 / 3 / (this.n + 1);
+    const ctx = this.canvas.getContext('2d');
+    const d = this.canvas.width * 2 / 3 / (this.n + 1);
     switch (status) {
       case FILLED:
         ctx.fillStyle = this.filledColor;
@@ -754,14 +754,14 @@ class NonogramPlay extends Nonogram {
     }
   }
   printController() {
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let controllerSize = Math.min(w, h) / 4;
-    let outerSize = controllerSize * 3 / 4;
-    let offset = controllerSize / 4;
-    let borderWidth = controllerSize / 20;
-    let innerSize = outerSize - 2 * borderWidth;
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const controllerSize = Math.min(w, h) / 4;
+    const outerSize = controllerSize * 3 / 4;
+    const offset = controllerSize / 4;
+    const borderWidth = controllerSize / 20;
+    const innerSize = outerSize - 2 * borderWidth;
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1);
@@ -816,16 +816,15 @@ class NonogramPlay extends Nonogram {
     this.canvas.removeEventListener('mouseup', this.brushUp);
     this.canvas.removeEventListener('mouseleave', this.brushUp);
 
-    let ctx = this.canvas.getContext('2d');
-    let w = this.canvas.width;
-    let h = this.canvas.height;
-    let controllerSize = Math.min(w, h) / 4;
+    const ctx = this.canvas.getContext('2d');
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const controllerSize = Math.min(w, h) / 4;
 
-    let background = ctx.getImageData(0, 0, w, h);
+    const background = ctx.getImageData(0, 0, w, h);
+    const tick = getTick();
     let t = 0;
-    let tick = getTick();
-    let self = this;
-    fadeTickIn();
+    fadeTickIn.call(this);
 
     function fadeTickIn() {
       ctx.putImageData(background, 0, 0);
@@ -839,20 +838,20 @@ class NonogramPlay extends Nonogram {
         (2 - f(t)) * controllerSize,
         (2 - f(t)) * controllerSize);
       if (t <= 1) {
-        return requestAnimationFrame(fadeTickIn);
+        return requestAnimationFrame(fadeTickIn.bind(this));
       } else {
-        self.canvas.dispatchEvent(self.animationFinish);
+        this.canvas.dispatchEvent(this.animationFinish);
       }
     }
 
     function getTick() {
-      let size = controllerSize * 2;
-      let borderWidth = size / 10;
-      let tick = document.createElement('canvas');
+      const size = controllerSize * 2;
+      const borderWidth = size / 10;
+      const tick = document.createElement('canvas');
       tick.width = size;
       tick.height = size;
 
-      let ctx = tick.getContext('2d');
+      const ctx = tick.getContext('2d');
       ctx.translate(size / 3, size * 5 / 6);
       ctx.rotate(-Math.PI / 4);
       ctx.fillStyle = '#0c6';
