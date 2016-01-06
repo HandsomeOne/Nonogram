@@ -179,7 +179,6 @@
       ctx.lineWidth = 1;
       ctx.strokeStyle = this.meshColor;
       ctx.stroke();
-      ctx.closePath();
       ctx.restore();
     },
     printHints: function () {
