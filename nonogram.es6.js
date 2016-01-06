@@ -639,8 +639,8 @@ class NonogramPlay extends Nonogram {
     for (let i = 0; i < this.m; i++) {
       this.grid[i] = new Array(this.n).fill(UNSET);
     }
-    this.rowHints.forEach((row, i) => { row.isCorrect = this.checkCorrectness('row', i); })
-    this.colHints.forEach((col, j) => { col.isCorrect = this.checkCorrectness('col', j); })
+    this.rowHints.forEach((row, i) => { row.isCorrect = this.checkCorrectness('row', i); });
+    this.colHints.forEach((col, j) => { col.isCorrect = this.checkCorrectness('col', j); });
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
       return;
@@ -688,7 +688,7 @@ class NonogramPlay extends Nonogram {
       if (self.getLocation(x, y) === 'grid') {
         const i = Math.floor(y / d - 0.5);
         const j = Math.floor(x / d - 0.5);
-        if (i != self.draw.lastI || j != self.draw.lastJ) {
+        if (i !== self.draw.lastI || j !== self.draw.lastJ) {
           if (self.draw.direction === undefined) {
             if (i === self.draw.firstI) {
               self.draw.direction = 'row';

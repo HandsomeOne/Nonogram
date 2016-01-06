@@ -739,7 +739,7 @@
         if (self.getLocation(x, y) === 'grid') {
           var i = Math.floor(y / d - 0.5);
           var j = Math.floor(x / d - 0.5);
-          if (i != self.draw.lastI || j != self.draw.lastJ) {
+          if (i !== self.draw.lastI || j !== self.draw.lastJ) {
             if (self.draw.direction === undefined) {
               if (i === self.draw.firstI) {
                 self.draw.direction = 'row';
@@ -775,7 +775,7 @@
           return singleRow.isCorrect;
         }) && this.colHints.every(function (singleCol) {
           return singleCol.isCorrect;
-        })
+        });
         if (correct) {
           this.succeed();
         }
