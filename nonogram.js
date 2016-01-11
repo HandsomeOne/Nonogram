@@ -259,7 +259,7 @@
     this.canvas.addEventListener('click', this.click);
     this.print();
   }
-  NonogramSolve.prototype = assign(new Nonogram(), {
+  NonogramSolve.prototype = assign(Object.create(Nonogram.prototype), {
     constructor: NonogramSolve,
     correctColor: '#999',
     success: new Event('success'),
@@ -582,7 +582,7 @@
     this.print();
     this.canvas.dispatchEvent(this.hintChange);
   }
-  NonogramEdit.prototype = assign(new Nonogram(), {
+  NonogramEdit.prototype = assign(Object.create(Nonogram.prototype), {
     constructor: NonogramEdit,
     filledColor: '#f69',
     correctColor: '#f69',
@@ -701,7 +701,7 @@
     this.draw = {};
     this.print();
   }
-  NonogramPlay.prototype = assign(new Nonogram(), {
+  NonogramPlay.prototype = assign(Object.create(Nonogram.prototype), {
     constructor: NonogramPlay,
     filledColor: '#0cf',
     emptyColor: '#f69',
