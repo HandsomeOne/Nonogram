@@ -280,7 +280,7 @@
       }
 
       var self = this.nonogram;
-      var d = this.width * 2 / 3 / (self.n + 1);
+      var d = this.clientWidth * 2 / 3 / (self.n + 1);
       var x = e.clientX - this.getBoundingClientRect().left;
       var y = e.clientY - this.getBoundingClientRect().top;
       if (self.getLocation(x, y) === 'grid') {
@@ -591,7 +591,7 @@
 
     click: function (e) {
       var self = this.nonogram;
-      var d = this.width * 2 / 3 / (self.n + 1);
+      var d = this.clientWidth * 2 / 3 / (self.n + 1);
       var x = e.clientX - this.getBoundingClientRect().left;
       var y = e.clientY - this.getBoundingClientRect().top;
       if (self.getLocation(x, y) === 'grid') {
@@ -714,7 +714,7 @@
       var self = this.nonogram;
       var x = e.clientX - this.getBoundingClientRect().left;
       var y = e.clientY - this.getBoundingClientRect().top;
-      var d = this.width * 2 / 3 / (self.n + 1);
+      var d = this.clientWidth * 2 / 3 / (self.n + 1);
       if (self.getLocation(x, y) === 'controller') {
         self.switchBrush();
       } else if (self.getLocation(x, y) === 'grid') {
@@ -735,7 +735,7 @@
       if (self.isPressed) {
         var x = e.clientX - this.getBoundingClientRect().left;
         var y = e.clientY - this.getBoundingClientRect().top;
-        var d = this.width * 2 / 3 / (self.n + 1);
+        var d = this.clientWidth * 2 / 3 / (self.n + 1);
         if (self.getLocation(x, y) === 'grid') {
           var i = Math.floor(y / d - 0.5);
           var j = Math.floor(x / d - 0.5);

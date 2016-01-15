@@ -256,7 +256,7 @@ class NonogramSolve extends Nonogram {
     }
 
     const self = this.nonogram;
-    const d = this.width * 2 / 3 / (self.n + 1);
+    const d = this.clientWidth * 2 / 3 / (self.n + 1);
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
     if (self.getLocation(x, y) === 'grid') {
@@ -547,7 +547,7 @@ class NonogramEdit extends Nonogram {
 
   click(e) {
     const self = this.nonogram;
-    const d = this.width * 2 / 3 / (self.n + 1);
+    const d = this.clientWidth * 2 / 3 / (self.n + 1);
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
     if (self.getLocation(x, y) === 'grid') {
@@ -663,7 +663,7 @@ class NonogramPlay extends Nonogram {
     const self = this.nonogram;
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
-    const d = this.width * 2 / 3 / (self.n + 1);
+    const d = this.clientWidth * 2 / 3 / (self.n + 1);
     if (self.getLocation(x, y) === 'controller') {
       self.switchBrush();
     } else if (self.getLocation(x, y) === 'grid') {
@@ -684,7 +684,7 @@ class NonogramPlay extends Nonogram {
     if (self.isPressed) {
       const x = e.clientX - this.getBoundingClientRect().left;
       const y = e.clientY - this.getBoundingClientRect().top;
-      const d = this.width * 2 / 3 / (self.n + 1);
+      const d = this.clientWidth * 2 / 3 / (self.n + 1);
       if (self.getLocation(x, y) === 'grid') {
         const i = Math.floor(y / d - 0.5);
         const j = Math.floor(x / d - 0.5);
