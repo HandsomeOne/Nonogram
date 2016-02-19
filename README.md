@@ -1,42 +1,40 @@
 # Nonogram - Play, Edit & Solve
 
+## [Live Demo](http://handsomeone.github.io/Nonogram)
+
 ## What is a nonogram
 
 [Nonogram - Wikipedia, the free encyclopedia](https://en.wikipedia.org/wiki/Nonogram)
 
-## Example
-
-For examples, please check the [live demo](http://handsomeone.github.io/Nonogram).
-
 ## Usage
 
-First, you need to add
+You need to attach
 
 ```html
 <script src="https://cdn.rawgit.com/HandsomeOne/Nonogram/master/nonogram.js"></script>
 ```
 
-in the head of your HTML file. A `<canvas>` element with a unique id is required for each nonogram instance.
+to the `<head>` tag. A `<canvas>` element is required for each nonogram instance.
 
 In the future, you may use ES6 instead of ES5:
 ```javascript
 import {NonogramSolve, NonogramEdit, NonogramPlay} from "path/to/nonogram.es6.js";
 ```
 
-## APIs
+## Functions
 
 ### `class NonogramSolve`
 
 `NonogramSolve::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a `NonogramSolve` instance on a canvas.
 
-- `rowHints`: a two-dimensional array, consisting of the hints of each row (which are arrays too).
-- `colHints`: a two-dimensional array, consisting of the hints of each column.
-- `canvas`: a canvas element, or the `id` property of the canvas to print the nonogram on.
-- `config` *optional*: an object, see [§ Configuration Items](#configuration-items).
+- `rowHints`: a two-dimensional array, consisting of the hints of each row as an array.
+- `colHints`: a two-dimensional array, consisting of the hints of each column as an array.
+- `canvas`: a canvas element, or `id` of the canvas to print the nonogram on.
+- *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
-`NonogramSolve::solve()`: Auto solves and print the nonogram by given hints.
+`NonogramSolve::solve()`: solves and prints the nonogram by given hints.
 
-For example, if you have `<canvas id="canvas1"></canvas>` in your HTML file, and you run
+For example, if there is `<canvas id="canvas1"></canvas>`, then you can use
 ```javascript
 var s = new NonogramSolve(
   [
@@ -65,26 +63,22 @@ then the output will be like this:
 4 1 1 4
 ```
 
-`NonogramSolve::success`: a custom event on the canvas, event name is `'success'`. Triggerred when the nonogram has been solved.
-
-`NonogramSolve::error`: a custom event on the canvas, event name is `'error'`. Triggerred when some contradiction has been found, usually caused by improper given hints.
-
 ### `class NonogramEdit`
 
-`NonogramEdit::constructor(m, n, canvasId[, config])`: creates and prints a `NonogramEdit` instance on a canvas, and you can edit it.
+`NonogramEdit::constructor(m, n, canvasId[, config])`: creates and prints a `NonogramEdit` instance on a canvas, which can be edited.
 
 - `m`: number of rows, or the length of each column.
 - `n`: number of columns, or the length of each row.
-- `canvas`: a canvas element, or the `id` property of the canvas to print the nonogram on.
-- `config` *optional*: an object, see [§ Configuration Items](#configuration-items).
+- `canvas`: a canvas element, or `id` of the canvas to print the nonogram on.
+- *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
-`NonogramEdit::refresh()`: randomly generate the grid again by the threshold.
+`NonogramEdit::refresh()`: randomly generates the grid.
 
 For example, if you run
 ```javascript
 new NonogramEdit(4, 6, 'canvas2', {threshold: 0.9});
 ```
-then the output is mostly like to be
+then the output is likely to be
 ```
 ████████████ 6
 ████  ██████ 2 3
@@ -96,15 +90,21 @@ then the output is mostly like to be
 
 ### `class NonogramPlay`
 
-`NonogramPlay::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a NonogramPlay instance on a canvas, and you can play it.
+`NonogramPlay::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a NonogramPlay instance on a canvas, which can be played.
 
-All the parameters and their meanings are the same as those of `NonogramSolve`'s. The only difference between them is that who solves the nonogram, you or the computer.
+All the parameters have the same meanings as those of `NonogramSolve`'s.
 
 ## Custom Events
 
+### `class NonogramSolve`
+
+`'success'`: dispatched by the canvas when the nonogram has been solved.
+
+`'error'`: dispatched by the canvas when some contradiction has been found, usually caused by improper given hints.
+
 ### `class NonogramEdit`
 
-`'hintchange'`: Triggerred when the nonogram's hints have any change. For example, to automatically create a new `NonogramSolve` instance upon `'hintchange'`, you can use
+`'hintchange'`: dispatched by the canvas when the nonogram's hints have any change. To automatically create a new `NonogramSolve` instance upon `'hintchange'`, you can use
 ```javascript
 document.getElementById('canvas2').addEventListener('hintchange', function () {
   new NonogramSolve(this.nonogram.rowHints, this.nonogram.colHints, 'canvas1').solve();
@@ -115,26 +115,50 @@ Here `<HTMLCanvasElement>.nonogram` refers to the nonogram instance on it.
 
 ### `class NonogramPlay`
 
-`'success'`: Triggerred when the player has finished the nonogram.
+`'success'`: dispatched by the canvas when the player has successfully solved the nonogram.
 
-`'animationfinish'`: Triggerred when the success animation has been finished.
+`'animationfinish'`: dispatched by the canvas when the success animation has been finished.
 
 ## Configuration Items
 
 ### General
 
-Those general configuration items are related to the appearance, such as width and component's colors. All of them have default values for each class.
-- `width` (px): a number to set the canvas' width. If not given, the canvas' current `clientWidth` (not the value of its `width` property) will be used.
+General configuration items are related to the appearance.
+- `width` (px): a number to set the canvas' width. If not given, the canvas' current `clientWidth` (**not** the value of its `width` property) will be used.
 - `backgroundColor`: nonogram's background color, default is white for all classes.
 - `filledColor`: filled cells' color.
 - `unsetColor`: unset cells' color.
 - `correctColor`: numbers' color of correct rows or columns.
 - `wrongColor`: numbers' color of wrong rows or columns.
 - `meshColor`: meshes' color.
-- `meshed`: `true` or `false`, print the meshes or not.
-- `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you do not want any bold meshes, just simply set it to `0`.
+- `meshed`: `true` or `false`, coltrols whether to print the meshes or not.
+- `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you don't want any bold meshes, simply set it to `0`.
 
-### Default Values
+### `NonogramSolve`-only
+- `demoMode`: default is `true`, and the `solve` method will print a step-by-step solution. If set to `false`, only the final result will be printed.
+
+- `delay` (ms): default is `50`. Controls the delay between steps of the solving process.
+
+### `NonogramEdit`-only
+- `grid`: a two-dimensional array, consisting of `true`s and `false`s, will be assigned to the nonogram's grid. For example, you can use
+```javascript
+[[true, false, false, true],
+[true, false, false, true],
+[true, false, false, true],
+[true, true, true, true]]
+```
+to create
+```
+██    ██ 1 1
+██    ██ 1 1
+██    ██ 1 1
+████████ 4
+4 1 1 4
+```
+
+- `threshold`: if `grid` is not given, then the nonogram's grid will be randomly generated. Each cell of the grid has a chance of threshold*100% to be filled. Default is `0.5`.
+
+### Other Default Values
 
 Property | `NonogramSolve` | `NonogramEdit` | `NonogramPlay`
 ---------|---------------------|--------------------|-------------------
@@ -144,27 +168,3 @@ Property | `NonogramSolve` | `NonogramEdit` | `NonogramPlay`
 `wrongColor`|`#f69`|`#f69`|`#999`
 `meshColor`|`#999`|`#999`|`#999`
 `meshed`|`false`|`false`|`true`
-
-### `NonogramSolve`-only
-- `demoMode`: default is `true`. if it's set to `true`, then `solve()` will print a step-by-step solution, otherwise only the final result.
-
-- `delay` (ms): default is `50`. Controls the delay between steps when solved in `demoMode`.
-
-### `NonogramEdit`-only
-- `grid`: a two-dimensional array, consisting of `true`s and `false`s, will be assigned to the nonogram's grid. For example, the grid of
-```
-██    ██ 1 1
-██    ██ 1 1
-██    ██ 1 1
-████████ 4
-4 1 1 4
-```
-is
-```javascript
-[[true, false, false, true],
-[true, false, false, true],
-[true, false, false, true],
-[true, true, true, true]]
-```
-
-- `threshold`: default is `0.5`. If `grid` is not given, then it will be randomly generated. Each cell of the grid has a chance of threshold*100% to be filled.
