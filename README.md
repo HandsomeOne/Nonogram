@@ -25,7 +25,7 @@ import {NonogramSolve, NonogramEdit, NonogramPlay} from "path/to/nonogram.es6.js
 
 ### `class NonogramSolve`
 
-`NonogramSolve::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a `NonogramSolve` instance on a canvas.
+`NonogramSolve::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a `NonogramSolve` instance on a canvas. Time cost will be printed in console.
 
 - `rowHints`: a two-dimensional array, consisting of the hints of each row as an array.
 - `colHints`: a two-dimensional array, consisting of the hints of each column as an array.

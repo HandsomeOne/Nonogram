@@ -322,6 +322,8 @@
       } else {
         this.demoMode = false;
       }
+      var description = 'Solves a(n) ' + this.m + '×' + this.n + ' nonogram' + (this.demoMode ? ' in demo mode' : '');
+      console.time(description);
       scan.call(this);
 
       function scan() {
@@ -339,6 +341,7 @@
           this.solveSingleLine();
           if (this.scanner.error) {
             if (this.canvas) {
+              console.timeEnd(description);
               this.canvas.removeAttribute('occupied');
               this.print();
               this.canvas.dispatchEvent(this.error);
@@ -353,6 +356,7 @@
         } else {
           delete this.scanner;
           if (this.canvas) {
+            console.timeEnd(description);
             this.canvas.removeAttribute('occupied');
             this.print();
             this.canvas.dispatchEvent(this.success);
