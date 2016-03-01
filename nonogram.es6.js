@@ -259,14 +259,18 @@ class NonogramSolve extends Nonogram {
     const d = this.clientWidth * 2 / 3 / (self.n + 1);
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
-    if (self.getLocation(x, y) === 'grid') {
+    const location = self.getLocation(x, y);
+    if (location === 'grid') {
+      if (self.scanner.error) {
+        return;
+      }
       const i = Math.floor(y / d - 0.5);
       const j = Math.floor(x / d - 0.5);
       if (self.grid[i][j] === UNSET) {
         self.grid[i][j] = FILLED;
         self.solve();
       }
-    } else if (self.getLocation(x, y) === 'controller') {
+    } else if (location === 'controller') {
       self.refresh();
     }
   }
@@ -554,11 +558,12 @@ class NonogramEdit extends Nonogram {
     const d = this.clientWidth * 2 / 3 / (self.n + 1);
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
-    if (self.getLocation(x, y) === 'grid') {
+    const location = self.getLocation(x, y);
+    if (location === 'grid') {
       const i = Math.floor(y / d - 0.5);
       const j = Math.floor(x / d - 0.5);
       self.switchCell(i, j);
-    } else if (self.getLocation(x, y) === 'controller') {
+    } else if (location === 'controller') {
       self.refresh();
     }
   }
@@ -668,9 +673,10 @@ class NonogramPlay extends Nonogram {
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
     const d = this.clientWidth * 2 / 3 / (self.n + 1);
-    if (self.getLocation(x, y) === 'controller') {
+    const location = self.getLocation(x, y);
+    if (location === 'controller') {
       self.switchBrush();
-    } else if (self.getLocation(x, y) === 'grid') {
+    } else if (location === 'grid') {
       self.draw.firstI = Math.floor(y / d - 0.5);
       self.draw.firstJ = Math.floor(x / d - 0.5);
       const cell = self.grid[self.draw.firstI][self.draw.firstJ];

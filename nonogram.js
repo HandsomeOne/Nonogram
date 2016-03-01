@@ -283,14 +283,18 @@
       var d = this.clientWidth * 2 / 3 / (self.n + 1);
       var x = e.clientX - this.getBoundingClientRect().left;
       var y = e.clientY - this.getBoundingClientRect().top;
-      if (self.getLocation(x, y) === 'grid') {
+      var location = self.getLocation(x, y);
+      if (location === 'grid') {
+        if (self.scanner.error) {
+          return;
+        }
         var i = Math.floor(y / d - 0.5);
         var j = Math.floor(x / d - 0.5);
         if (self.grid[i][j] === UNSET) {
           self.grid[i][j] = FILLED;
           self.solve();
         }
-      } else if (self.getLocation(x, y) === 'controller') {
+      } else if (location === 'controller') {
         self.refresh();
       }
     },
@@ -598,11 +602,12 @@
       var d = this.clientWidth * 2 / 3 / (self.n + 1);
       var x = e.clientX - this.getBoundingClientRect().left;
       var y = e.clientY - this.getBoundingClientRect().top;
-      if (self.getLocation(x, y) === 'grid') {
+      var location = self.getLocation(x, y);
+      if (location === 'grid') {
         var i = Math.floor(y / d - 0.5);
         var j = Math.floor(x / d - 0.5);
         self.switchCell(i, j);
-      } else if (self.getLocation(x, y) === 'controller') {
+      } else if (location === 'controller') {
         self.refresh();
       }
     },
@@ -719,9 +724,10 @@
       var x = e.clientX - this.getBoundingClientRect().left;
       var y = e.clientY - this.getBoundingClientRect().top;
       var d = this.clientWidth * 2 / 3 / (self.n + 1);
-      if (self.getLocation(x, y) === 'controller') {
+      var location = self.getLocation(x, y);
+      if (location === 'controller') {
         self.switchBrush();
-      } else if (self.getLocation(x, y) === 'grid') {
+      } else if (location === 'grid') {
         self.draw.firstI = Math.floor(y / d - 0.5);
         self.draw.firstJ = Math.floor(x / d - 0.5);
         var cell = self.grid[self.draw.firstI][self.draw.firstJ];
