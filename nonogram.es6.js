@@ -261,7 +261,7 @@ class NonogramSolve extends Nonogram {
     const y = e.clientY - this.getBoundingClientRect().top;
     const location = self.getLocation(x, y);
     if (location === 'grid') {
-      if (self.scanner.error) {
+      if (self.scanner && self.scanner.error) {
         return;
       }
       const i = Math.floor(y / d - 0.5);

@@ -285,7 +285,7 @@
       var y = e.clientY - this.getBoundingClientRect().top;
       var location = self.getLocation(x, y);
       if (location === 'grid') {
-        if (self.scanner.error) {
+        if (self.scanner && self.scanner.error) {
           return;
         }
         var i = Math.floor(y / d - 0.5);
