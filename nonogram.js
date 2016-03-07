@@ -214,7 +214,9 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = d + 'pt "Courier New", Inconsolata, Consolas, monospace';
-        ctx.fillStyle = this[direction + 'Hints'][i].isCorrect ? this.correctColor : this.wrongColor;
+        var line = this[direction + 'Hints'][i];
+        ctx.fillStyle = line.isCorrect ? this.correctColor : this.wrongColor;
+        ctx.globalAlpha = (!line.isCorrect && line.unchangedSinceLastScanned) ? 0.5 : 1;
         if (direction === 'row') {
           ctx.fillText(this.rowHints[i][j] || 0,
             w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8);
@@ -243,9 +245,11 @@
     }
     this.rowHints.forEach(function (row) {
       row.isCorrect = false;
+      row.unchangedSinceLastScanned = false;
     });
     this.colHints.forEach(function (col) {
       col.isCorrect = false;
+      col.unchangedSinceLastScanned = false;
     });
 
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
@@ -292,6 +296,8 @@
         var j = Math.floor(x / d - 0.5);
         if (self.grid[i][j] === UNSET) {
           self.grid[i][j] = FILLED;
+          self.rowHints[i].unchangedSinceLastScanned = false;
+          self.colHints[j].unchangedSinceLastScanned = false;
           self.solve();
         }
       } else if (location === 'controller') {
@@ -309,9 +315,11 @@
       }
       this.rowHints.forEach(function (row) {
         row.isCorrect = false;
+        row.unchangedSinceLastScanned = false;
       });
       this.colHints.forEach(function (col) {
         col.isCorrect = false;
+        col.unchangedSinceLastScanned = false;
       });
       delete this.scanner;
 
@@ -331,40 +339,47 @@
       scan.call(this);
 
       function scan() {
+        var line;
         do {
           updateScanner.call(this);
+          line = this[this.scanner.direction + 'Hints'][this.scanner.i];
+
+          if (this.rowHints.every(function (row) {
+            return row.unchangedSinceLastScanned;
+          }) && this.colHints.every(function (col) {
+            return col.unchangedSinceLastScanned;
+          })) {
+            delete this.scanner;
+            if (this.canvas) {
+              console.timeEnd(description);
+              this.canvas.removeAttribute('occupied');
+              this.print();
+              this.canvas.dispatchEvent(this.success);
+            }
+            return;
+          }
         }
-        while (this[this.scanner.direction + 'Hints'][this.scanner.i].isCorrect && this.linesToChange);
+        while (line.isCorrect || line.unchangedSinceLastScanned);
 
         if (this.demoMode) {
           this.print();
         }
 
-        if (this.linesToChange) {
-          this.scanner.error = true;
-          this.solveSingleLine();
-          if (this.scanner.error) {
-            if (this.canvas) {
-              console.timeEnd(description);
-              this.canvas.removeAttribute('occupied');
-              this.print();
-              this.canvas.dispatchEvent(this.error);
-            }
-            return;
-          }
-          if (this.demoMode) {
-            setTimeout(scan.bind(this), this.delay);
-          } else {
-            return scan.call(this);
-          }
-        } else {
-          delete this.scanner;
+        this.scanner.error = true;
+        this.solveSingleLine();
+        if (this.scanner.error) {
           if (this.canvas) {
             console.timeEnd(description);
             this.canvas.removeAttribute('occupied');
             this.print();
-            this.canvas.dispatchEvent(this.success);
+            this.canvas.dispatchEvent(this.error);
           }
+          return;
+        }
+        if (this.demoMode) {
+          setTimeout(scan.bind(this), this.delay);
+        } else {
+          return scan.call(this);
         }
       }
 
@@ -374,7 +389,6 @@
             'direction': 'row',
             'i': 0,
           };
-          this.linesToChange = this.m + this.n;
         } else {
           this.scanner.error = false;
           this.scanner.i += 1;
@@ -382,13 +396,14 @@
             this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
             this.scanner.i = 0;
           }
-          this.linesToChange -= 1;
         }
       }
     },
     solveSingleLine: function (direction, i) {
       direction = direction || this.scanner.direction;
       i = i || this.scanner.i;
+      this[direction + 'Hints'][i].unchangedSinceLastScanned = true;
+      
       this.line = this.getSingleLine(direction, i);
       var finished = this.line.every(function (cell) {
         return cell !== UNSET;
@@ -397,13 +412,6 @@
         this.hints = this.getHints(direction, i);
         this.blanks = [];
         this.getAllSituations(this.line.length - sum(this.hints) + 1);
-
-        var changed = this.line.some(function (cell) {
-          return (cell === TEMPORARILY_FILLED || cell === TEMPORARILY_EMPTY);
-        }, this);
-        if (changed) {
-          this.linesToChange = this.m + this.n;
-        }
         this.setBackToGrid(direction, i);
       }
       if (this.checkCorrectness(direction, i)) {
@@ -469,13 +477,19 @@
       if (direction === 'row') {
         this.line.forEach(function (cell, j) {
           if (cell in this.cellValueMap) {
-            this.grid[i][j] = this.cellValueMap[cell];
+            if (this.grid[i][j] !== this.cellValueMap[cell]) {
+              this.grid[i][j] = this.cellValueMap[cell];
+              this.colHints[j].unchangedSinceLastScanned = false;
+            }
           }
         }, this);
       } else if (direction === 'col') {
         this.line.forEach(function (cell, j) {
           if (cell in this.cellValueMap) {
-            this.grid[j][i] = this.cellValueMap[cell];
+            if (this.grid[j][i] !== this.cellValueMap[cell]) {
+              this.grid[j][i] = this.cellValueMap[cell];
+              this.rowHints[j].unchangedSinceLastScanned = false;
+            }
           }
         }, this);
       }

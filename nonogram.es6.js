@@ -194,7 +194,9 @@ class Nonogram {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = d + 'pt "Courier New", Inconsolata, Consolas, monospace';
-      ctx.fillStyle = this[`${direction}Hints`][i].isCorrect ? this.correctColor : this.wrongColor;
+      const line = this[`${direction}Hints`][i];
+      ctx.fillStyle = line.isCorrect ? this.correctColor : this.wrongColor;
+      ctx.globalAlpha = (!line.isCorrect && line.unchangedSinceLastScanned) ? 0.5 : 1;
       if (direction === 'row') {
         ctx.fillText(this.rowHints[i][j] || 0,
           w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8);
@@ -235,8 +237,14 @@ class NonogramSolve extends Nonogram {
     for (let i = 0; i < this.m; i++) {
       this.grid[i] = new Array(this.n);
     }
-    this.rowHints.forEach(row => { row.isCorrect = false; });
-    this.colHints.forEach(col => { col.isCorrect = false; });
+    this.rowHints.forEach(row => {
+      row.isCorrect = false;
+      row.unchangedSinceLastScanned = false;
+    });
+    this.colHints.forEach(col => {
+      col.isCorrect = false;
+      col.unchangedSinceLastScanned = false;
+    });
 
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
     if (!this.canvas || this.canvas.hasAttribute('occupied')) {
@@ -268,6 +276,8 @@ class NonogramSolve extends Nonogram {
       const j = Math.floor(x / d - 0.5);
       if (self.grid[i][j] === UNSET) {
         self.grid[i][j] = FILLED;
+        self.rowHints[i].unchangedSinceLastScanned = false;
+        self.colHints[j].unchangedSinceLastScanned = false;
         self.solve();
       }
     } else if (location === 'controller') {
@@ -283,8 +293,14 @@ class NonogramSolve extends Nonogram {
     for (let i = 0; i < this.m; i++) {
       this.grid[i] = new Array(this.n);
     }
-    this.rowHints.forEach(row => { row.isCorrect = false; });
-    this.colHints.forEach(col => { col.isCorrect = false; });
+    this.rowHints.forEach(row => {
+      row.isCorrect = false;
+      row.unchangedSinceLastScanned = false;
+    });
+    this.colHints.forEach(col => {
+      col.isCorrect = false;
+      col.unchangedSinceLastScanned = false;
+    });
     delete this.scanner;
 
     this.solve();
@@ -303,40 +319,47 @@ class NonogramSolve extends Nonogram {
     scan.call(this);
 
     function scan() {
+      let line;
       do {
         updateScanner.call(this);
+        line = this[this.scanner.direction + 'Hints'][this.scanner.i];
+
+        if (this.rowHints.every(function (row) {
+          return row.unchangedSinceLastScanned;
+        }) && this.colHints.every(function (col) {
+          return col.unchangedSinceLastScanned;
+        })) {
+          delete this.scanner;
+          if (this.canvas) {
+            console.timeEnd(description);
+            this.canvas.removeAttribute('occupied');
+            this.print();
+            this.canvas.dispatchEvent(this.success);
+          }
+          return;
+        }
       }
-      while (this[`${this.scanner.direction}Hints`][this.scanner.i].isCorrect && this.linesToChange);
+      while (line.isCorrect || line.unchangedSinceLastScanned);
 
       if (this.demoMode) {
         this.print();
       }
 
-      if (this.linesToChange) {
-        this.scanner.error = true;
-        this.solveSingleLine();
-        if (this.scanner.error) {
-          if (this.canvas) {
-            console.timeEnd(description);
-            this.canvas.removeAttribute('occupied');
-            this.print();
-            this.canvas.dispatchEvent(this.error);
-          }
-          return;
-        }
-        if (this.demoMode) {
-          setTimeout(scan.bind(this), this.delay);
-        } else {
-          return scan.call(this);
-        }
-      } else {
-        delete this.scanner;
+      this.scanner.error = true;
+      this.solveSingleLine();
+      if (this.scanner.error) {
         if (this.canvas) {
           console.timeEnd(description);
           this.canvas.removeAttribute('occupied');
           this.print();
-          this.canvas.dispatchEvent(this.success);
+          this.canvas.dispatchEvent(this.error);
         }
+        return;
+      }
+      if (this.demoMode) {
+        setTimeout(scan.bind(this), this.delay);
+      } else {
+        return scan.call(this);
       }
     }
 
@@ -346,7 +369,6 @@ class NonogramSolve extends Nonogram {
           'direction': 'row',
           'i': 0,
         };
-        this.linesToChange = this.m + this.n;
       } else {
         this.scanner.error = false;
         this.scanner.i += 1;
@@ -354,22 +376,18 @@ class NonogramSolve extends Nonogram {
           this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
           this.scanner.i = 0;
         }
-        this.linesToChange -= 1;
       }
     }
   }
   solveSingleLine(direction = this.scanner.direction, i = this.scanner.i) {
+    this[direction + 'Hints'][i].unchangedSinceLastScanned = true;
+
     this.line = this.getSingleLine(direction, i);
     const finished = this.line.every(cell => cell !== UNSET);
     if (!finished) {
       this.hints = this.getHints(direction, i);
       this.blanks = [];
       this.getAllSituations(this.line.length - sum(this.hints) + 1);
-
-      const changed = this.line.some(cell => cell === TEMPORARILY_FILLED || cell === TEMPORARILY_EMPTY);
-      if (changed) {
-        this.linesToChange = this.m + this.n;
-      }
       this.setBackToGrid(direction, i);
     }
     if (this.checkCorrectness(direction, i)) {
@@ -425,13 +443,19 @@ class NonogramSolve extends Nonogram {
     if (direction === 'row') {
       this.line.forEach((cell, j) => {
         if (this.cellValueMap.has(cell)) {
-          this.grid[i][j] = this.cellValueMap.get(cell);
+          if (this.grid[i][j] !== this.cellValueMap.get(cell)) {
+            this.grid[i][j] = this.cellValueMap.get(cell);
+            this.colHints[j].unchangedSinceLastScanned = false;
+          }
         }
       });
     } else if (direction === 'col') {
       this.line.forEach((cell, j) => {
         if (this.cellValueMap.has(cell)) {
-          this.grid[j][i] = this.cellValueMap.get(cell);
+          if (this.grid[j][i] !== this.cellValueMap.get(cell)) {
+            this.grid[j][i] = this.cellValueMap.get(cell);
+            this.rowHints[j].unchangedSinceLastScanned = false;
+          }
         }
       });
     }
@@ -875,4 +899,4 @@ class NonogramPlay extends Nonogram {
   }
 }
 
-export {NonogramSolve, NonogramEdit, NonogramPlay};
+// export {NonogramSolve, NonogramEdit, NonogramPlay};
