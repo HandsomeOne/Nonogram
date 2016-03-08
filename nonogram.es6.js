@@ -899,4 +899,4 @@ class NonogramPlay extends Nonogram {
   }
 }
 
-// export {NonogramSolve, NonogramEdit, NonogramPlay};
+export {NonogramSolve, NonogramEdit, NonogramPlay};
