@@ -40,7 +40,8 @@
     correctColor: '#0cf',
     wrongColor: '#f69',
     meshColor: '#999',
-    meshed: false,
+    isMeshed: false,
+    isBoldMeshOnly: false,
     boldMeshGap: 5,
 
     getSingleLine: function (direction, i) {
@@ -120,7 +121,7 @@
 
       ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
-      if (this.meshed) {
+      if (this.isMeshed) {
         this.printMesh();
       }
       ctx.save();
@@ -157,21 +158,29 @@
       ctx.translate(d / 2, d / 2);
       ctx.beginPath();
       for (var i = 1; i < this.m; i++) {
-        ctx.moveTo(0, i * d);
-        ctx.lineTo(this.n * d, i * d);
+        if (!this.isBoldMeshOnly) {
+          ctx.moveTo(0, i * d);
+          ctx.lineTo(this.n * d, i * d);
+        }
         if (i % this.boldMeshGap === 0) {
           ctx.moveTo(0, i * d - 1);
           ctx.lineTo(this.n * d, i * d - 1);
+          ctx.moveTo(0, i * d);
+          ctx.lineTo(this.n * d, i * d);
           ctx.moveTo(0, i * d + 1);
           ctx.lineTo(this.n * d, i * d + 1);
         }
       }
       for (var j = 1; j < this.n; j++) {
-        ctx.moveTo(j * d, 0);
-        ctx.lineTo(j * d, this.m * d);
+        if (!this.isBoldMeshOnly) {
+          ctx.moveTo(j * d, 0);
+          ctx.lineTo(j * d, this.m * d);
+        }
         if (j % this.boldMeshGap === 0) {
           ctx.moveTo(j * d - 1, 0);
           ctx.lineTo(j * d - 1, this.m * d);
+          ctx.moveTo(j * d, 0);
+          ctx.lineTo(j * d, this.m * d);
           ctx.moveTo(j * d + 1, 0);
           ctx.lineTo(j * d + 1, this.m * d);
         }
@@ -729,7 +738,7 @@
     filledColor: '#0cf',
     emptyColor: '#f69',
     wrongColor: '#999',
-    meshed: true,
+    isMeshed: true,
     success: new Event('success'),
     animationFinish: new Event('animationfinish'),
 

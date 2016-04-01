@@ -1,14 +1,12 @@
-# Nonogram - Play, Edit & Solve
+# Nonogram - Edit, Play & Solve
 
-## [Live Demo](http://handsomeone.github.io/Nonogram)
-
-## What is a nonogram
-
-[Nonogram - Wikipedia, the free encyclopedia](https://en.wikipedia.org/wiki/Nonogram)
+[What is a nonogram](https://en.wikipedia.org/wiki/Nonogram)
 
 ## Usage
 
-You need to attach
+Check the [live demo](http://handsomeone.github.io/Nonogram) and find out how to build your own nonogram application.
+
+First of all, You need to attach
 
 ```html
 <script src="https://cdn.rawgit.com/HandsomeOne/Nonogram/master/nonogram.js"></script>
@@ -131,7 +129,8 @@ General configuration items are related to the appearance.
 - `correctColor`: numbers' color of correct rows or columns.
 - `wrongColor`: numbers' color of wrong rows or columns.
 - `meshColor`: meshes' color.
-- `meshed`: `true` or `false`, coltrols whether to print the meshes or not.
+- `isMeshed`: `true` or `false`, coltrols whether to print the meshes or not.
+- `isBoldMeshOnly`: default is `false`.
 - `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you don't want any bold meshes, simply set it to `0`.
 
 ### `NonogramSolve`-only
@@ -167,4 +166,4 @@ Property | `NonogramSolve` | `NonogramEdit` | `NonogramPlay`
 `correctColor`|`#999`|`#f69`|`#0cf`
 `wrongColor`|`#f69`|`#f69`|`#999`
 `meshColor`|`#999`|`#999`|`#999`
-`meshed`|`false`|`false`|`true`
+`isMeshed`|`false`|`false`|`true`

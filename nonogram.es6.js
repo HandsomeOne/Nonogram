@@ -19,7 +19,7 @@ class Nonogram {
     this.correctColor = '#0cf';
     this.wrongColor = '#f69';
     this.meshColor = '#999';
-    this.meshed = false;
+    this.isMeshed = false;
     this.boldMeshGap = 5;
   }
 
@@ -100,7 +100,7 @@ class Nonogram {
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
-    if (this.meshed) {
+    if (this.isMeshed) {
       this.printMesh();
     }
     ctx.save();
@@ -137,21 +137,29 @@ class Nonogram {
     ctx.translate(d / 2, d / 2);
     ctx.beginPath();
     for (let i = 1; i < this.m; i++) {
-      ctx.moveTo(0, i * d);
-      ctx.lineTo(this.n * d, i * d);
+      if (!this.isBoldMeshOnly) {
+        ctx.moveTo(0, i * d);
+        ctx.lineTo(this.n * d, i * d);
+      }
       if (i % this.boldMeshGap === 0) {
         ctx.moveTo(0, i * d - 1);
         ctx.lineTo(this.n * d, i * d - 1);
+        ctx.moveTo(0, i * d);
+        ctx.lineTo(this.n * d, i * d);
         ctx.moveTo(0, i * d + 1);
         ctx.lineTo(this.n * d, i * d + 1);
       }
     }
     for (let j = 1; j < this.n; j++) {
-      ctx.moveTo(j * d, 0);
-      ctx.lineTo(j * d, this.m * d);
+      if (!this.isBoldMeshOnly) {
+        ctx.moveTo(j * d, 0);
+        ctx.lineTo(j * d, this.m * d);
+      }
       if (j % this.boldMeshGap === 0) {
         ctx.moveTo(j * d - 1, 0);
         ctx.lineTo(j * d - 1, this.m * d);
+        ctx.moveTo(j * d, 0);
+        ctx.lineTo(j * d, this.m * d);
         ctx.moveTo(j * d + 1, 0);
         ctx.lineTo(j * d + 1, this.m * d);
       }
@@ -658,7 +666,7 @@ class NonogramPlay extends Nonogram {
     this.filledColor = '#0cf';
     this.emptyColor = '#f69';
     this.wrongColor = '#999';
-    this.meshed = true;
+    this.isMeshed = true;
     this.success = new Event('success');
     this.animationFinish = new Event('animationfinish');
 
