@@ -142,12 +142,14 @@ class Nonogram {
         ctx.lineTo(this.n * d, i * d);
       }
       if (i % this.boldMeshGap === 0) {
-        ctx.moveTo(0, i * d - 1);
-        ctx.lineTo(this.n * d, i * d - 1);
         ctx.moveTo(0, i * d);
         ctx.lineTo(this.n * d, i * d);
-        ctx.moveTo(0, i * d + 1);
-        ctx.lineTo(this.n * d, i * d + 1);
+        if (!this.isBoldMeshOnly) {
+          ctx.moveTo(0, i * d - 1);
+          ctx.lineTo(this.n * d, i * d - 1);
+          ctx.moveTo(0, i * d + 1);
+          ctx.lineTo(this.n * d, i * d + 1);
+        }
       }
     }
     for (let j = 1; j < this.n; j++) {
@@ -156,12 +158,14 @@ class Nonogram {
         ctx.lineTo(j * d, this.m * d);
       }
       if (j % this.boldMeshGap === 0) {
-        ctx.moveTo(j * d - 1, 0);
-        ctx.lineTo(j * d - 1, this.m * d);
         ctx.moveTo(j * d, 0);
         ctx.lineTo(j * d, this.m * d);
-        ctx.moveTo(j * d + 1, 0);
-        ctx.lineTo(j * d + 1, this.m * d);
+        if (!this.isBoldMeshOnly) {
+          ctx.moveTo(j * d - 1, 0);
+          ctx.lineTo(j * d - 1, this.m * d);
+          ctx.moveTo(j * d + 1, 0);
+          ctx.lineTo(j * d + 1, this.m * d);
+        }
       }
     }
     ctx.lineWidth = 1;
