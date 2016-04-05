@@ -13,14 +13,7 @@ const INCONSTANT = 0;
 
 class Nonogram {
   constructor() {
-    this.backgroundColor = '#fff';
-    this.filledColor = '#999';
-    this.unsetColor = '#ccc';
-    this.correctColor = '#0cf';
-    this.wrongColor = '#f69';
-    this.meshColor = '#999';
-    this.isMeshed = false;
-    this.boldMeshGap = 5;
+    return;
   }
 
   getSingleLine(direction, i) {
@@ -222,24 +215,23 @@ class Nonogram {
     return;
   }
 }
+Object.assign(Nonogram.prototype, {
+  backgroundColor: '#fff',
+  filledColor: '#999',
+  unsetColor: '#ccc',
+  correctColor: '#0cf',
+  wrongColor: '#f69',
+  meshColor: '#999',
+  isMeshed: false,
+  isBoldMeshOnly: false,
+  boldMeshGap: 5,
+});
 
 class NonogramSolve extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super();
-    this.correctColor = '#999';
-    this.success = new Event('success');
-    this.error = new Event('error');
-    this.demoMode = true;
-    this.delay = 50;
-    this.cellValueMap = (() => {
-      const t = new Map();
-      t.set(TEMPORARILY_FILLED, FILLED);
-      t.set(TEMPORARILY_EMPTY, EMPTY);
-      t.set(INCONSTANT, UNSET);
-      return t;
-    })();
-
     Object.assign(this, config);
+
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.removeNonPositiveHints();
@@ -270,6 +262,15 @@ class NonogramSolve extends Nonogram {
     this.print();
   }
 
+  get success() { return new Event('success'); }
+  get error() { return new Event('error'); }
+  get cellValueMap() {
+    const t = new Map();
+    t.set(TEMPORARILY_FILLED, FILLED);
+    t.set(TEMPORARILY_EMPTY, EMPTY);
+    t.set(INCONSTANT, UNSET);
+    return t;
+  }
   click(e) {
     if (this.hasAttribute('occupied')) {
       return;
@@ -545,16 +546,17 @@ class NonogramSolve extends Nonogram {
     ctx.restore();
   }
 }
+Object.assign(NonogramSolve.prototype, {
+  correctColor: '#999',
+  demoMode: true,
+  delay: 50,
+});
 
 class NonogramEdit extends Nonogram {
   constructor(m, n, canvas, config) {
     super();
-    this.filledColor = '#f69';
-    this.correctColor = '#f69';
-    this.hintChange = new Event('hintchange');
-    this.threshold = 0.5;
-
     Object.assign(this, config);
+
     this.m = m;
     this.n = n;
     if (!this.grid) {
@@ -589,6 +591,7 @@ class NonogramEdit extends Nonogram {
     this.canvas.dispatchEvent(this.hintChange);
   }
 
+  get hintChange() { return new Event('hintchange'); }  
   click(e) {
     const self = this.nonogram;
     const d = this.clientWidth * 2 / 3 / (self.n + 1);
@@ -663,18 +666,17 @@ class NonogramEdit extends Nonogram {
     }
   }
 }
+Object.assign(NonogramEdit.prototype, {
+  filledColor: '#f69',
+  correctColor: '#f69',
+  threshold: 0.5,
+});
 
 class NonogramPlay extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super();
-    this.filledColor = '#0cf';
-    this.emptyColor = '#f69';
-    this.wrongColor = '#999';
-    this.isMeshed = true;
-    this.success = new Event('success');
-    this.animationFinish = new Event('animationfinish');
-
     Object.assign(this, config);
+
     this.rowHints = deepCopy(rowHints);
     this.colHints = deepCopy(colHints);
     this.removeNonPositiveHints();
@@ -704,6 +706,8 @@ class NonogramPlay extends Nonogram {
     this.print();
   }
 
+  get success() { return new Event('success'); }
+  get animationFinish() { return new Event('animationfinish'); }
   mousedown(e) {
     const self = this.nonogram;
     const x = e.clientX - this.getBoundingClientRect().left;
@@ -910,5 +914,11 @@ class NonogramPlay extends Nonogram {
     }
   }
 }
+Object.assign(NonogramPlay.prototype, {
+  filledColor: '#0cf',
+  emptyColor: '#f69',
+  wrongColor: '#999',
+  isMeshed: true,
+});
 
 export {NonogramSolve, NonogramEdit, NonogramPlay};
