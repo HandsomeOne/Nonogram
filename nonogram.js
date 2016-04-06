@@ -279,18 +279,18 @@
   NonogramSolve.prototype = assign(Object.create(Nonogram.prototype), {
     constructor: NonogramSolve,
     correctColor: '#999',
-    success: new Event('success'),
-    error: new Event('error'),
     demoMode: true,
     delay: 50,
-    cellValueMap: (function () {
+
+    get success() { return new Event('success') },
+    get error() { return new Event('error') },
+    get cellValueMap() {
       var t = {};
       t[TEMPORARILY_FILLED] = FILLED;
       t[TEMPORARILY_EMPTY] = EMPTY;
       t[INCONSTANT] = UNSET;
       return t;
-    })(),
-
+    },
     click: function (e) {
       if (this.hasAttribute('occupied')) {
         return;
@@ -416,7 +416,7 @@
       direction = direction || this.scanner.direction;
       i = i || this.scanner.i;
       this[direction + 'Hints'][i].unchangedSinceLastScanned = true;
-      
+
       this.line = this.getSingleLine(direction, i);
       var finished = this.line.every(function (cell) {
         return cell !== UNSET;
@@ -621,9 +621,9 @@
     constructor: NonogramEdit,
     filledColor: '#f69',
     correctColor: '#f69',
-    hintChange: new Event('hintchange'),
     threshold: 0.5,
 
+    get hintChange() { return new Event('hintchange'); },
     click: function (e) {
       var self = this.nonogram;
       var d = this.clientWidth * 2 / 3 / (self.n + 1);
@@ -746,9 +746,9 @@
     emptyColor: '#f69',
     wrongColor: '#999',
     isMeshed: true,
-    success: new Event('success'),
-    animationFinish: new Event('animationfinish'),
 
+    get success() { return new Event('success'); },
+    get animationFinish() { return new Event('animationfinish'); },
     mousedown: function (e) {
       var self = this.nonogram;
       var x = e.clientX - this.getBoundingClientRect().left;

@@ -591,7 +591,7 @@ class NonogramEdit extends Nonogram {
     this.canvas.dispatchEvent(this.hintChange);
   }
 
-  get hintChange() { return new Event('hintchange'); }  
+  get hintChange() { return new Event('hintchange'); }
   click(e) {
     const self = this.nonogram;
     const d = this.clientWidth * 2 / 3 / (self.n + 1);
