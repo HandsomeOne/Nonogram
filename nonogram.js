@@ -732,6 +732,9 @@
     this.canvas.addEventListener('mousemove', this.mousemove);
     this.canvas.addEventListener('mouseup', this.brushUp);
     this.canvas.addEventListener('mouseleave', this.brushUp);
+    this.canvas.oncontextmenu = function (e) {
+      e.preventDefault();
+    }
 
     this.brush = FILLED;
     this.draw = {};
@@ -757,9 +760,11 @@
       } else if (location === 'grid') {
         self.draw.firstI = Math.floor(y / d - 0.5);
         self.draw.firstJ = Math.floor(x / d - 0.5);
+        self.draw.inverted = e.button === 2;
         var cell = self.grid[self.draw.firstI][self.draw.firstJ];
-        if (cell === UNSET || self.brush === cell) {
-          self.draw.mode = (self.brush === cell) ? 'empty' : 'filling';
+        var brush = self.draw.inverted ? (self.brush === FILLED ? EMPTY : FILLED) : self.brush;
+        if (cell === UNSET || brush === cell) {
+          self.draw.mode = (brush === cell) ? 'empty' : 'filling';
           self.isPressed = true;
           self.switchCell(self.draw.firstI, self.draw.firstJ);
         }
@@ -783,7 +788,8 @@
               } else if (j === self.draw.firstJ) {
                 self.draw.direction = 'col';
               }
-            } else if ((self.draw.direction === 'row' && i === self.draw.firstI)
+            }
+            if ((self.draw.direction === 'row' && i === self.draw.firstI)
               || (self.draw.direction === 'col' && j === self.draw.firstJ)) {
               self.switchCell(i, j);
               self.draw.lastI = i;
@@ -802,8 +808,9 @@
       delete self.isPressed;
       self.draw = {};
     },
-    switchCell: function (i, j) {
-      if (this.brush === FILLED && this.grid[i][j] !== EMPTY) {
+    switchCell: function (i, j, inverted) {
+      var brush = this.draw.inverted ? (this.brush === FILLED ? EMPTY : FILLED) : this.brush;
+      if (brush === FILLED && this.grid[i][j] !== EMPTY) {
         this.grid[i][j] = (this.draw.mode === 'filling') ? FILLED : UNSET;
         this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]);
         this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]);
@@ -816,7 +823,7 @@
         if (correct) {
           this.succeed();
         }
-      } else if (this.brush === EMPTY && this.grid[i][j] !== FILLED) {
+      } else if (brush === EMPTY && this.grid[i][j] !== FILLED) {
         this.grid[i][j] = (this.draw.mode === 'filling') ? EMPTY : UNSET;
         this.print();
       }
