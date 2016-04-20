@@ -4,7 +4,7 @@
 
 ## Usage
 
-Check the [live demo](http://handsomeone.github.io/Nonogram) and find out how to build your own nonogram application.
+Check the [live demo](https://handsomeone.github.io/Nonogram) and find out how to build your own nonogram application.
 
 First of all, You need to attach
 
