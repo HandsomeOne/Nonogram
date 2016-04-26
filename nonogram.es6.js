@@ -259,6 +259,10 @@ class NonogramSolve extends Nonogram {
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
     this.canvas.addEventListener('click', this.click);
+    this.canvas.oncontextmenu = function (e) {
+      e.preventDefault();
+    }
+
     this.print();
   }
 
@@ -586,28 +590,73 @@ class NonogramEdit extends Nonogram {
     this.canvas.width = this.width || this.canvas.clientWidth;
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1);
     this.canvas.nonogram = this;
-    this.canvas.addEventListener('click', this.click);
+    this.canvas.addEventListener('mousedown', this.mousedown);
+    this.canvas.addEventListener('mousemove', this.mousemove);
+    this.canvas.addEventListener('mouseup', this.brushUp);
+    this.canvas.addEventListener('mouseleave', this.brushUp);
+    this.canvas.oncontextmenu = function (e) {
+      e.preventDefault();
+    }
+
+    this.draw = {};
     this.print();
     this.canvas.dispatchEvent(this.hintChange);
   }
 
   get hintChange() { return new Event('hintchange'); }
-  click(e) {
+  mousedown(e) {
     const self = this.nonogram;
-    const d = this.clientWidth * 2 / 3 / (self.n + 1);
     const x = e.clientX - this.getBoundingClientRect().left;
     const y = e.clientY - this.getBoundingClientRect().top;
+    const d = this.clientWidth * 2 / 3 / (self.n + 1);
     const location = self.getLocation(x, y);
-    if (location === 'grid') {
-      const i = Math.floor(y / d - 0.5);
-      const j = Math.floor(x / d - 0.5);
-      self.switchCell(i, j);
-    } else if (location === 'controller') {
+    if (location === 'controller') {
       self.refresh();
+    } else if (location === 'grid') {
+      self.draw.firstI = Math.floor(y / d - 0.5);
+      self.draw.firstJ = Math.floor(x / d - 0.5);
+      const cell = self.grid[self.draw.firstI][self.draw.firstJ];
+      self.draw.brush = (cell === FILLED) ? EMPTY : FILLED;
+      self.isPressed = true;
+      self.switchCell(self.draw.firstI, self.draw.firstJ);
+      self.draw.lastI = self.draw.firstI;
+      self.draw.lastJ = self.draw.firstJ;
     }
   }
+  mousemove(e) {
+    const self = this.nonogram;
+    if (self.isPressed) {
+      const x = e.clientX - this.getBoundingClientRect().left;
+      const y = e.clientY - this.getBoundingClientRect().top;
+      const d = this.clientWidth * 2 / 3 / (self.n + 1);
+      if (self.getLocation(x, y) === 'grid') {
+        const i = Math.floor(y / d - 0.5);
+        const j = Math.floor(x / d - 0.5);
+        if (i !== self.draw.lastI || j !== self.draw.lastJ) {
+          if (self.draw.direction === undefined) {
+            if (i === self.draw.firstI) {
+              self.draw.direction = 'row';
+            } else if (j === self.draw.firstJ) {
+              self.draw.direction = 'col';
+            }
+          }
+          if ((self.draw.direction === 'row' && i === self.draw.firstI)
+            || (self.draw.direction === 'col' && j === self.draw.firstJ)) {
+            self.switchCell(i, j);
+            self.draw.lastI = i;
+            self.draw.lastJ = j;
+          }
+        }
+      }
+    }
+  }
+  brushUp() {
+    const self = this.nonogram;
+    delete self.isPressed;
+    self.draw = {};
+  }
   switchCell(i, j) {
-    this.grid[i][j] = (this.grid[i][j] === FILLED) ? EMPTY : FILLED;
+    this.grid[i][j] = this.draw.brush;
     this.rowHints[i] = this.calculateHints('row', i);
     this.colHints[j] = this.calculateHints('col', j);
     this.print();
