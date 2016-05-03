@@ -23,14 +23,14 @@ import {NonogramSolve, NonogramEdit, NonogramPlay} from "path/to/nonogram.es6.js
 
 #### `class NonogramSolve`
 
-`NonogramSolve::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a `NonogramSolve` instance on a canvas. Time cost will be printed in console.
+`NonogramSolve.prototype.constructor(rowHints, colHints, canvasId[, config])`: creates and prints a `NonogramSolve` instance on a canvas. Time cost will be printed in console.
 
 - `rowHints`: a two-dimensional array, consisting of the hints of each row as an array.
 - `colHints`: a two-dimensional array, consisting of the hints of each column as an array.
 - `canvas`: a canvas element, or `id` of the canvas to print the nonogram on.
 - *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
-`NonogramSolve::solve()`: solves and prints the nonogram by given hints.
+`NonogramSolve.prototype.solve()`: solves and prints the nonogram by given hints.
 
 For example, if there is `<canvas id="canvas1"></canvas>`, then you can use
 ```javascript
@@ -63,14 +63,14 @@ then the output will be like this:
 
 #### `class NonogramEdit`
 
-`NonogramEdit::constructor(m, n, canvasId[, config])`: creates and prints a `NonogramEdit` instance on a canvas, which can be edited.
+`NonogramEdit.prototype.constructor(m, n, canvasId[, config])`: creates and prints a `NonogramEdit` instance on a canvas, which can be edited.
 
 - `m`: number of rows, or the length of each column.
 - `n`: number of columns, or the length of each row.
 - `canvas`: a canvas element, or `id` of the canvas to print the nonogram on.
 - *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
-`NonogramEdit::refresh()`: randomly generates the grid.
+`NonogramEdit.prototype.refresh()`: randomly generates the grid.
 
 For example, if you run
 ```javascript
@@ -88,7 +88,7 @@ then the output is likely to be
 
 #### `class NonogramPlay`
 
-`NonogramPlay::constructor(rowHints, colHints, canvasId[, config])`: creates and prints a NonogramPlay instance on a canvas, which can be played.
+`NonogramPlay.prototype.constructor(rowHints, colHints, canvasId[, config])`: creates and prints a NonogramPlay instance on a canvas, which can be played.
 
 All the parameters have the same meanings as those of `NonogramSolve`'s.
 
