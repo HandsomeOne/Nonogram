@@ -19,7 +19,7 @@ In the future, you may use ES6 instead of ES5:
 import {NonogramSolve, NonogramEdit, NonogramPlay} from "path/to/nonogram.es6.js";
 ```
 
-## Functions
+## Constructors
 
 #### `class NonogramSolve`
 
