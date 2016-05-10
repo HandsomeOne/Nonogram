@@ -1,7 +1,6 @@
 'use strict';
 
 const sum = array => array.reduce((a, b) => a + b, 0);
-const deepCopy = object => JSON.parse(JSON.stringify(object));
 const eekwall = (object1, object2) => object1.toString() === object2.toString();
 
 const FILLED = true;
@@ -39,7 +38,7 @@ class Nonogram {
     }
   }
   getHints(direction, i) {
-    return deepCopy(this[`${direction}Hints`][i]);
+    return this[`${direction}Hints`][i].slice();
   }
   calculateHints(direction, i) {
     const hints = [];
@@ -234,8 +233,8 @@ class NonogramSolve extends Nonogram {
     super();
     Object.assign(this, config);
 
-    this.rowHints = deepCopy(rowHints);
-    this.colHints = deepCopy(colHints);
+    this.rowHints = rowHints.slice();
+    this.colHints = colHints.slice();
     this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
@@ -727,8 +726,8 @@ class NonogramPlay extends Nonogram {
     super();
     Object.assign(this, config);
 
-    this.rowHints = deepCopy(rowHints);
-    this.colHints = deepCopy(colHints);
+    this.rowHints = rowHints.slice();
+    this.colHints = colHints.slice();
     this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;

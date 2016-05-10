@@ -7,9 +7,6 @@
       return a + b;
     }, 0);
   }
-  function deepCopy(object) {
-    return JSON.parse(JSON.stringify(object));
-  }
   function eekwall(object1, object2) {
     return object1.toString() === object2.toString();
   }
@@ -68,7 +65,7 @@
       }
     },
     getHints: function (direction, i) {
-      return deepCopy(this[direction + 'Hints'][i]);
+      return this[direction + 'Hints'][i].slice();
     },
     calculateHints: function (direction, i) {
       var hints = [];
@@ -251,8 +248,8 @@
   window.NonogramSolve = NonogramSolve;
   function NonogramSolve(rowHints, colHints, canvas, config) {
     assign(this, config);
-    this.rowHints = deepCopy(rowHints);
-    this.colHints = deepCopy(colHints);
+    this.rowHints = rowHints.slice();
+    this.colHints = colHints.slice();
     this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
@@ -757,8 +754,8 @@
   window.NonogramPlay = NonogramPlay;
   function NonogramPlay(rowHints, colHints, canvas, config) {
     assign(this, config);
-    this.rowHints = deepCopy(rowHints);
-    this.colHints = deepCopy(colHints);
+    this.rowHints = rowHints.slice();
+    this.colHints = colHints.slice();
     this.removeNonPositiveHints();
     this.m = rowHints.length;
     this.n = colHints.length;
