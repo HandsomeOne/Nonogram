@@ -5,7 +5,9 @@
   "boss": true,
   "unused": true,
   "undef": true,
-  "globals": {
-    "console": false
-  }
+  "loopfunc": true,
+  "curly": true,
+  "eqeqeq": true,
+  "forin": true,
+  "devel": true
 }
