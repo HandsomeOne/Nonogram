@@ -6,6 +6,7 @@ const eekwall = (object1, object2) => object1.toString() === object2.toString();
 
 const FILLED = true;
 const EMPTY = false;
+/* jshint -W080 */
 const UNSET = undefined;
 const TEMPORARILY_FILLED = 1;
 const TEMPORARILY_EMPTY = -1;
@@ -45,7 +46,7 @@ class Nonogram {
     const line = this.getSingleLine(direction, i);
     line.reduce((lastIsFilled, cell) => {
       if (cell === FILLED) {
-        lastIsFilled ? hints.push(hints.pop() + 1) : hints.push(1);
+        hints.push(lastIsFilled ? hints.pop() + 1 : 1);
       }
       return cell === FILLED;
     }, false);
@@ -196,6 +197,7 @@ class Nonogram {
     ctx.restore();
 
     function printSingleHint(direction, i, j) {
+      /* jshint -W040 */
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = d + 'pt "Courier New", Inconsolata, Consolas, monospace';
@@ -261,7 +263,7 @@ class NonogramSolve extends Nonogram {
     this.canvas.addEventListener('click', this.click);
     this.canvas.oncontextmenu = function (e) {
       e.preventDefault();
-    }
+    };
 
     this.print();
   }
@@ -331,68 +333,67 @@ class NonogramSolve extends Nonogram {
     } else {
       this.demoMode = false;
     }
-    const description = `Solves a(n) ${this.m}×${this.n} nonogram${this.demoMode ? ' in demo mode' : ''}`;
-    console.time(description);
-    scan.call(this);
+    this.description = `Solves a(n) ${this.m}×${this.n} nonogram${this.demoMode ? ' in demo mode' : ''}`;
+    console.time(this.description);
+    this.scan();
+  }
+  scan() {
+    let line;
+    do {
+      this.updateScanner();
+      line = this[this.scanner.direction + 'Hints'][this.scanner.i];
 
-    function scan() {
-      let line;
-      do {
-        updateScanner.call(this);
-        line = this[this.scanner.direction + 'Hints'][this.scanner.i];
-
-        if (this.rowHints.every(function (row) {
-          return row.unchangedSinceLastScanned;
-        }) && this.colHints.every(function (col) {
-          return col.unchangedSinceLastScanned;
-        })) {
-          delete this.scanner;
-          if (this.canvas) {
-            console.timeEnd(description);
-            this.canvas.removeAttribute('occupied');
-            this.print();
-            this.canvas.dispatchEvent(this.success);
-          }
-          return;
-        }
-      }
-      while (line.isCorrect || line.unchangedSinceLastScanned);
-
-      if (this.demoMode) {
-        this.print();
-      }
-
-      this.scanner.error = true;
-      this.solveSingleLine();
-      if (this.scanner.error) {
+      if (this.rowHints.every(function (row) {
+        return row.unchangedSinceLastScanned;
+      }) && this.colHints.every(function (col) {
+        return col.unchangedSinceLastScanned;
+      })) {
+        delete this.scanner;
         if (this.canvas) {
-          console.timeEnd(description);
+          console.timeEnd(this.description);
           this.canvas.removeAttribute('occupied');
           this.print();
-          this.canvas.dispatchEvent(this.error);
+          this.canvas.dispatchEvent(this.success);
         }
         return;
       }
-      if (this.demoMode) {
-        setTimeout(scan.bind(this), this.delay);
-      } else {
-        return scan.call(this);
-      }
+    }
+    while (line.isCorrect || line.unchangedSinceLastScanned);
+
+    if (this.demoMode) {
+      this.print();
     }
 
-    function updateScanner() {
-      if (this.scanner === undefined) {
-        this.scanner = {
-          'direction': 'row',
-          'i': 0,
-        };
-      } else {
-        this.scanner.error = false;
-        this.scanner.i += 1;
-        if (this[`${this.scanner.direction}Hints`][this.scanner.i] === undefined) {
-          this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
-          this.scanner.i = 0;
-        }
+    this.scanner.error = true;
+    this.solveSingleLine();
+    if (this.scanner.error) {
+      if (this.canvas) {
+        console.timeEnd(this.description);
+        this.canvas.removeAttribute('occupied');
+        this.print();
+        this.canvas.dispatchEvent(this.error);
+      }
+      return;
+    }
+    if (this.demoMode) {
+      setTimeout(this.scan.bind(this), this.delay);
+    } else {
+      return this.scan();
+    }
+  }
+
+  updateScanner() {
+    if (this.scanner === undefined) {
+      this.scanner = {
+        'direction': 'row',
+        'i': 0,
+      };
+    } else {
+      this.scanner.error = false;
+      this.scanner.i += 1;
+      if (this[`${this.scanner.direction}Hints`][this.scanner.i] === undefined) {
+        this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
+        this.scanner.i = 0;
       }
     }
   }
@@ -596,7 +597,7 @@ class NonogramEdit extends Nonogram {
     this.canvas.addEventListener('mouseleave', this.brushUp);
     this.canvas.oncontextmenu = function (e) {
       e.preventDefault();
-    }
+    };
 
     this.draw = {};
     this.print();
@@ -640,8 +641,8 @@ class NonogramEdit extends Nonogram {
               self.draw.direction = 'col';
             }
           }
-          if ((self.draw.direction === 'row' && i === self.draw.firstI)
-            || (self.draw.direction === 'col' && j === self.draw.firstJ)) {
+          if ((self.draw.direction === 'row' && i === self.draw.firstI) ||
+            (self.draw.direction === 'col' && j === self.draw.firstJ)) {
             self.switchCell(i, j);
             self.draw.lastI = i;
             self.draw.lastJ = j;
@@ -751,7 +752,7 @@ class NonogramPlay extends Nonogram {
     this.canvas.addEventListener('mouseleave', this.brushUp);
     this.canvas.oncontextmenu = function (e) {
       e.preventDefault();
-    }
+    };
 
     this.brush = FILLED;
     this.draw = {};
@@ -800,8 +801,8 @@ class NonogramPlay extends Nonogram {
               self.draw.direction = 'col';
             }
           }
-          if ((self.draw.direction === 'row' && i === self.draw.firstI)
-            || (self.draw.direction === 'col' && j === self.draw.firstJ)) {
+          if ((self.draw.direction === 'row' && i === self.draw.firstI) ||
+            (self.draw.direction === 'col' && j === self.draw.firstJ)) {
             self.switchCell(i, j);
             self.draw.lastI = i;
             self.draw.lastJ = j;
@@ -826,8 +827,8 @@ class NonogramPlay extends Nonogram {
       this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i]);
       this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j]);
       this.print();
-      const correct = this.rowHints.every(singleRow => singleRow.isCorrect)
-        && this.colHints.every(singleCol => singleCol.isCorrect);
+      const correct = this.rowHints.every(singleRow => singleRow.isCorrect) &&
+        this.colHints.every(singleCol => singleCol.isCorrect);
       if (correct) {
         this.succeed();
       }
@@ -881,6 +882,7 @@ class NonogramPlay extends Nonogram {
     ctx.restore();
 
     function printFillingBrush() {
+      /* jshint -W040 */
       ctx.save();
       ctx.translate(offset, 0);
       ctx.fillStyle = this.meshColor;
@@ -891,6 +893,7 @@ class NonogramPlay extends Nonogram {
     }
 
     function printEmptyBrush() {
+      /* jshint -W040 */
       ctx.save();
       ctx.translate(0, offset);
       ctx.fillStyle = this.meshColor;
@@ -931,6 +934,7 @@ class NonogramPlay extends Nonogram {
     fadeTickIn.call(this);
 
     function fadeTickIn() {
+      /* jshint -W040 */
       ctx.putImageData(background, 0, 0);
       t += 0.03;
       ctx.globalAlpha = f(t);

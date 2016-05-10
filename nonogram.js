@@ -1,3 +1,4 @@
+/* jshint esversion: 5 */
 (function () {
   'use strict';
 
@@ -25,6 +26,7 @@
 
   var FILLED = true;
   var EMPTY = false;
+  /* jshint -W080 */
   var UNSET = undefined;
   var TEMPORARILY_FILLED = 1;
   var TEMPORARILY_EMPTY = -1;
@@ -45,13 +47,13 @@
     boldMeshGap: 5,
 
     getSingleLine: function (direction, i) {
-      var g = [];
+      var g = [], j;
       if (direction === 'row') {
-        for (var j = 0; j < this.n; j++) {
+        for (j = 0; j < this.n; j++) {
           g[j] = this.grid[i][j];
         }
       } else if (direction === 'col') {
-        for (var j = 0; j < this.m; j++) {
+        for (j = 0; j < this.m; j++) {
           g[j] = this.grid[j][i];
         }
       }
@@ -73,7 +75,7 @@
       var line = this.getSingleLine(direction, i);
       line.reduce(function (lastIsFilled, cell) {
         if (cell === FILLED) {
-          lastIsFilled ? hints.push(hints.pop() + 1) : hints.push(1);
+          hints.push(lastIsFilled ? hints.pop() + 1 : 1);
         }
         return cell === FILLED;
       }, false);
@@ -205,16 +207,17 @@
       ctx.fillRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1);
       ctx.save();
       ctx.translate(d / 2, d / 2);
-      for (var i = 0; i < this.m; i++) {
-        for (var j = 0; j < this.rowHints[i].length; j++) {
+      var i, j;
+      for (i = 0; i < this.m; i++) {
+        for (j = 0; j < this.rowHints[i].length; j++) {
           printSingleHint.call(this, 'row', i, j);
         }
         if (this.rowHints[i].length === 0) {
           printSingleHint.call(this, 'row', i, 0);
         }
       }
-      for (var j = 0; j < this.n; j++) {
-        for (var i = 0; i < this.colHints[j].length; i++) {
+      for (j = 0; j < this.n; j++) {
+        for (i = 0; i < this.colHints[j].length; i++) {
           printSingleHint.call(this, 'col', j, i);
         }
         if (this.colHints[j].length === 0) {
@@ -224,6 +227,7 @@
       ctx.restore();
 
       function printSingleHint(direction, i, j) {
+        /* jshint -W040 */
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = d + 'pt "Courier New", Inconsolata, Consolas, monospace';
@@ -276,7 +280,7 @@
     this.canvas.addEventListener('click', this.click);
     this.canvas.oncontextmenu = function (e) {
       e.preventDefault();
-    }
+    };
 
     this.print();
   }
@@ -286,8 +290,8 @@
     demoMode: true,
     delay: 50,
 
-    get success() { return new Event('success') },
-    get error() { return new Event('error') },
+    get success() { return new Event('success'); },
+    get error() { return new Event('error'); },
     get cellValueMap() {
       var t = {};
       t[TEMPORARILY_FILLED] = FILLED;
@@ -351,68 +355,67 @@
       } else {
         this.demoMode = false;
       }
-      var description = 'Solves a(n) ' + this.m + '×' + this.n + ' nonogram' + (this.demoMode ? ' in demo mode' : '');
-      console.time(description);
-      scan.call(this);
+      this.description = 'Solves a(n) ' + this.m + '×' + this.n + ' nonogram' + (this.demoMode ? ' in demo mode' : '');
+      console.time(this.description);
+      this.scan();
+    },
+    scan: function () {
+      var line;
+      do {
+        this.updateScanner();
+        line = this[this.scanner.direction + 'Hints'][this.scanner.i];
 
-      function scan() {
-        var line;
-        do {
-          updateScanner.call(this);
-          line = this[this.scanner.direction + 'Hints'][this.scanner.i];
-
-          if (this.rowHints.every(function (row) {
-            return row.unchangedSinceLastScanned;
-          }) && this.colHints.every(function (col) {
-            return col.unchangedSinceLastScanned;
-          })) {
-            delete this.scanner;
-            if (this.canvas) {
-              console.timeEnd(description);
-              this.canvas.removeAttribute('occupied');
-              this.print();
-              this.canvas.dispatchEvent(this.success);
-            }
-            return;
-          }
-        }
-        while (line.isCorrect || line.unchangedSinceLastScanned);
-
-        if (this.demoMode) {
-          this.print();
-        }
-
-        this.scanner.error = true;
-        this.solveSingleLine();
-        if (this.scanner.error) {
+        if (this.rowHints.every(function (row) {
+          return row.unchangedSinceLastScanned;
+        }) && this.colHints.every(function (col) {
+          return col.unchangedSinceLastScanned;
+        })) {
+          delete this.scanner;
           if (this.canvas) {
-            console.timeEnd(description);
+            console.timeEnd(this.description);
             this.canvas.removeAttribute('occupied');
             this.print();
-            this.canvas.dispatchEvent(this.error);
+            this.canvas.dispatchEvent(this.success);
           }
           return;
         }
-        if (this.demoMode) {
-          setTimeout(scan.bind(this), this.delay);
-        } else {
-          return scan.call(this);
-        }
+      }
+      while (line.isCorrect || line.unchangedSinceLastScanned);
+
+      if (this.demoMode) {
+        this.print();
       }
 
-      function updateScanner() {
-        if (this.scanner === undefined) {
-          this.scanner = {
-            'direction': 'row',
-            'i': 0,
-          };
-        } else {
-          this.scanner.error = false;
-          this.scanner.i += 1;
-          if (this[this.scanner.direction + 'Hints'][this.scanner.i] === undefined) {
-            this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
-            this.scanner.i = 0;
-          }
+      this.scanner.error = true;
+      this.solveSingleLine();
+      if (this.scanner.error) {
+        if (this.canvas) {
+          console.timeEnd(this.description);
+          this.canvas.removeAttribute('occupied');
+          this.print();
+          this.canvas.dispatchEvent(this.error);
+        }
+        return;
+      }
+      if (this.demoMode) {
+        setTimeout(this.scan.bind(this), this.delay);
+      } else {
+        return this.scan();
+      }
+    },
+
+    updateScanner: function () {
+      if (this.scanner === undefined) {
+        this.scanner = {
+          'direction': 'row',
+          'i': 0,
+        };
+      } else {
+        this.scanner.error = false;
+        this.scanner.i += 1;
+        if (this[this.scanner.direction + 'Hints'][this.scanner.i] === undefined) {
+          this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
+          this.scanner.i = 0;
         }
       }
     },
@@ -454,11 +457,12 @@
     },
     mergeSituation: function () {
       var status = [];
-      for (var i = 0; i < this.hints.length; i++) {
-        for (var j = 0; j < this.blanks[i]; j++) {
+      var i, j;
+      for (i = 0; i < this.hints.length; i++) {
+        for (j = 0; j < this.blanks[i]; j++) {
           status.push(TEMPORARILY_EMPTY);
         }
-        for (var j = 0; j < this.hints[i]; j++) {
+        for (j = 0; j < this.hints[i]; j++) {
           status.push(TEMPORARILY_FILLED);
         }
       }
@@ -590,22 +594,23 @@
     assign(this, config);
     this.m = m;
     this.n = n;
+    var i, j;
     if (!this.grid) {
       this.grid = new Array(this.m);
-      for (var i = 0; i < this.m; i++) {
+      for (i = 0; i < this.m; i++) {
         this.grid[i] = new Array(this.n);
-        for (var j = 0; j < this.n; j++) {
+        for (j = 0; j < this.n; j++) {
           this.grid[i][j] = (Math.random() < this.threshold) ? FILLED : EMPTY;
         }
       }
     }
     this.rowHints = new Array(m);
     this.colHints = new Array(n);
-    for (var i = 0; i < this.m; i++) {
+    for (i = 0; i < this.m; i++) {
       this.rowHints[i] = this.calculateHints('row', i);
       this.rowHints[i].isCorrect = true;
     }
-    for (var j = 0; j < this.n; j++) {
+    for (j = 0; j < this.n; j++) {
       this.colHints[j] = this.calculateHints('col', j);
       this.colHints[j].isCorrect = true;
     }
@@ -623,7 +628,7 @@
     this.canvas.addEventListener('mouseleave', this.brushUp);
     this.canvas.oncontextmenu = function (e) {
       e.preventDefault();
-    }
+    };
 
     this.draw = {};
     this.print();
@@ -672,8 +677,8 @@
                 self.draw.direction = 'col';
               }
             }
-            if ((self.draw.direction === 'row' && i === self.draw.firstI)
-              || (self.draw.direction === 'col' && j === self.draw.firstJ)) {
+            if ((self.draw.direction === 'row' && i === self.draw.firstI) ||
+              (self.draw.direction === 'col' && j === self.draw.firstJ)) {
               self.switchCell(i, j);
               self.draw.lastI = i;
               self.draw.lastJ = j;
@@ -695,15 +700,16 @@
       this.canvas.dispatchEvent(this.hintChange);
     },
     refresh: function () {
-      for (var i = 0; i < this.m; i++) {
-        for (var j = 0; j < this.n; j++) {
+      var i, j;
+      for (i = 0; i < this.m; i++) {
+        for (j = 0; j < this.n; j++) {
           this.grid[i][j] = (Math.random() < this.threshold) ? FILLED : EMPTY;
         }
       }
-      for (var i = 0; i < this.m; i++) {
+      for (i = 0; i < this.m; i++) {
         this.rowHints[i] = this.calculateHints('row', i);
       }
-      for (var j = 0; j < this.n; j++) {
+      for (j = 0; j < this.n; j++) {
         this.colHints[j] = this.calculateHints('col', j);
       }
       this.print();
@@ -757,16 +763,17 @@
     this.m = rowHints.length;
     this.n = colHints.length;
     this.grid = new Array(this.m);
-    for (var i = 0; i < this.m; i++) {
+    var i, j;
+    for (i = 0; i < this.m; i++) {
       this.grid[i] = new Array(this.n);
-      for (var j = 0; j < this.n; j++) {
+      for (j = 0; j < this.n; j++) {
         this.grid[i][j] = UNSET;
       }
     }
-    for (var i = 0; i < this.m; i++) {
+    for (i = 0; i < this.m; i++) {
       this.rowHints[i].isCorrect = this.checkCorrectness('row', i);
     }
-    for (var j = 0; j < this.n; j++) {
+    for (j = 0; j < this.n; j++) {
       this.colHints[j].isCorrect = this.checkCorrectness('col', j);
     }
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas);
@@ -783,7 +790,7 @@
     this.canvas.addEventListener('mouseleave', this.brushUp);
     this.canvas.oncontextmenu = function (e) {
       e.preventDefault();
-    }
+    };
 
     this.brush = FILLED;
     this.draw = {};
@@ -838,8 +845,8 @@
                 self.draw.direction = 'col';
               }
             }
-            if ((self.draw.direction === 'row' && i === self.draw.firstI)
-              || (self.draw.direction === 'col' && j === self.draw.firstJ)) {
+            if ((self.draw.direction === 'row' && i === self.draw.firstI) ||
+              (self.draw.direction === 'col' && j === self.draw.firstJ)) {
               self.switchCell(i, j);
               self.draw.lastI = i;
               self.draw.lastJ = j;
@@ -857,7 +864,7 @@
       delete self.isPressed;
       self.draw = {};
     },
-    switchCell: function (i, j, inverted) {
+    switchCell: function (i, j) {
       var brush = this.draw.inverted ? (this.brush === FILLED ? EMPTY : FILLED) : this.brush;
       if (brush === FILLED && this.grid[i][j] !== EMPTY) {
         this.grid[i][j] = (this.draw.mode === 'filling') ? FILLED : UNSET;
@@ -922,6 +929,7 @@
       ctx.restore();
 
       function printFillingBrush() {
+        /* jshint -W040 */
         ctx.save();
         ctx.translate(offset, 0);
         ctx.fillStyle = this.meshColor;
@@ -932,6 +940,7 @@
       }
 
       function printEmptyBrush() {
+        /* jshint -W040 */
         ctx.save();
         ctx.translate(0, offset);
         ctx.fillStyle = this.meshColor;
@@ -972,6 +981,7 @@
       fadeTickIn.call(this);
 
       function fadeTickIn() {
+        /* jshint -W040 */
         ctx.putImageData(background, 0, 0);
         t += 0.03;
         ctx.globalAlpha = f(t);

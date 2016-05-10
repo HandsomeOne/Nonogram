@@ -1,0 +1,11 @@
+{
+  "esversion": 6,
+  "browser": true,
+  "strict": "global",
+  "boss": true,
+  "unused": true,
+  "undef": true,
+  "globals": {
+    "console": false
+  }
+}
