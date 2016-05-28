@@ -342,11 +342,8 @@ class NonogramSolve extends Nonogram {
       this.updateScanner();
       line = this[this.scanner.direction + 'Hints'][this.scanner.i];
 
-      if (this.rowHints.every(function (row) {
-        return row.unchangedSinceLastScanned;
-      }) && this.colHints.every(function (col) {
-        return col.unchangedSinceLastScanned;
-      })) {
+      if (this.rowHints.every(row => row.unchangedSinceLastScanned) &&
+        this.colHints.every(col => col.unchangedSinceLastScanned)) {
         delete this.scanner;
         if (this.canvas) {
           console.timeEnd(this.description);
