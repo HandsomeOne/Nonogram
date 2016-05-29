@@ -357,32 +357,14 @@
       this.scan();
     },
     scan: function () {
-      var line;
-      do {
-        this.updateScanner();
-        line = this[this.scanner.direction + 'Hints'][this.scanner.i];
-
-        if (this.rowHints.every(function (row) {
-          return row.unchangedSinceLastScanned;
-        }) && this.colHints.every(function (col) {
-          return col.unchangedSinceLastScanned;
-        })) {
-          delete this.scanner;
-          if (this.canvas) {
-            console.timeEnd(this.description);
-            this.canvas.removeAttribute('occupied');
-            this.print();
-            this.canvas.dispatchEvent(this.success);
-          }
-          return;
-        }
+      this.updateScanner();
+      if (this.scanner === undefined) {
+        return;
       }
-      while (line.isCorrect || line.unchangedSinceLastScanned);
-
+      
       if (this.demoMode) {
         this.print();
       }
-
       this.scanner.error = true;
       this.solveSingleLine();
       if (this.scanner.error) {
@@ -402,19 +384,39 @@
     },
 
     updateScanner: function () {
-      if (this.scanner === undefined) {
-        this.scanner = {
-          'direction': 'row',
-          'i': 0,
-        };
-      } else {
-        this.scanner.error = false;
-        this.scanner.i += 1;
-        if (this[this.scanner.direction + 'Hints'][this.scanner.i] === undefined) {
-          this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
-          this.scanner.i = 0;
+      var line;
+      do {
+        if (this.scanner === undefined) {
+          this.scanner = {
+            'direction': 'row',
+            'i': 0,
+          };
+        } else {
+          this.scanner.error = false;
+          this.scanner.i += 1;
+          if (this[this.scanner.direction + 'Hints'][this.scanner.i] === undefined) {
+            this.scanner.direction = (this.scanner.direction === 'row') ? 'col' : 'row';
+            this.scanner.i = 0;
+          }
+        }
+        line = this[this.scanner.direction + 'Hints'][this.scanner.i];
+
+        if (this.rowHints.every(function (row) {
+          return row.unchangedSinceLastScanned;
+        }) && this.colHints.every(function (col) {
+          return col.unchangedSinceLastScanned;
+        })) {
+          delete this.scanner;
+          if (this.canvas) {
+            console.timeEnd(this.description);
+            this.canvas.removeAttribute('occupied');
+            this.print();
+            this.canvas.dispatchEvent(this.success);
+          }
+          return;
         }
       }
+      while (line.isCorrect || line.unchangedSinceLastScanned);
     },
     solveSingleLine: function (direction, i) {
       direction = direction || this.scanner.direction;
