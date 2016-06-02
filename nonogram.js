@@ -41,6 +41,7 @@
     meshColor: '#999',
     isMeshed: false,
     isBoldMeshOnly: false,
+    isMeshOnTop: false,
     boldMeshGap: 5,
 
     getSingleLine: function (direction, i) {
@@ -120,7 +121,7 @@
 
       ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
-      if (this.isMeshed) {
+      if (this.isMeshed && !this.isMeshOnTop) {
         this.printMesh();
       }
       ctx.save();
@@ -134,6 +135,9 @@
         }
       }
       ctx.restore();
+      if (this.isMeshed && this.isMeshOnTop) {
+        this.printMesh();
+      }
     },
     printCell: function (status) {
       var ctx = this.canvas.getContext('2d');
