@@ -131,6 +131,7 @@ General configuration items are related to the appearance.
 - `meshColor`: meshes' color.
 - `isMeshed`: `true` or `false`, coltrols whether to print the meshes or not.
 - `isBoldMeshOnly`: default is `false`.
+- `isMeshOnTop`: default is `false`.
 - `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you don't want any bold meshes, simply set it to `0`.
 
 #### `NonogramSolve`-only

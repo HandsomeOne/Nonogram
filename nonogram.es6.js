@@ -93,7 +93,7 @@ class Nonogram {
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1);
-    if (this.isMeshed) {
+    if (this.isMeshed && !this.isMeshOnTop) {
       this.printMesh();
     }
     ctx.save();
@@ -107,6 +107,9 @@ class Nonogram {
       }
     }
     ctx.restore();
+    if (this.isMeshed && this.isMeshOnTop) {
+      this.printMesh();
+    }
   }
   printCell(status) {
     const ctx = this.canvas.getContext('2d');
@@ -225,6 +228,7 @@ Object.assign(Nonogram.prototype, {
   meshColor: '#999',
   isMeshed: false,
   isBoldMeshOnly: false,
+  isMeshOnTop: false,
   boldMeshGap: 5,
 });
 
