@@ -1,0 +1,19 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 5,
+        "sourceType": "script"
+    },
+    "env": {
+        "browser": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "curly": "warn",
+        "eqeqeq": "warn",
+        "no-console": "off",
+        "semi": [
+            "warn",
+            "always"
+        ]
+    }
+}

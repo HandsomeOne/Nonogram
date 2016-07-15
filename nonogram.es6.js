@@ -5,7 +5,6 @@ const eekwall = (object1, object2) => object1.toString() === object2.toString();
 
 const FILLED = true;
 const EMPTY = false;
-/* jshint -W080 */
 const UNSET = undefined;
 const TEMPORARILY_FILLED = 1;
 const TEMPORARILY_EMPTY = -1;
@@ -199,7 +198,6 @@ class Nonogram {
     ctx.restore();
 
     function printSingleHint(direction, i, j) {
-      /* jshint -W040 */
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = d + 'pt "Courier New", Inconsolata, Consolas, monospace';
@@ -884,7 +882,6 @@ class NonogramPlay extends Nonogram {
     ctx.restore();
 
     function printFillingBrush() {
-      /* jshint -W040 */
       ctx.save();
       ctx.translate(offset, 0);
       ctx.fillStyle = this.meshColor;
@@ -895,7 +892,6 @@ class NonogramPlay extends Nonogram {
     }
 
     function printEmptyBrush() {
-      /* jshint -W040 */
       ctx.save();
       ctx.translate(0, offset);
       ctx.fillStyle = this.meshColor;
@@ -936,7 +932,6 @@ class NonogramPlay extends Nonogram {
     fadeTickIn.call(this);
 
     function fadeTickIn() {
-      /* jshint -W040 */
       ctx.putImageData(background, 0, 0);
       t += 0.03;
       ctx.globalAlpha = f(t);
