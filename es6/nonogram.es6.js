@@ -326,20 +326,22 @@ class NonogramSolve extends Nonogram {
     this.solve();
   }
   solve() {
-    if (this.canvas) {
-      if (this.canvas.hasAttribute('occupied')) {
-        return;
+    return new Promise((resolve, reject) => {
+      if (this.canvas) {
+        if (this.canvas.hasAttribute('occupied')) {
+          return;
+        }
+        this.canvas.setAttribute('occupied', '');
+      } else {
+        this.demoMode = false;
       }
-      this.canvas.setAttribute('occupied', '');
-    } else {
-      this.demoMode = false;
-    }
-    this.description = `Solves a(n) ${this.m}×${this.n} nonogram${this.demoMode ? ' in demo mode' : ''}`;
-    console.time(this.description);
-    this.scan();
+      this.description = `Solves a(n) ${this.m}×${this.n} nonogram${this.demoMode ? ' in demo mode' : ''}`;
+      console.time(this.description);
+      this.scan(resolve, reject);
+    });
   }
-  scan() {
-    this.updateScanner();
+  scan(resolve, reject) {
+    this.updateScanner(resolve);
     if (this.scanner === undefined) {
       return;
     }
@@ -355,17 +357,20 @@ class NonogramSolve extends Nonogram {
         this.canvas.removeAttribute('occupied');
         this.print();
         this.canvas.dispatchEvent(this.error);
+        reject();
       }
       return;
     }
     if (this.demoMode) {
-      setTimeout(this.scan.bind(this), this.delay);
+      setTimeout(() => {
+        this.scan(resolve, reject);
+      }, this.delay);
     } else {
-      return this.scan();
+      return this.scan(resolve, reject);
     }
   }
 
-  updateScanner() {
+  updateScanner(resolve) {
     let line;
     do {
       if (this.scanner === undefined) {
@@ -391,6 +396,7 @@ class NonogramSolve extends Nonogram {
           this.canvas.removeAttribute('occupied');
           this.print();
           this.canvas.dispatchEvent(this.success);
+          resolve();
         }
         return;
       }
