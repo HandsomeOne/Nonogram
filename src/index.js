@@ -260,9 +260,9 @@ class NonogramSolve extends Nonogram {
     this.print()
   }
 
-  get success() { return new Event('success') }
-  get error() { return new Event('error') }
-  get cellValueMap() {
+  static get success() { return new Event('success') }
+  static get error() { return new Event('error') }
+  static get cellValueMap() {
     const t = new Map()
     t.set(TEMPORARILY_FILLED, FILLED)
     t.set(TEMPORARILY_EMPTY, EMPTY)
@@ -347,7 +347,7 @@ class NonogramSolve extends Nonogram {
         console.timeEnd(this.description)
         this.canvas.removeAttribute('occupied')
         this.print()
-        this.canvas.dispatchEvent(this.error)
+        this.canvas.dispatchEvent(NonogramSolve.error)
         reject()
       }
       return
@@ -386,7 +386,7 @@ class NonogramSolve extends Nonogram {
           console.timeEnd(this.description)
           this.canvas.removeAttribute('occupied')
           this.print()
-          this.canvas.dispatchEvent(this.success)
+          this.canvas.dispatchEvent(NonogramSolve.success)
           resolve()
         }
         return
@@ -460,18 +460,18 @@ class NonogramSolve extends Nonogram {
   setBackToGrid(direction, i) {
     if (direction === 'row') {
       this.line.forEach((cell, j) => {
-        if (this.cellValueMap.has(cell)) {
-          if (this.grid[i][j] !== this.cellValueMap.get(cell)) {
-            this.grid[i][j] = this.cellValueMap.get(cell)
+        if (NonogramSolve.cellValueMap.has(cell)) {
+          if (this.grid[i][j] !== NonogramSolve.cellValueMap.get(cell)) {
+            this.grid[i][j] = NonogramSolve.cellValueMap.get(cell)
             this.colHints[j].unchangedSinceLastScanned = false
           }
         }
       })
     } else if (direction === 'col') {
       this.line.forEach((cell, j) => {
-        if (this.cellValueMap.has(cell)) {
-          if (this.grid[j][i] !== this.cellValueMap.get(cell)) {
-            this.grid[j][i] = this.cellValueMap.get(cell)
+        if (NonogramSolve.cellValueMap.has(cell)) {
+          if (this.grid[j][i] !== NonogramSolve.cellValueMap.get(cell)) {
+            this.grid[j][i] = NonogramSolve.cellValueMap.get(cell)
             this.rowHints[j].unchangedSinceLastScanned = false
           }
         }
@@ -500,23 +500,23 @@ class NonogramSolve extends Nonogram {
       cycle.width = controllerSize
       cycle.height = controllerSize
 
-      const ctx = cycle.getContext('2d')
-      ctx.translate(controllerSize / 2, controllerSize / 2)
-      ctx.rotate(Math.PI)
-      ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9)
-      ctx.lineWidth = borderWidth
-      ctx.strokeStyle = filledColor
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.moveTo((controllerSize / 2 + borderWidth) * Math.SQRT1_2,
+      const c = cycle.getContext('2d')
+      c.translate(controllerSize / 2, controllerSize / 2)
+      c.rotate(Math.PI)
+      c.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9)
+      c.lineWidth = borderWidth
+      c.strokeStyle = filledColor
+      c.stroke()
+      c.beginPath()
+      c.moveTo((controllerSize / 2 + borderWidth) * Math.SQRT1_2,
         (controllerSize / 2 + borderWidth) * Math.SQRT1_2)
-      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2,
+      c.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2,
         (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2)
-      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2,
+      c.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2,
         (controllerSize / 2 + borderWidth) * Math.SQRT1_2)
-      ctx.closePath()
-      ctx.fillStyle = filledColor
-      ctx.fill()
+      c.closePath()
+      c.fillStyle = filledColor
+      c.fill()
 
       return cycle
     }
@@ -604,10 +604,10 @@ class NonogramEdit extends Nonogram {
 
     this.draw = {}
     this.print()
-    this.canvas.dispatchEvent(this.hintChange)
+    this.canvas.dispatchEvent(NonogramEdit.hintChange)
   }
 
-  get hintChange() { return new Event('hintchange') }
+  static get hintChange() { return new Event('hintchange') }
   mousedown(e) {
     const self = this.nonogram
     const x = e.clientX - this.getBoundingClientRect().left
@@ -664,7 +664,7 @@ class NonogramEdit extends Nonogram {
     this.rowHints[i] = this.calculateHints('row', i)
     this.colHints[j] = this.calculateHints('col', j)
     this.print()
-    this.canvas.dispatchEvent(this.hintChange)
+    this.canvas.dispatchEvent(NonogramEdit.hintChange)
   }
   refresh() {
     for (let i = 0; i < this.m; i += 1) {
@@ -679,7 +679,7 @@ class NonogramEdit extends Nonogram {
       this.colHints[j] = this.calculateHints('col', j)
     }
     this.print()
-    this.canvas.dispatchEvent(this.hintChange)
+    this.canvas.dispatchEvent(NonogramEdit.hintChange)
   }
   printController() {
     const ctx = this.canvas.getContext('2d')
@@ -694,19 +694,22 @@ class NonogramEdit extends Nonogram {
       cycle.width = controllerSize
       cycle.height = controllerSize
 
-      const ctx = cycle.getContext('2d')
-      ctx.translate(controllerSize / 2, controllerSize / 2)
-      ctx.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9)
-      ctx.lineWidth = borderWidth
-      ctx.strokeStyle = filledColor
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.moveTo((controllerSize / 2 + borderWidth) * Math.SQRT1_2, (controllerSize / 2 + borderWidth) * Math.SQRT1_2)
-      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2)
-      ctx.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2, (controllerSize / 2 + borderWidth) * Math.SQRT1_2)
-      ctx.closePath()
-      ctx.fillStyle = filledColor
-      ctx.fill()
+      const c = cycle.getContext('2d')
+      c.translate(controllerSize / 2, controllerSize / 2)
+      c.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9)
+      c.lineWidth = borderWidth
+      c.strokeStyle = filledColor
+      c.stroke()
+      c.beginPath()
+      c.moveTo((controllerSize / 2 + borderWidth) * Math.SQRT1_2,
+        (controllerSize / 2 + borderWidth) * Math.SQRT1_2)
+      c.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2,
+        (controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2)
+      c.lineTo((controllerSize / 2 - borderWidth * 2) * Math.SQRT1_2,
+        (controllerSize / 2 + borderWidth) * Math.SQRT1_2)
+      c.closePath()
+      c.fillStyle = filledColor
+      c.fill()
 
       return cycle
     }
@@ -762,8 +765,8 @@ class NonogramPlay extends Nonogram {
     this.print()
   }
 
-  get success() { return new Event('success') }
-  get animationFinish() { return new Event('animationfinish') }
+  static get success() { return new Event('success') }
+  static get animationFinish() { return new Event('animationfinish') }
   mousedown(e) {
     const self = this.nonogram
     const x = e.clientX - this.getBoundingClientRect().left
@@ -777,7 +780,10 @@ class NonogramPlay extends Nonogram {
       self.draw.firstJ = Math.floor(x / d - 0.5)
       self.draw.inverted = e.button === 2
       const cell = self.grid[self.draw.firstI][self.draw.firstJ]
-      const brush = self.draw.inverted ? (self.brush === FILLED ? EMPTY : FILLED) : self.brush
+      let brush = self.brush
+      if (self.draw.inverted) {
+        brush = self.brush === FILLED ? EMPTY : FILLED
+      }
       if (cell === UNSET || brush === cell) {
         self.draw.mode = (brush === cell) ? 'empty' : 'filling'
         self.isPressed = true
@@ -824,7 +830,10 @@ class NonogramPlay extends Nonogram {
     self.draw = {}
   }
   switchCell(i, j) {
-    const brush = this.draw.inverted ? (this.brush === FILLED ? EMPTY : FILLED) : this.brush
+    let brush = this.brush
+    if (this.draw.inverted) {
+      brush = this.brush === FILLED ? EMPTY : FILLED
+    }
     if (brush === FILLED && this.grid[i][j] !== EMPTY) {
       this.grid[i][j] = (this.draw.mode === 'filling') ? FILLED : UNSET
       this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i])
@@ -920,7 +929,7 @@ class NonogramPlay extends Nonogram {
       return
     }
 
-    this.canvas.dispatchEvent(this.success)
+    this.canvas.dispatchEvent(NonogramPlay.success)
     this.canvas.removeEventListener('mousedown', this.mousedown)
     this.canvas.removeEventListener('mousemove', this.mousemove)
     this.canvas.removeEventListener('mouseup', this.brushUp)
@@ -939,12 +948,12 @@ class NonogramPlay extends Nonogram {
       tick.width = size
       tick.height = size
 
-      const ctx = tick.getContext('2d')
-      ctx.translate(size / 3, size * 5 / 6)
-      ctx.rotate(-Math.PI / 4)
-      ctx.fillStyle = '#0c6'
-      ctx.fillRect(0, 0, borderWidth, -size * Math.SQRT2 / 3)
-      ctx.fillRect(0, 0, size * Math.SQRT2 * 2 / 3, -borderWidth)
+      const c = tick.getContext('2d')
+      c.translate(size / 3, size * 5 / 6)
+      c.rotate(-Math.PI / 4)
+      c.fillStyle = '#0c6'
+      c.fillRect(0, 0, borderWidth, -size * Math.SQRT2 / 3)
+      c.fillRect(0, 0, size * Math.SQRT2 * 2 / 3, -borderWidth)
 
       return tick
     }
@@ -952,8 +961,8 @@ class NonogramPlay extends Nonogram {
     const tick = getTick()
     let t = 0
 
-    function f(t) {
-      return 1 + Math.pow(t - 1, 3)
+    function f(_) {
+      return 1 + Math.pow(_ - 1, 3)
     }
 
     function fadeTickIn() {
@@ -970,7 +979,7 @@ class NonogramPlay extends Nonogram {
       if (t <= 1) {
         requestAnimationFrame(fadeTickIn.bind(this))
       } else {
-        this.canvas.dispatchEvent(this.animationFinish)
+        this.canvas.dispatchEvent(NonogramPlay.animationFinish)
       }
     }
 
