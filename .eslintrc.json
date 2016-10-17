@@ -1,19 +1,11 @@
 {
-    "parserOptions": {
-        "ecmaVersion": 5,
-        "sourceType": "script"
-    },
-    "env": {
-        "browser": true
-    },
-    "extends": "eslint:recommended",
-    "rules": {
-        "curly": "warn",
-        "eqeqeq": "warn",
-        "no-console": "off",
-        "semi": [
-            "warn",
-            "always"
-        ]
-    }
+  "extends": "airbnb-base",
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "semi": [2, "never"],
+    "no-param-reassign": "off",
+    "no-mixed-operators": "off"
+  }
 }

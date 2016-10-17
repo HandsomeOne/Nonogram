@@ -984,4 +984,8 @@ Object.assign(NonogramPlay.prototype, {
   isMeshed: true,
 });
 
-export {NonogramSolve, NonogramEdit, NonogramPlay};
+export {
+  NonogramSolve as Solve,
+  NonogramEdit as Edit,
+  NonogramPlay as Play,
+};

@@ -1,0 +1,40 @@
+{
+  "name": "nonogram",
+  "version": "0.1.0",
+  "description": "Edit, play and solve nonograms.",
+  "main": "lib/index.js",
+  "scripts": {
+    "clean": "rimraf lib dist",
+    "build": "babel src --out-dir lib",
+    "build:umd": "webpack src/index.js dist/nonogram.js&&set NODE_ENV=production&&webpack src/index.js dist/nonogram.min.js",
+    "lint": "eslint src test examples",
+    "prepublish": "npm run clean && npm run build && npm run build:umd"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HandsomeOne/Nonogram.git"
+  },
+  "keywords": [
+    "nonogram",
+    "puzzle"
+  ],
+  "author": "Zhou Qi <i@handsomeone.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HandsomeOne/Nonogram/issues"
+  },
+  "homepage": "https://github.com/HandsomeOne/Nonogram",
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.17.0",
+    "babel-eslint": "^7.0.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-latest": "^6.16.0",
+    "eslint": "^3.8.0",
+    "eslint-config-airbnb-base": "^9.0.0",
+    "eslint-plugin-import": "^2.0.1",
+    "rimraf": "^2.5.4",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.2"
+  }
+}
