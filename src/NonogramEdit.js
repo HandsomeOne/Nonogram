@@ -19,6 +19,12 @@ export default class NonogramEdit extends Nonogram {
           this.grid[i][j] = (Math.random() < this.threshold) ? FILLED : EMPTY
         }
       }
+    } else {
+      this.grid.forEach((a) => {
+        a.forEach((e, i, arr) => {
+          arr[i] = e ? FILLED : EMPTY
+        })
+      })
     }
     this.rowHints = new Array(m)
     this.colHints = new Array(n)
