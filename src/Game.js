@@ -4,6 +4,7 @@ import {
   EMPTY,
   UNSET,
 } from './type'
+import $ from './colors'
 
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
@@ -176,9 +177,8 @@ export default class Game extends Nonogram {
       ctx.translate(0, offset)
       ctx.fillStyle = this.meshColor
       ctx.fillRect(0, 0, outerSize, outerSize)
-      ctx.fillStyle = this.backgroundColor
-      ctx.fillRect(borderWidth, borderWidth, innerSize, innerSize)
-      ctx.strokeStyle = '#f69'
+      ctx.clearRect(borderWidth, borderWidth, innerSize, innerSize)
+      ctx.strokeStyle = $.red
       ctx.lineWidth = borderWidth
       ctx.beginPath()
       ctx.moveTo(outerSize * 0.3, outerSize * 0.3)
@@ -189,8 +189,7 @@ export default class Game extends Nonogram {
       ctx.restore()
     }
 
-    ctx.fillStyle = this.backgroundColor
-    ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
+    ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
     ctx.save()
     ctx.translate(w * 0.7, h * 0.7)
     if (this.brush === FILLED) {
@@ -230,7 +229,7 @@ export default class Game extends Nonogram {
       const c = tick.getContext('2d')
       c.translate(size / 3, size * 5 / 6)
       c.rotate(-Math.PI / 4)
-      c.fillStyle = '#0c6'
+      c.fillStyle = $.green
       c.fillRect(0, 0, borderWidth, -size * Math.SQRT2 / 3)
       c.fillRect(0, 0, size * Math.SQRT2 * 2 / 3, -borderWidth)
 
@@ -248,7 +247,7 @@ export default class Game extends Nonogram {
       ctx.putImageData(background, 0, 0)
       t += 0.03
       ctx.globalAlpha = f(t)
-      ctx.fillStyle = '#fff'
+      ctx.fillStyle = 'white'
       ctx.fillRect(w * 2 / 3, h * 2 / 3, w / 3, h / 3)
       ctx.drawImage(tick,
         w * 0.7 - (1 - f(t)) * controllerSize / 2,
@@ -266,8 +265,8 @@ export default class Game extends Nonogram {
   }
 }
 Object.assign(Game.prototype, {
-  filledColor: '#0cf',
-  emptyColor: '#f69',
-  wrongColor: '#999',
+  filledColor: $.blue,
+  emptyColor: $.red,
+  wrongColor: $.grey,
   isMeshed: true,
 })

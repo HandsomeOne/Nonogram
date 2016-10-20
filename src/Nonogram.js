@@ -2,6 +2,7 @@ import {
   FILLED,
   UNSET,
 } from './type'
+import $ from './colors'
 
 export default class Nonogram {
   getSingleLine(direction, i) {
@@ -77,8 +78,7 @@ export default class Nonogram {
     const h = this.canvas.height
     const d = w * 2 / 3 / (this.n + 1)
 
-    ctx.fillStyle = this.backgroundColor
-    ctx.fillRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1)
+    ctx.clearRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1)
     if (this.isMeshed && !this.isMeshOnTop) {
       this.printMesh()
     }
@@ -179,9 +179,8 @@ export default class Nonogram {
       }
     }
 
-    ctx.fillStyle = this.backgroundColor
-    ctx.fillRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1)
-    ctx.fillRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1)
+    ctx.clearRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1)
+    ctx.clearRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1)
     ctx.save()
     ctx.translate(d / 2, d / 2)
     for (let i = 0; i < this.m; i += 1) {
@@ -204,12 +203,11 @@ export default class Nonogram {
   }
 }
 Object.assign(Nonogram.prototype, {
-  backgroundColor: '#fff',
-  filledColor: '#999',
-  unsetColor: '#ccc',
-  correctColor: '#0cf',
-  wrongColor: '#f69',
-  meshColor: '#999',
+  filledColor: $.grey,
+  unsetColor: $.greyVeryLight,
+  correctColor: $.green,
+  wrongColor: $.red,
+  meshColor: $.yellow,
   isMeshed: false,
   isBoldMeshOnly: false,
   isMeshOnTop: false,

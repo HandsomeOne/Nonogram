@@ -7,6 +7,7 @@ import {
   TEMPORARILY_EMPTY,
   INCONSTANT,
 } from './type'
+import $ from './colors'
 
 const sum = array => array.reduce((a, b) => a + b, 0)
 
@@ -310,8 +311,7 @@ export default class Solver extends Nonogram {
       return cycle
     }
 
-    ctx.fillStyle = this.backgroundColor
-    ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
+    ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
     if (this.canvas.hasAttribute('occupied')) {
       return
     }
@@ -344,7 +344,9 @@ export default class Solver extends Nonogram {
   }
 }
 Object.assign(Solver.prototype, {
-  correctColor: '#999',
+  filledColor: $.green,
+  correctColor: $.green,
+  wrongColor: $.yellow,
   demoMode: true,
   delay: 50,
 })

@@ -3,6 +3,7 @@ import {
   FILLED,
   EMPTY,
 } from './type'
+import $ from './colors'
 
 export default class Editor extends Nonogram {
   constructor(m, n, canvas, config) {
@@ -112,7 +113,9 @@ export default class Editor extends Nonogram {
   switchCell(i, j) {
     this.grid[i][j] = this.draw.brush
     this.rowHints[i] = this.calculateHints('row', i)
+    this.rowHints[i].isCorrect = true
     this.colHints[j] = this.calculateHints('col', j)
+    this.colHints[j].isCorrect = true
     this.print()
     this.canvas.dispatchEvent(Editor.hintChange)
   }
@@ -124,9 +127,11 @@ export default class Editor extends Nonogram {
     }
     for (let i = 0; i < this.m; i += 1) {
       this.rowHints[i] = this.calculateHints('row', i)
+      this.rowHints[i].isCorrect = true
     }
     for (let j = 0; j < this.n; j += 1) {
       this.colHints[j] = this.calculateHints('col', j)
+      this.colHints[j].isCorrect = true
     }
     this.print()
     this.canvas.dispatchEvent(Editor.hintChange)
@@ -164,8 +169,7 @@ export default class Editor extends Nonogram {
       return cycle
     }
 
-    ctx.fillStyle = this.backgroundColor
-    ctx.fillRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
+    ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
     ctx.save()
     ctx.translate(w * 0.7, h * 0.7)
     ctx.drawImage(getCycle(), 0, 0)
@@ -173,7 +177,7 @@ export default class Editor extends Nonogram {
   }
 }
 Object.assign(Editor.prototype, {
-  filledColor: '#f69',
-  correctColor: '#f69',
+  filledColor: $.violet,
+  correctColor: $.violet,
   threshold: 0.5,
 })
