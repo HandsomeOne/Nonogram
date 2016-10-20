@@ -6,8 +6,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "start": "webpack -d --watch --progress src/index.js test/nonogram.js",
-    "build": "webpack -d --progress src/index.js dist/nonogram.js",
-    "deploy": "webpack -p --progress src/index.js docs/nonogram.min.js"
+    "build": "webpack -p --progress src/index.js docs/nonogram.min.js"
   },
   "repository": {
     "type": "git",
