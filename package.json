@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "start": "webpack-dev-server -d --inline --hot --content-base test/",
-    "build": "webpack -p --progress src/index.js docs/nonogram.min.js"
+    "build": "webpack -p --output-path docs --output-filename nonogram.min.js"
   },
   "repository": {
     "type": "git",
