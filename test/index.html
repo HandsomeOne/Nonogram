@@ -14,7 +14,7 @@ function $$(selector) {
 }
 var canvases = $$('canvas')
 function newCustomNonogram() {
-  new nonogram.Edit(
+  new nonogram.Editor(
     parseInt($('#m').value),
     parseInt($('#n').value),
     canvases[0],
@@ -22,10 +22,10 @@ function newCustomNonogram() {
   )
 }
 canvases[0].addEventListener('hintchange', function () {
-  new nonogram.Play(this.nonogram.rowHints, this.nonogram.colHints, 'x', {
+  new nonogram.Game(this.nonogram.rowHints, this.nonogram.colHints, 'x', {
     boldMeshGap: 3,
   })
-  new nonogram.Solve(this.nonogram.rowHints, this.nonogram.colHints, canvases[2]).solve()
+  new nonogram.Solver(this.nonogram.rowHints, this.nonogram.colHints, canvases[2]).solve()
 })
 $('#m').addEventListener('change', newCustomNonogram)
 $('#n').addEventListener('change', newCustomNonogram)

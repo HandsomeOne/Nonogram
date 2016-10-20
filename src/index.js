@@ -1,9 +1,5 @@
-import NonogramSolve from './NonogramSolve'
-import NonogramEdit from './NonogramEdit'
-import NonogramPlay from './NonogramPlay'
+import Solver from './Solver'
+import Editor from './Editor'
+import Game from './Game'
 
-export {
-  NonogramSolve as Solve,
-  NonogramEdit as Edit,
-  NonogramPlay as Play,
-}
+export { Solver, Editor, Game }

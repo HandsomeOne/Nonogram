@@ -7,7 +7,7 @@ import {
 
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
-export default class NonogramPlay extends Nonogram {
+export default class Game extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
     Object.assign(this, config)
@@ -208,7 +208,7 @@ export default class NonogramPlay extends Nonogram {
       return
     }
 
-    this.canvas.dispatchEvent(NonogramPlay.success)
+    this.canvas.dispatchEvent(Game.success)
     this.canvas.removeEventListener('mousedown', this.mousedown)
     this.canvas.removeEventListener('mousemove', this.mousemove)
     this.canvas.removeEventListener('mouseup', this.brushUp)
@@ -258,14 +258,14 @@ export default class NonogramPlay extends Nonogram {
       if (t <= 1) {
         requestAnimationFrame(fadeTickIn.bind(this))
       } else {
-        this.canvas.dispatchEvent(NonogramPlay.animationFinish)
+        this.canvas.dispatchEvent(Game.animationFinish)
       }
     }
 
     fadeTickIn.call(this)
   }
 }
-Object.assign(NonogramPlay.prototype, {
+Object.assign(Game.prototype, {
   filledColor: '#0cf',
   emptyColor: '#f69',
   wrongColor: '#999',

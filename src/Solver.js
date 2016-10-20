@@ -10,7 +10,7 @@ import {
 
 const sum = array => array.reduce((a, b) => a + b, 0)
 
-export default class NonogramSolve extends Nonogram {
+export default class Solver extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
     Object.assign(this, config)
@@ -136,7 +136,7 @@ export default class NonogramSolve extends Nonogram {
         console.timeEnd(this.description)
         this.canvas.removeAttribute('occupied')
         this.print()
-        this.canvas.dispatchEvent(NonogramSolve.error)
+        this.canvas.dispatchEvent(Solver.error)
         reject()
       }
       return
@@ -175,7 +175,7 @@ export default class NonogramSolve extends Nonogram {
           console.timeEnd(this.description)
           this.canvas.removeAttribute('occupied')
           this.print()
-          this.canvas.dispatchEvent(NonogramSolve.success)
+          this.canvas.dispatchEvent(Solver.success)
           resolve()
         }
         return
@@ -249,18 +249,18 @@ export default class NonogramSolve extends Nonogram {
   setBackToGrid(direction, i) {
     if (direction === 'row') {
       this.line.forEach((cell, j) => {
-        if (NonogramSolve.cellValueMap.has(cell)) {
-          if (this.grid[i][j] !== NonogramSolve.cellValueMap.get(cell)) {
-            this.grid[i][j] = NonogramSolve.cellValueMap.get(cell)
+        if (Solver.cellValueMap.has(cell)) {
+          if (this.grid[i][j] !== Solver.cellValueMap.get(cell)) {
+            this.grid[i][j] = Solver.cellValueMap.get(cell)
             this.colHints[j].unchangedSinceLastScanned = false
           }
         }
       })
     } else if (direction === 'col') {
       this.line.forEach((cell, j) => {
-        if (NonogramSolve.cellValueMap.has(cell)) {
-          if (this.grid[j][i] !== NonogramSolve.cellValueMap.get(cell)) {
-            this.grid[j][i] = NonogramSolve.cellValueMap.get(cell)
+        if (Solver.cellValueMap.has(cell)) {
+          if (this.grid[j][i] !== Solver.cellValueMap.get(cell)) {
+            this.grid[j][i] = Solver.cellValueMap.get(cell)
             this.rowHints[j].unchangedSinceLastScanned = false
           }
         }
@@ -343,7 +343,7 @@ export default class NonogramSolve extends Nonogram {
     ctx.restore()
   }
 }
-Object.assign(NonogramSolve.prototype, {
+Object.assign(Solver.prototype, {
   correctColor: '#999',
   demoMode: true,
   delay: 50,

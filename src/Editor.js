@@ -4,7 +4,7 @@ import {
   EMPTY,
 } from './type'
 
-export default class NonogramEdit extends Nonogram {
+export default class Editor extends Nonogram {
   constructor(m, n, canvas, config) {
     super()
     Object.assign(this, config)
@@ -54,7 +54,7 @@ export default class NonogramEdit extends Nonogram {
 
     this.draw = {}
     this.print()
-    this.canvas.dispatchEvent(NonogramEdit.hintChange)
+    this.canvas.dispatchEvent(Editor.hintChange)
   }
 
   static get hintChange() { return new Event('hintchange') }
@@ -114,7 +114,7 @@ export default class NonogramEdit extends Nonogram {
     this.rowHints[i] = this.calculateHints('row', i)
     this.colHints[j] = this.calculateHints('col', j)
     this.print()
-    this.canvas.dispatchEvent(NonogramEdit.hintChange)
+    this.canvas.dispatchEvent(Editor.hintChange)
   }
   refresh() {
     for (let i = 0; i < this.m; i += 1) {
@@ -129,7 +129,7 @@ export default class NonogramEdit extends Nonogram {
       this.colHints[j] = this.calculateHints('col', j)
     }
     this.print()
-    this.canvas.dispatchEvent(NonogramEdit.hintChange)
+    this.canvas.dispatchEvent(Editor.hintChange)
   }
   printController() {
     const ctx = this.canvas.getContext('2d')
@@ -172,7 +172,7 @@ export default class NonogramEdit extends Nonogram {
     ctx.restore()
   }
 }
-Object.assign(NonogramEdit.prototype, {
+Object.assign(Editor.prototype, {
   filledColor: '#f69',
   correctColor: '#f69',
   threshold: 0.5,
