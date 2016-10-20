@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const path = require('path')
 
 module.exports = {
   target: 'web',
@@ -9,7 +10,13 @@ module.exports = {
       exclude: /node_modules/,
     }],
   },
+  entry: {
+    app: ["./src/index.js"]
+  },
   output: {
+    path: path.resolve(__dirname, "test"),
+    publicPath: "/",
+    filename: "nonogram.js",
     library: 'nonogram',
     libraryTarget: 'umd',
   },

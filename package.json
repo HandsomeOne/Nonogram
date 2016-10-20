@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "start": "webpack -d --watch --progress src/index.js test/nonogram.js",
+    "start": "webpack-dev-server -d --inline --content-base test/",
     "build": "webpack -p --progress src/index.js docs/nonogram.min.js"
   },
   "repository": {
