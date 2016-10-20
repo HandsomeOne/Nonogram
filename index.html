@@ -44,7 +44,7 @@
     </div>
     <div class="col-md-8">
       <pre>
-new nonogram.Edit(4, 8, 'edit1', {
+new nonogram.Editor(4, 8, 'edit1', {
   threshold: 0.2,
   isMeshed: true,
   boldMeshGap: 2,
@@ -54,7 +54,7 @@ new nonogram.Edit(4, 8, 'edit1', {
   <div class="row">
     <div class="col-md-8">
       <pre>
-new nonogram.Edit(2, 4, 'edit2', {
+new nonogram.Editor(2, 4, 'edit2', {
   grid: [[1, 0, 1, 0], [0, 1, 0, 1]],
   backgroundColor: '#eee',
 });</pre>
@@ -71,7 +71,7 @@ new nonogram.Edit(2, 4, 'edit2', {
     </div>
     <div class="col-md-8">
       <pre>
-new nonogram.Play([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
+new nonogram.Game([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
   filledColor: '#0c6',
   correctColor: '#0c6',
 });</pre>
@@ -80,7 +80,7 @@ new nonogram.Play([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
   <div class="row">
     <div class="col-md-8">
       <pre>
-new nonogram.Play([[1,1], [1,1]], [[2], [], [2], []], 'play2');</pre>
+new nonogram.Game([[1,1], [1,1]], [[2], [], [2], []], 'play2');</pre>
     </div>
     <div class="col-md-4">
       <canvas id="play2"></canvas>
@@ -94,7 +94,7 @@ new nonogram.Play([[1,1], [1,1]], [[2], [], [2], []], 'play2');</pre>
     </div>
     <div class="col-md-8">
       <pre>
-new nonogram.Solve([[1,1], [1,1]], [[2], [], [2], []], 'solve1', {
+new nonogram.Solver([[1,1], [1,1]], [[2], [], [2], []], 'solve1', {
   delay: 200,
 }).solve();</pre>
     </div>
@@ -154,7 +154,7 @@ window._cols = [
     </div>
     <div class="col-md-2">
       <pre>
-new nonogram.Solve(
+new nonogram.Solver(
   window._rows,
   window._cols,
   'solve2').solve();</pre>
@@ -196,7 +196,7 @@ new nonogram.Solve(
   </div>
   <pre>
 function newCustomNonogram() {
-  new nonogram.Edit(
+  new nonogram.Editor(
     parseInt(document.getElementById('m').value),
     parseInt(document.getElementById('n').value),
     'adv-edit1',
@@ -204,10 +204,10 @@ function newCustomNonogram() {
   );
 }
 document.getElementById('adv-edit1').addEventListener('hintchange', function () {
-  new nonogram.Play(this.nonogram.rowHints, this.nonogram.colHints, 'adv-play1', {
+  new nonogram.Game(this.nonogram.rowHints, this.nonogram.colHints, 'adv-play1', {
     boldMeshGap: 3,
   });
-  new nonogram.Solve(this.nonogram.rowHints, this.nonogram.colHints, 'adv-solve1').solve();
+  new nonogram.Solver(this.nonogram.rowHints, this.nonogram.colHints, 'adv-solve1').solve();
 });
 document.getElementById('m').addEventListener('change', newCustomNonogram);
 document.getElementById('n').addEventListener('change', newCustomNonogram);
@@ -295,7 +295,7 @@ function parseArray(str) {
 }
 document.getElementById('btn-solve2').addEventListener('click', function () {
   var delay = +document.getElementById('delay').value;
-  new nonogram.Solve(
+  new nonogram.Solver(
     parseArray(document.getElementById('txt-row-hints2').value),
     parseArray(document.getElementById('txt-col-hints2').value),
     'adv-solve2',
