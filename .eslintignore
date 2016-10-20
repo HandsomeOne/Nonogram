@@ -1,5 +1,6 @@
 lib
 dist
-**/node_modules
+test
+docs
+node_modules
 **/webpack.config.js
-examples/**/server.js

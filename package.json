@@ -4,11 +4,10 @@
   "description": "Edit, play and solve nonograms.",
   "main": "lib/index.js",
   "scripts": {
-    "clean": "rimraf lib dist",
-    "build": "babel src --out-dir lib",
-    "build:umd": "webpack src/index.js dist/nonogram.js&&set NODE_ENV=production&&webpack src/index.js dist/nonogram.min.js",
-    "lint": "eslint src test examples",
-    "prepublish": "npm run clean && npm run build && npm run build:umd"
+    "clean": "rimraf dist",
+    "start": "webpack -d --watch --progress src/index.js test/nonogram.js",
+    "build": "webpack -d --progress src/index.js dist/nonogram.js",
+    "deploy": "webpack -p --progress src/index.js docs/nonogram.min.js"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,4 @@
-# Nonogram - Edit, Play & Solve
+# Nonogram - Edit, Play & Solve (Now under restruction)
 
 [What is a nonogram](https://en.wikipedia.org/wiki/Nonogram)
 
