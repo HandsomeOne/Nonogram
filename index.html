@@ -167,7 +167,7 @@ new nonogram.Solver(
   <hr>
   <h3 id="nonogram-generator">Create Your Own Nonogram</h3>
   <p>
-    Here is an example showing how to use custom event to create <code>nonogram.Game</code> and <code>nonogram.Solver</code> instances automatically.
+    Here is an example showing how to use listeners to create <code>nonogram.Game</code> and <code>nonogram.Solver</code> instances automatically.
   </p>
   <div class="row">
     <div class="col-md-3">
@@ -200,15 +200,15 @@ function newCustomNonogram() {
     parseInt(document.getElementById('m').value),
     parseInt(document.getElementById('n').value),
     'adv-edit1',
-    {threshold: parseFloat(document.getElementById('threshold').value)}
+    {
+      threshold: parseFloat(document.getElementById('threshold').value),
+      onHintChange: function (rowHints, colHints) {
+        new nonogram.Game(rowHints, colHints, 'adv-play1', { boldMeshGap: 3 });
+        new nonogram.Solver(rowHints, colHints, 'adv-solve1').solve();
+      }
+    }
   );
 }
-document.getElementById('adv-edit1').addEventListener('hintchange', function () {
-  new nonogram.Game(this.nonogram.rowHints, this.nonogram.colHints, 'adv-play1', {
-    boldMeshGap: 3,
-  });
-  new nonogram.Solver(this.nonogram.rowHints, this.nonogram.colHints, 'adv-solve1').solve();
-});
 document.getElementById('m').addEventListener('change', newCustomNonogram);
 document.getElementById('n').addEventListener('change', newCustomNonogram);
 document.getElementById('threshold').addEventListener('change', newCustomNonogram);
@@ -310,6 +310,9 @@ document.getElementById('btn-solve2').addEventListener('click', function () {
       isMeshOnTop: true,
       delay: delay,
       demoMode: !!delay,
+      onSucceed: function (time) {
+        console.log('Solved in ' + time + 'ms.')
+      }
     }).solve();
 });</pre>
 </body>
