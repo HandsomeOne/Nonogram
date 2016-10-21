@@ -45,10 +45,8 @@ export default class Solver extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.addEventListener('click', this.click)
-    this.canvas.oncontextmenu = (e) => {
-      e.preventDefault()
-    }
+    this.canvas.addEventListener('click', this.click.bind(this))
+    this.canvas.oncontextmenu = (e) => { e.preventDefault() }
 
     this.print()
   }
@@ -58,25 +56,25 @@ export default class Solver extends Nonogram {
       return
     }
 
-    const self = this.nonogram
-    const d = this.clientWidth * 2 / 3 / (self.n + 1)
-    const x = e.clientX - this.getBoundingClientRect().left
-    const y = e.clientY - this.getBoundingClientRect().top
-    const location = self.getLocation(x, y)
+    const rect = this.canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const d = rect.width * 2 / 3 / (this.n + 1)
+    const location = this.getLocation(x, y)
     if (location === 'grid') {
-      if (self.scanner && self.scanner.error) {
+      if (this.scanner && this.scanner.error) {
         return
       }
       const i = Math.floor(y / d - 0.5)
       const j = Math.floor(x / d - 0.5)
-      if (self.grid[i][j] === UNSET) {
-        self.grid[i][j] = FILLED
-        self.rowHints[i].unchangedSinceLastScanned = false
-        self.colHints[j].unchangedSinceLastScanned = false
-        self.solve()
+      if (this.grid[i][j] === UNSET) {
+        this.grid[i][j] = FILLED
+        this.rowHints[i].unchangedSinceLastScanned = false
+        this.colHints[j].unchangedSinceLastScanned = false
+        this.solve()
       }
     } else if (location === 'controller') {
-      self.refresh()
+      this.refresh()
     }
   }
   refresh() {
