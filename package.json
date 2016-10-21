@@ -4,7 +4,6 @@
   "description": "Edit, play and solve nonograms.",
   "main": "lib/index.js",
   "scripts": {
-    "clean": "rimraf dist",
     "start": "webpack-dev-server -d --inline --hot --content-base test/",
     "build": "webpack -p --output-path docs --output-filename nonogram.min.js"
   },
@@ -31,7 +30,6 @@
     "eslint": "^3.8.0",
     "eslint-config-airbnb-base": "^9.0.0",
     "eslint-plugin-import": "^2.0.1",
-    "rimraf": "^2.5.4",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.16.2"
   }
