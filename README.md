@@ -58,8 +58,6 @@ then the output will be like this:
 4 1 1 4
 ```
 
-It returns a `Promise(resolve, reject)`, `resolve(time)` when the nonogram has been solved, `time` is how many milliseconds cost. `reject(err)` when some contradiction has been found, `err` tells the bad hints' location (index starts at 1).
-
 ### `class nonogram.Editor`
 
 #### `#constructor(m, n, canvas[, config])`
@@ -112,11 +110,17 @@ General configuration items are related to the appearance.
 - `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you don't want any bold meshes, simply set it to `0`.
 
 ### `nonogram.Solver`
+
 - `demoMode`: default is `true`, and the `solve` method will print a step-by-step solution. If set to `false`, only the final result will be printed.
 
 - `delay` (ms): default is `50`. Controls the delay between steps of the solving process.
 
+- `onSucceed(time)`: fired when the nonogram has been solved, `time` is how many milliseconds cost. 
+
+- `onError(err)`: when some contradiction has been found, `err` tells the bad hints' location (index starts at 1).
+
 ### `nonogram.Editor`
+
 - `grid`: a two-dimensional array, consisting of `1`s and `0`s, will be assigned to the nonogram's grid. For example, you can use
 ```javascript
 [[1, 0, 0, 1],

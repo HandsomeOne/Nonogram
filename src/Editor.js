@@ -9,6 +9,7 @@ import { on } from './event'
 export default class Editor extends Nonogram {
   constructor(m, n, canvas, config) {
     super()
+    config = config || {}
     Object.assign(this, config)
     this.handleHintChange = config.onHintChange || (() => { })
 

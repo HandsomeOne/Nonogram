@@ -19,7 +19,10 @@ cellValueMap.set(INCONSTANT, UNSET)
 export default class Solver extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
+    config = config || {}
     Object.assign(this, config)
+    this.handleSucceed = config.onSucceed || (() => { })
+    this.handleError = config.onError || (() => { })
 
     this.rowHints = rowHints.slice()
     this.colHints = colHints.slice()
@@ -100,21 +103,16 @@ export default class Solver extends Nonogram {
     this.solve()
   }
   solve() {
-    return new Promise((resolve, reject) => {
-      if (this.canvas) {
-        if (this.canvas.dataset.isBusy) {
-          return
-        }
-        this.canvas.dataset.isBusy = 1
-      } else {
-        this.demoMode = false
-      }
-      this.startTime = Date.now()
-      this.scan(resolve, reject)
-    })
+    if (this.canvas.dataset.isBusy) {
+      return
+    }
+
+    this.canvas.dataset.isBusy = 1
+    this.startTime = Date.now()
+    this.scan()
   }
-  scan(resolve, reject) {
-    this.updateScanner(resolve)
+  scan() {
+    this.updateScanner()
     if (this.scanner === undefined) {
       return
     }
@@ -128,20 +126,18 @@ export default class Solver extends Nonogram {
       if (this.canvas) {
         this.canvas.dataset.isBusy = ''
         this.print()
-        reject(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
+        this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
       }
       return
     }
     if (this.demoMode) {
-      setTimeout(() => {
-        this.scan(resolve, reject)
-      }, this.delay)
+      setTimeout(this.scan.bind(this), this.delay)
     } else {
-      this.scan(resolve, reject)
+      this.scan()
     }
   }
 
-  updateScanner(resolve) {
+  updateScanner() {
     let line
     do {
       if (this.scanner === undefined) {
@@ -165,7 +161,7 @@ export default class Solver extends Nonogram {
         if (this.canvas) {
           this.canvas.dataset.isBusy = ''
           this.print()
-          resolve(Date.now() - this.startTime)
+          this.handleSucceed(Date.now() - this.startTime)
         }
         return
       }

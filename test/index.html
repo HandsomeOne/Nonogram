@@ -38,16 +38,16 @@ function newCustomNonogram() {
             console.log('animation end')
           }
         })
-        new nonogram.Solver(rowHints, colHints, canvases[2])
-          .solve()
-          .then(function (time) {
+        new nonogram.Solver(rowHints, colHints, canvases[2], {
+          onSucceed: function (time) {
             console.log(time)
-          })
-        new nonogram.Solver(rowHints.slice(0, 5), colHints, canvases[3])
-          .solve()
-          .catch(function (err) {
+          },
+        }).solve()
+        new nonogram.Solver(rowHints.slice(0, 5), colHints, canvases[3], {
+          onError: function (err) {
             console.log(err.message)
-          })
+          },
+        }).solve()
       },
     }
   )

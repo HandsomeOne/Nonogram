@@ -12,6 +12,7 @@ const eekwall = (object1, object2) => object1.toString() === object2.toString()
 export default class Game extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
+    config = config || {}
     Object.assign(this, config)
     this.handleSucceed = config.onSucceed || (() => { })
     this.handleAnimationEnd = config.onAnimationEnd || (() => { })
