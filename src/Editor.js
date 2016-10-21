@@ -38,7 +38,7 @@ export default class Editor extends Nonogram {
       this.colHints[j].isCorrect = true
     }
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
+    if (!this.canvas || this.canvas.dataset.isBusy) {
       return
     }
 

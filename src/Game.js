@@ -25,7 +25,7 @@ export default class Game extends Nonogram {
     this.rowHints.forEach((row, i) => { row.isCorrect = this.checkCorrectness('row', i) })
     this.colHints.forEach((col, j) => { col.isCorrect = this.checkCorrectness('col', j) })
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
+    if (!this.canvas || this.canvas.dataset.isBusy) {
       return
     }
 
@@ -247,8 +247,7 @@ export default class Game extends Nonogram {
       ctx.putImageData(background, 0, 0)
       t += 0.03
       ctx.globalAlpha = f(t)
-      ctx.fillStyle = 'white'
-      ctx.fillRect(w * 2 / 3, h * 2 / 3, w / 3, h / 3)
+      ctx.clearRect(w * 2 / 3, h * 2 / 3, w / 3, h / 3)
       ctx.drawImage(tick,
         w * 0.7 - (1 - f(t)) * controllerSize / 2,
         h * 0.7 - (1 - f(t)) * controllerSize / 2,

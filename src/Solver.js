@@ -35,7 +35,7 @@ export default class Solver extends Nonogram {
     })
 
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
+    if (!this.canvas || this.canvas.dataset.isBusy) {
       return
     }
 
@@ -60,7 +60,7 @@ export default class Solver extends Nonogram {
     return t
   }
   click(e) {
-    if (this.hasAttribute('occupied')) {
+    if (this.canvas.dataset.isBusy) {
       return
     }
 
@@ -86,7 +86,7 @@ export default class Solver extends Nonogram {
     }
   }
   refresh() {
-    if (this.canvas.hasAttribute('occupied')) {
+    if (this.canvas.dataset.isBusy) {
       return
     }
 
@@ -109,10 +109,10 @@ export default class Solver extends Nonogram {
   solve() {
     return new Promise((resolve, reject) => {
       if (this.canvas) {
-        if (this.canvas.hasAttribute('occupied')) {
+        if (this.canvas.dataset.isBusy) {
           return
         }
-        this.canvas.setAttribute('occupied', '')
+        this.canvas.dataset.isBusy = 1
       } else {
         this.demoMode = false
       }
@@ -135,7 +135,7 @@ export default class Solver extends Nonogram {
     if (this.scanner.error) {
       if (this.canvas) {
         console.timeEnd(this.description)
-        this.canvas.removeAttribute('occupied')
+        this.canvas.dataset.isBusy = ''
         this.print()
         this.canvas.dispatchEvent(Solver.error)
         reject()
@@ -174,7 +174,7 @@ export default class Solver extends Nonogram {
         delete this.scanner
         if (this.canvas) {
           console.timeEnd(this.description)
-          this.canvas.removeAttribute('occupied')
+          this.canvas.dataset.isBusy = ''
           this.print()
           this.canvas.dispatchEvent(Solver.success)
           resolve()
@@ -312,7 +312,7 @@ export default class Solver extends Nonogram {
     }
 
     ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
-    if (this.canvas.hasAttribute('occupied')) {
+    if (this.canvas.dataset.isBusy) {
       return
     }
 
