@@ -4,6 +4,7 @@ import {
   EMPTY,
 } from './type'
 import $ from './colors'
+import { on } from './event'
 
 export default class Editor extends Nonogram {
   constructor(m, n, canvas, config) {
@@ -45,13 +46,11 @@ export default class Editor extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.addEventListener('mousedown', this.mousedown.bind(this))
-    this.canvas.addEventListener('mousemove', this.mousemove.bind(this))
-    this.canvas.addEventListener('mouseup', this.brushUp.bind(this))
-    this.canvas.addEventListener('mouseleave', this.brushUp.bind(this))
-    this.canvas.oncontextmenu = (e) => {
-      e.preventDefault()
-    }
+    on.call(this.canvas, 'mousedown', this.mousedown.bind(this))
+    on.call(this.canvas, 'mousemove', this.mousemove.bind(this))
+    on.call(this.canvas, 'mouseup', this.brushUp.bind(this))
+    on.call(this.canvas, 'mouseleave', this.brushUp.bind(this))
+    this.canvas.oncontextmenu = (e) => { e.preventDefault() }
 
     this.draw = {}
     this.print()

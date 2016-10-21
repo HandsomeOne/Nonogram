@@ -5,6 +5,7 @@ import {
   UNSET,
 } from './type'
 import $ from './colors'
+import { on, off } from './event'
 
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
@@ -33,10 +34,10 @@ export default class Game extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.addEventListener('mousedown', this.mousedown.bind(this))
-    this.canvas.addEventListener('mousemove', this.mousemove.bind(this))
-    this.canvas.addEventListener('mouseup', this.brushUp.bind(this))
-    this.canvas.addEventListener('mouseleave', this.brushUp.bind(this))
+    on.call(this.canvas, 'mousedown', this.mousedown.bind(this))
+    on.call(this.canvas, 'mousemove', this.mousemove.bind(this))
+    on.call(this.canvas, 'mouseup', this.brushUp.bind(this))
+    on.call(this.canvas, 'mouseleave', this.brushUp.bind(this))
     this.canvas.oncontextmenu = (e) => {
       e.preventDefault()
     }
@@ -206,10 +207,10 @@ export default class Game extends Nonogram {
     }
 
     this.handleSucceed()
-    this.canvas.removeEventListener('mousedown', this.mousedown)
-    this.canvas.removeEventListener('mousemove', this.mousemove)
-    this.canvas.removeEventListener('mouseup', this.brushUp)
-    this.canvas.removeEventListener('mouseleave', this.brushUp)
+    off.call(this.canvas, 'mousedown')
+    off.call(this.canvas, 'mousemove')
+    off.call(this.canvas, 'mouseup')
+    off.call(this.canvas, 'mouseleave')
 
     const ctx = this.canvas.getContext('2d')
     const w = this.canvas.width

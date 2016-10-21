@@ -8,6 +8,7 @@ import {
   INCONSTANT,
 } from './type'
 import $ from './colors'
+import { on } from './event'
 
 const sum = array => array.reduce((a, b) => a + b, 0)
 const cellValueMap = new Map()
@@ -45,7 +46,7 @@ export default class Solver extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.addEventListener('click', this.click.bind(this))
+    on.call(this.canvas, 'click', this.click.bind(this))
     this.canvas.oncontextmenu = (e) => { e.preventDefault() }
 
     this.print()
