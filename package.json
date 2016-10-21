@@ -2,7 +2,7 @@
   "name": "nonogram",
   "version": "0.2.0",
   "description": "Edit, play and solve nonograms.",
-  "main": "lib/index.js",
+  "main": "docs/nonogram.min.js",
   "scripts": {
     "start": "webpack-dev-server -d --inline --hot --content-base test/",
     "build": "webpack -p --output-path docs --output-filename nonogram.min.js"
