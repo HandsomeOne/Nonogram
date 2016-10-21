@@ -108,8 +108,7 @@ export default class Solver extends Nonogram {
       } else {
         this.demoMode = false
       }
-      this.description = `Solves a(n) ${this.m}×${this.n} nonogram${this.demoMode ? ' in demo mode' : ''}`
-      console.time(this.description)
+      this.startTime = Date.now()
       this.scan(resolve, reject)
     })
   }
@@ -126,10 +125,9 @@ export default class Solver extends Nonogram {
     this.solveSingleLine()
     if (this.scanner.error) {
       if (this.canvas) {
-        console.timeEnd(this.description)
         this.canvas.dataset.isBusy = ''
         this.print()
-        reject()
+        reject(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
       }
       return
     }
@@ -164,10 +162,9 @@ export default class Solver extends Nonogram {
         this.colHints.every(col => col.unchangedSinceLastScanned)) {
         delete this.scanner
         if (this.canvas) {
-          console.timeEnd(this.description)
           this.canvas.dataset.isBusy = ''
           this.print()
-          resolve()
+          resolve(Date.now() - this.startTime)
         }
         return
       }

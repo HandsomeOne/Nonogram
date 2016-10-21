@@ -58,7 +58,7 @@ then the output will be like this:
 4 1 1 4
 ```
 
-It returns a `Promise(resolve, reject)`, `resolve()` when the nonogram has been solved, and `reject()` when some contradiction has been found, usually caused by bad hints.
+It returns a `Promise(resolve, reject)`, `resolve(time)` when the nonogram has been solved, `time` is how many milliseconds cost. `reject(err)` when some contradiction has been found, `err` tells the bad hints' location (index starts at 1).
 
 ### `class nonogram.Editor`
 

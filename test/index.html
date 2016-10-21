@@ -11,6 +11,7 @@
 <canvas></canvas>
 <canvas id="x"></canvas>
 <canvas></canvas>
+<canvas></canvas>
 <script src="nonogram.js"></script>
 <script>
 function $(selector) {
@@ -39,11 +40,13 @@ function newCustomNonogram() {
         })
         new nonogram.Solver(rowHints, colHints, canvases[2])
           .solve()
-          .then(function () {
-            console.log('success')
+          .then(function (time) {
+            console.log(time)
           })
-          .catch(function () {
-            console.log('error')
+        new nonogram.Solver(rowHints.slice(0, 5), colHints, canvases[3])
+          .solve()
+          .catch(function (err) {
+            console.log(err.message)
           })
       },
     }
