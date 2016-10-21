@@ -9,6 +9,7 @@ export default class Editor extends Nonogram {
   constructor(m, n, canvas, config) {
     super()
     Object.assign(this, config)
+    this.handleHintChange = config.onHintChange || (() => { })
 
     this.m = m
     this.n = n
@@ -44,7 +45,6 @@ export default class Editor extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.nonogram = this
     this.canvas.addEventListener('mousedown', this.mousedown)
     this.canvas.addEventListener('mousemove', this.mousemove)
     this.canvas.addEventListener('mouseup', this.brushUp)
@@ -55,10 +55,9 @@ export default class Editor extends Nonogram {
 
     this.draw = {}
     this.print()
-    this.canvas.dispatchEvent(Editor.hintChange)
+    this.handleHintChange(this.rowHints, this.colHints)
   }
 
-  static get hintChange() { return new Event('hintchange') }
   mousedown(e) {
     const self = this.nonogram
     const x = e.clientX - this.getBoundingClientRect().left
@@ -117,7 +116,7 @@ export default class Editor extends Nonogram {
     this.colHints[j] = this.calculateHints('col', j)
     this.colHints[j].isCorrect = true
     this.print()
-    this.canvas.dispatchEvent(Editor.hintChange)
+    this.handleHintChange(this.rowHints, this.colHints)
   }
   refresh() {
     for (let i = 0; i < this.m; i += 1) {
@@ -134,7 +133,7 @@ export default class Editor extends Nonogram {
       this.colHints[j].isCorrect = true
     }
     this.print()
-    this.canvas.dispatchEvent(Editor.hintChange)
+    this.handleHintChange(this.rowHints, this.colHints)
   }
   printController() {
     const ctx = this.canvas.getContext('2d')

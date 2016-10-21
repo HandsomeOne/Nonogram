@@ -12,6 +12,8 @@ export default class Game extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
     Object.assign(this, config)
+    this.handleSucceed = config.onSucceed || (() => { })
+    this.handleAnimationEnd = config.onAnimationEnd || (() => { })
 
     this.rowHints = rowHints.slice()
     this.colHints = colHints.slice()
@@ -31,7 +33,6 @@ export default class Game extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.nonogram = this
     this.canvas.addEventListener('mousedown', this.mousedown)
     this.canvas.addEventListener('mousemove', this.mousemove)
     this.canvas.addEventListener('mouseup', this.brushUp)
@@ -45,8 +46,6 @@ export default class Game extends Nonogram {
     this.print()
   }
 
-  static get success() { return new Event('success') }
-  static get animationFinish() { return new Event('animationfinish') }
   mousedown(e) {
     const self = this.nonogram
     const x = e.clientX - this.getBoundingClientRect().left
@@ -207,7 +206,7 @@ export default class Game extends Nonogram {
       return
     }
 
-    this.canvas.dispatchEvent(Game.success)
+    this.handleSucceed()
     this.canvas.removeEventListener('mousedown', this.mousedown)
     this.canvas.removeEventListener('mousemove', this.mousemove)
     this.canvas.removeEventListener('mouseup', this.brushUp)
@@ -256,7 +255,7 @@ export default class Game extends Nonogram {
       if (t <= 1) {
         requestAnimationFrame(fadeTickIn.bind(this))
       } else {
-        this.canvas.dispatchEvent(Game.animationFinish)
+        this.handleAnimationEnd()
       }
     }
 

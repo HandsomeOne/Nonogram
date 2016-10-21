@@ -10,6 +10,10 @@ import {
 import $ from './colors'
 
 const sum = array => array.reduce((a, b) => a + b, 0)
+const cellValueMap = new Map()
+cellValueMap.set(TEMPORARILY_FILLED, FILLED)
+cellValueMap.set(TEMPORARILY_EMPTY, EMPTY)
+cellValueMap.set(INCONSTANT, UNSET)
 
 export default class Solver extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
@@ -41,7 +45,6 @@ export default class Solver extends Nonogram {
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.nonogram = this
     this.canvas.addEventListener('click', this.click)
     this.canvas.oncontextmenu = (e) => {
       e.preventDefault()
@@ -50,15 +53,6 @@ export default class Solver extends Nonogram {
     this.print()
   }
 
-  static get success() { return new Event('success') }
-  static get error() { return new Event('error') }
-  static get cellValueMap() {
-    const t = new Map()
-    t.set(TEMPORARILY_FILLED, FILLED)
-    t.set(TEMPORARILY_EMPTY, EMPTY)
-    t.set(INCONSTANT, UNSET)
-    return t
-  }
   click(e) {
     if (this.canvas.dataset.isBusy) {
       return
@@ -137,7 +131,6 @@ export default class Solver extends Nonogram {
         console.timeEnd(this.description)
         this.canvas.dataset.isBusy = ''
         this.print()
-        this.canvas.dispatchEvent(Solver.error)
         reject()
       }
       return
@@ -176,7 +169,6 @@ export default class Solver extends Nonogram {
           console.timeEnd(this.description)
           this.canvas.dataset.isBusy = ''
           this.print()
-          this.canvas.dispatchEvent(Solver.success)
           resolve()
         }
         return
@@ -250,18 +242,18 @@ export default class Solver extends Nonogram {
   setBackToGrid(direction, i) {
     if (direction === 'row') {
       this.line.forEach((cell, j) => {
-        if (Solver.cellValueMap.has(cell)) {
-          if (this.grid[i][j] !== Solver.cellValueMap.get(cell)) {
-            this.grid[i][j] = Solver.cellValueMap.get(cell)
+        if (cellValueMap.has(cell)) {
+          if (this.grid[i][j] !== cellValueMap.get(cell)) {
+            this.grid[i][j] = cellValueMap.get(cell)
             this.colHints[j].unchangedSinceLastScanned = false
           }
         }
       })
     } else if (direction === 'col') {
       this.line.forEach((cell, j) => {
-        if (Solver.cellValueMap.has(cell)) {
-          if (this.grid[j][i] !== Solver.cellValueMap.get(cell)) {
-            this.grid[j][i] = Solver.cellValueMap.get(cell)
+        if (cellValueMap.has(cell)) {
+          if (this.grid[j][i] !== cellValueMap.get(cell)) {
+            this.grid[j][i] = cellValueMap.get(cell)
             this.rowHints[j].unchangedSinceLastScanned = false
           }
         }

@@ -45,9 +45,9 @@ var s = new nonogram.Solver(
     [4]
   ],
   'canvas1',
-  {width: 500, delay: 100}
-);
-s.solve();
+  { width: 500, delay: 100 }
+)
+s.solve()
 ```
 then the output will be like this:
 ```
@@ -58,13 +58,7 @@ then the output will be like this:
 4 1 1 4
 ```
 
-#### Event `'success'`
-
-Dispatched by the canvas when the nonogram has been solved.
-
-#### Event `'error'`
-
-Dispatched by the canvas when some contradiction has been found, usually caused by improper given hints.
+It returns a `Promise(resolve, reject)`, `resolve()` when the nonogram has been solved, and `reject()` when some contradiction has been found, usually caused by bad hints.
 
 ### `class nonogram.Editor`
 
@@ -83,7 +77,7 @@ Randomly generates the grid.
 
 For example, if you run
 ```javascript
-new nonogram.Editor(4, 6, 'canvas2', {threshold: 0.9});
+new nonogram.Editor(4, 6, 'canvas2', {threshold: 0.9})
 ```
 then the output is likely to be
 ```
@@ -95,30 +89,11 @@ then the output is likely to be
 1   2
 ```
 
-#### Event `'hintchange'`
-
-Dispatched by the canvas when the nonogram's hints have any change. To automatically create a new solver upon `'hintchange'`, you can use
-```javascript
-document.getElementById('canvas2').addEventListener('hintchange', function () {
-  new nonogram.Solver(this.nonogram.rowHints, this.nonogram.colHints, 'canvas1').solve();
-});
-new nonogram.Editor(4, 4, 'canvas2');
-```
-Here `<HTMLCanvasElement>.nonogram` refers to the nonogram instance on it.
-
 ### `class nonogram.Game`
 
 #### `#constructor(rowHints, colHints, canvas[, config])`
 
 Creates a nonogram game. The parameters have the same definitions as those of `nonogram.Solver`'s.
-
-#### Event `'success'`
-
-Dispatched by the canvas when the player has successfully solved the nonogram.
-
-#### Event `'animationfinish'`
-
-Dispatched by the canvas when the success animation has been finished.
 
 ## Configuration Items
 
@@ -159,3 +134,19 @@ to create
 ```
 
 - `threshold`: if `grid` is not given, then the nonogram's grid will be randomly generated. Each cell of the grid has a chance of threshold*100% to be filled. Default is `0.5`.
+
+- `onHintChange(rowHints, colHints)`: fired when the nonogram's hints have any change. To automatically create a new solver on hint change, you can use
+```javascript
+new nonogram.Editor(4, 4, 'canvas1', {
+  onHintChange: function (rowHints, colHints) {
+    new nonogram.Solver(rowHints, colHints, 'canvas2').solve()
+  })
+})
+```
+Here `<HTMLCanvasElement>.nonogram` refers to the nonogram instance on it.
+
+### `nonogram.Game`
+
+- `onSucceed()`: fired when the player has successfully solved the nonogram.
+
+- `onAnimationEnd()`: fired when when the success animation has been finished.
