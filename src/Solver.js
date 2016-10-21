@@ -8,13 +8,21 @@ import {
   INCONSTANT,
 } from './type'
 import $ from './colors'
+import { on } from './event'
 
 const sum = array => array.reduce((a, b) => a + b, 0)
+const cellValueMap = new Map()
+cellValueMap.set(TEMPORARILY_FILLED, FILLED)
+cellValueMap.set(TEMPORARILY_EMPTY, EMPTY)
+cellValueMap.set(INCONSTANT, UNSET)
 
 export default class Solver extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
+    config = config || {}
     Object.assign(this, config)
+    this.handleSucceed = config.onSucceed || (() => { })
+    this.handleError = config.onError || (() => { })
 
     this.rowHints = rowHints.slice()
     this.colHints = colHints.slice()
@@ -35,58 +43,46 @@ export default class Solver extends Nonogram {
     })
 
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
+    if (!this.canvas || this.canvas.dataset.isBusy) {
       return
     }
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.nonogram = this
-    this.canvas.addEventListener('click', this.click)
-    this.canvas.oncontextmenu = (e) => {
-      e.preventDefault()
-    }
+    on.call(this.canvas, 'click', this.click.bind(this))
+    this.canvas.oncontextmenu = (e) => { e.preventDefault() }
 
     this.print()
   }
 
-  static get success() { return new Event('success') }
-  static get error() { return new Event('error') }
-  static get cellValueMap() {
-    const t = new Map()
-    t.set(TEMPORARILY_FILLED, FILLED)
-    t.set(TEMPORARILY_EMPTY, EMPTY)
-    t.set(INCONSTANT, UNSET)
-    return t
-  }
   click(e) {
-    if (this.hasAttribute('occupied')) {
+    if (this.canvas.dataset.isBusy) {
       return
     }
 
-    const self = this.nonogram
-    const d = this.clientWidth * 2 / 3 / (self.n + 1)
-    const x = e.clientX - this.getBoundingClientRect().left
-    const y = e.clientY - this.getBoundingClientRect().top
-    const location = self.getLocation(x, y)
+    const rect = this.canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const d = rect.width * 2 / 3 / (this.n + 1)
+    const location = this.getLocation(x, y)
     if (location === 'grid') {
-      if (self.scanner && self.scanner.error) {
+      if (this.scanner && this.scanner.error) {
         return
       }
       const i = Math.floor(y / d - 0.5)
       const j = Math.floor(x / d - 0.5)
-      if (self.grid[i][j] === UNSET) {
-        self.grid[i][j] = FILLED
-        self.rowHints[i].unchangedSinceLastScanned = false
-        self.colHints[j].unchangedSinceLastScanned = false
-        self.solve()
+      if (this.grid[i][j] === UNSET) {
+        this.grid[i][j] = FILLED
+        this.rowHints[i].unchangedSinceLastScanned = false
+        this.colHints[j].unchangedSinceLastScanned = false
+        this.solve()
       }
     } else if (location === 'controller') {
-      self.refresh()
+      this.refresh()
     }
   }
   refresh() {
-    if (this.canvas.hasAttribute('occupied')) {
+    if (this.canvas.dataset.isBusy) {
       return
     }
 
@@ -107,22 +103,16 @@ export default class Solver extends Nonogram {
     this.solve()
   }
   solve() {
-    return new Promise((resolve, reject) => {
-      if (this.canvas) {
-        if (this.canvas.hasAttribute('occupied')) {
-          return
-        }
-        this.canvas.setAttribute('occupied', '')
-      } else {
-        this.demoMode = false
-      }
-      this.description = `Solves a(n) ${this.m}×${this.n} nonogram${this.demoMode ? ' in demo mode' : ''}`
-      console.time(this.description)
-      this.scan(resolve, reject)
-    })
+    if (this.canvas.dataset.isBusy) {
+      return
+    }
+
+    this.canvas.dataset.isBusy = 1
+    this.startTime = Date.now()
+    this.scan()
   }
-  scan(resolve, reject) {
-    this.updateScanner(resolve)
+  scan() {
+    this.updateScanner()
     if (this.scanner === undefined) {
       return
     }
@@ -134,24 +124,20 @@ export default class Solver extends Nonogram {
     this.solveSingleLine()
     if (this.scanner.error) {
       if (this.canvas) {
-        console.timeEnd(this.description)
-        this.canvas.removeAttribute('occupied')
+        this.canvas.dataset.isBusy = ''
         this.print()
-        this.canvas.dispatchEvent(Solver.error)
-        reject()
+        this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
       }
       return
     }
     if (this.demoMode) {
-      setTimeout(() => {
-        this.scan(resolve, reject)
-      }, this.delay)
+      setTimeout(this.scan.bind(this), this.delay)
     } else {
-      this.scan(resolve, reject)
+      this.scan()
     }
   }
 
-  updateScanner(resolve) {
+  updateScanner() {
     let line
     do {
       if (this.scanner === undefined) {
@@ -173,11 +159,9 @@ export default class Solver extends Nonogram {
         this.colHints.every(col => col.unchangedSinceLastScanned)) {
         delete this.scanner
         if (this.canvas) {
-          console.timeEnd(this.description)
-          this.canvas.removeAttribute('occupied')
+          this.canvas.dataset.isBusy = ''
           this.print()
-          this.canvas.dispatchEvent(Solver.success)
-          resolve()
+          this.handleSucceed(Date.now() - this.startTime)
         }
         return
       }
@@ -250,18 +234,18 @@ export default class Solver extends Nonogram {
   setBackToGrid(direction, i) {
     if (direction === 'row') {
       this.line.forEach((cell, j) => {
-        if (Solver.cellValueMap.has(cell)) {
-          if (this.grid[i][j] !== Solver.cellValueMap.get(cell)) {
-            this.grid[i][j] = Solver.cellValueMap.get(cell)
+        if (cellValueMap.has(cell)) {
+          if (this.grid[i][j] !== cellValueMap.get(cell)) {
+            this.grid[i][j] = cellValueMap.get(cell)
             this.colHints[j].unchangedSinceLastScanned = false
           }
         }
       })
     } else if (direction === 'col') {
       this.line.forEach((cell, j) => {
-        if (Solver.cellValueMap.has(cell)) {
-          if (this.grid[j][i] !== Solver.cellValueMap.get(cell)) {
-            this.grid[j][i] = Solver.cellValueMap.get(cell)
+        if (cellValueMap.has(cell)) {
+          if (this.grid[j][i] !== cellValueMap.get(cell)) {
+            this.grid[j][i] = cellValueMap.get(cell)
             this.rowHints[j].unchangedSinceLastScanned = false
           }
         }
@@ -312,7 +296,7 @@ export default class Solver extends Nonogram {
     }
 
     ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
-    if (this.canvas.hasAttribute('occupied')) {
+    if (this.canvas.dataset.isBusy) {
       return
     }
 

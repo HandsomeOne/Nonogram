@@ -7,7 +7,6 @@
     "semi": [2, "never"],
     "no-param-reassign": "off",
     "no-mixed-operators": "off",
-    "no-console": "off",
     "linebreak-style": "off"
   }
 }

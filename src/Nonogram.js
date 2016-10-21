@@ -20,7 +20,7 @@ export default class Nonogram {
   }
   removeNonPositiveHints() {
     function removeNonPositiveElement(array, j, self) {
-      self[j] = array.filter(Math.sign)
+      self[j] = array.filter(v => v > 0)
     }
     this.rowHints.forEach(removeNonPositiveElement)
     this.colHints.forEach(removeNonPositiveElement)

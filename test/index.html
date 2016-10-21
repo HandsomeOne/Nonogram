@@ -11,6 +11,7 @@
 <canvas></canvas>
 <canvas id="x"></canvas>
 <canvas></canvas>
+<canvas></canvas>
 <script src="nonogram.js"></script>
 <script>
 function $(selector) {
@@ -25,15 +26,32 @@ function newCustomNonogram() {
     parseInt($('#m').value),
     parseInt($('#n').value),
     canvases[0],
-    {threshold: parseFloat($('#threshold').value)}
+    {
+      threshold: parseFloat($('#threshold').value),
+      onHintChange: function (rowHints, colHints) {
+        new nonogram.Game(rowHints, colHints, 'x', {
+          boldMeshGap: 3,
+          onSucceed: function () {
+            console.log('success')
+          },
+          onAnimationEnd: function () {
+            console.log('animation end')
+          }
+        })
+        new nonogram.Solver(rowHints, colHints, canvases[2], {
+          onSucceed: function (time) {
+            console.log(time)
+          },
+        }).solve()
+        new nonogram.Solver(rowHints.slice(0, 5), colHints, canvases[3], {
+          onError: function (err) {
+            console.log(err.message)
+          },
+        }).solve()
+      },
+    }
   )
 }
-canvases[0].addEventListener('hintchange', function () {
-  new nonogram.Game(this.nonogram.rowHints, this.nonogram.colHints, 'x', {
-    boldMeshGap: 3,
-  })
-  new nonogram.Solver(this.nonogram.rowHints, this.nonogram.colHints, canvases[2]).solve()
-})
 $('#m').addEventListener('change', newCustomNonogram)
 $('#n').addEventListener('change', newCustomNonogram)
 $('#threshold').addEventListener('change', newCustomNonogram)

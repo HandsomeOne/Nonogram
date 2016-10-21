@@ -5,13 +5,17 @@ import {
   UNSET,
 } from './type'
 import $ from './colors'
+import { on, off } from './event'
 
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
 export default class Game extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
+    config = config || {}
     Object.assign(this, config)
+    this.handleSucceed = config.onSucceed || (() => { })
+    this.handleAnimationEnd = config.onAnimationEnd || (() => { })
 
     this.rowHints = rowHints.slice()
     this.colHints = colHints.slice()
@@ -25,17 +29,16 @@ export default class Game extends Nonogram {
     this.rowHints.forEach((row, i) => { row.isCorrect = this.checkCorrectness('row', i) })
     this.colHints.forEach((col, j) => { col.isCorrect = this.checkCorrectness('col', j) })
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.hasAttribute('occupied')) {
+    if (!this.canvas || this.canvas.dataset.isBusy) {
       return
     }
 
     this.canvas.width = this.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    this.canvas.nonogram = this
-    this.canvas.addEventListener('mousedown', this.mousedown)
-    this.canvas.addEventListener('mousemove', this.mousemove)
-    this.canvas.addEventListener('mouseup', this.brushUp)
-    this.canvas.addEventListener('mouseleave', this.brushUp)
+    on.call(this.canvas, 'mousedown', this.mousedown.bind(this))
+    on.call(this.canvas, 'mousemove', this.mousemove.bind(this))
+    on.call(this.canvas, 'mouseup', this.brushUp.bind(this))
+    on.call(this.canvas, 'mouseleave', this.brushUp.bind(this))
     this.canvas.oncontextmenu = (e) => {
       e.preventDefault()
     }
@@ -45,56 +48,54 @@ export default class Game extends Nonogram {
     this.print()
   }
 
-  static get success() { return new Event('success') }
-  static get animationFinish() { return new Event('animationfinish') }
   mousedown(e) {
-    const self = this.nonogram
-    const x = e.clientX - this.getBoundingClientRect().left
-    const y = e.clientY - this.getBoundingClientRect().top
-    const d = this.clientWidth * 2 / 3 / (self.n + 1)
-    const location = self.getLocation(x, y)
+    const rect = this.canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const d = rect.width * 2 / 3 / (this.n + 1)
+    const location = this.getLocation(x, y)
     if (location === 'controller') {
-      self.switchBrush()
+      this.switchBrush()
     } else if (location === 'grid') {
-      self.draw.firstI = Math.floor(y / d - 0.5)
-      self.draw.firstJ = Math.floor(x / d - 0.5)
-      self.draw.inverted = e.button === 2
-      const cell = self.grid[self.draw.firstI][self.draw.firstJ]
-      let brush = self.brush
-      if (self.draw.inverted) {
-        brush = self.brush === FILLED ? EMPTY : FILLED
+      this.draw.firstI = Math.floor(y / d - 0.5)
+      this.draw.firstJ = Math.floor(x / d - 0.5)
+      this.draw.inverted = e.button === 2
+      const cell = this.grid[this.draw.firstI][this.draw.firstJ]
+      let brush = this.brush
+      if (this.draw.inverted) {
+        brush = this.brush === FILLED ? EMPTY : FILLED
       }
       if (cell === UNSET || brush === cell) {
-        self.draw.mode = (brush === cell) ? 'empty' : 'filling'
-        self.isPressed = true
-        self.switchCell(self.draw.firstI, self.draw.firstJ)
+        this.draw.mode = (brush === cell) ? 'empty' : 'filling'
+        this.isPressed = true
+        this.switchCell(this.draw.firstI, this.draw.firstJ)
       }
-      self.draw.lastI = self.draw.firstI
-      self.draw.lastJ = self.draw.firstJ
+      this.draw.lastI = this.draw.firstI
+      this.draw.lastJ = this.draw.firstJ
     }
   }
   mousemove(e) {
-    const self = this.nonogram
-    if (self.isPressed) {
-      const x = e.clientX - this.getBoundingClientRect().left
-      const y = e.clientY - this.getBoundingClientRect().top
-      const d = this.clientWidth * 2 / 3 / (self.n + 1)
-      if (self.getLocation(x, y) === 'grid') {
+    if (this.isPressed) {
+      const rect = this.canvas.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      const d = rect.width * 2 / 3 / (this.n + 1)
+      if (this.getLocation(x, y) === 'grid') {
         const i = Math.floor(y / d - 0.5)
         const j = Math.floor(x / d - 0.5)
-        if (i !== self.draw.lastI || j !== self.draw.lastJ) {
-          if (self.draw.direction === undefined) {
-            if (i === self.draw.firstI) {
-              self.draw.direction = 'row'
-            } else if (j === self.draw.firstJ) {
-              self.draw.direction = 'col'
+        if (i !== this.draw.lastI || j !== this.draw.lastJ) {
+          if (this.draw.direction === undefined) {
+            if (i === this.draw.firstI) {
+              this.draw.direction = 'row'
+            } else if (j === this.draw.firstJ) {
+              this.draw.direction = 'col'
             }
           }
-          if ((self.draw.direction === 'row' && i === self.draw.firstI) ||
-            (self.draw.direction === 'col' && j === self.draw.firstJ)) {
-            self.switchCell(i, j)
-            self.draw.lastI = i
-            self.draw.lastJ = j
+          if ((this.draw.direction === 'row' && i === this.draw.firstI) ||
+            (this.draw.direction === 'col' && j === this.draw.firstJ)) {
+            this.switchCell(i, j)
+            this.draw.lastI = i
+            this.draw.lastJ = j
           }
         }
       }
@@ -105,9 +106,8 @@ export default class Game extends Nonogram {
     this.printController()
   }
   brushUp() {
-    const self = this.nonogram
-    delete self.isPressed
-    self.draw = {}
+    delete this.isPressed
+    this.draw = {}
   }
   switchCell(i, j) {
     let brush = this.brush
@@ -207,11 +207,11 @@ export default class Game extends Nonogram {
       return
     }
 
-    this.canvas.dispatchEvent(Game.success)
-    this.canvas.removeEventListener('mousedown', this.mousedown)
-    this.canvas.removeEventListener('mousemove', this.mousemove)
-    this.canvas.removeEventListener('mouseup', this.brushUp)
-    this.canvas.removeEventListener('mouseleave', this.brushUp)
+    this.handleSucceed()
+    off.call(this.canvas, 'mousedown')
+    off.call(this.canvas, 'mousemove')
+    off.call(this.canvas, 'mouseup')
+    off.call(this.canvas, 'mouseleave')
 
     const ctx = this.canvas.getContext('2d')
     const w = this.canvas.width
@@ -247,8 +247,7 @@ export default class Game extends Nonogram {
       ctx.putImageData(background, 0, 0)
       t += 0.03
       ctx.globalAlpha = f(t)
-      ctx.fillStyle = 'white'
-      ctx.fillRect(w * 2 / 3, h * 2 / 3, w / 3, h / 3)
+      ctx.clearRect(w * 2 / 3, h * 2 / 3, w / 3, h / 3)
       ctx.drawImage(tick,
         w * 0.7 - (1 - f(t)) * controllerSize / 2,
         h * 0.7 - (1 - f(t)) * controllerSize / 2,
@@ -257,7 +256,7 @@ export default class Game extends Nonogram {
       if (t <= 1) {
         requestAnimationFrame(fadeTickIn.bind(this))
       } else {
-        this.canvas.dispatchEvent(Game.animationFinish)
+        this.handleAnimationEnd()
       }
     }
 
