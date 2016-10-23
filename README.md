@@ -115,7 +115,7 @@ General configuration items are related to the appearance.
 
 - `delay` (ms): default is `50`. Controls the delay between steps of the solving process.
 
-- `onSucceed(time)`: fired when the nonogram has been solved, `time` is how many milliseconds cost. 
+- `onSuccess(time)`: fired when the nonogram has been solved, `time` is how many milliseconds cost. 
 
 - `onError(err)`: when some contradiction has been found, `err` tells the bad hints' location (index starts at 1).
 
@@ -150,6 +150,6 @@ new nonogram.Editor(4, 4, 'canvas1', {
 
 ### `nonogram.Game`
 
-- `onSucceed()`: fired when the player has successfully solved the nonogram.
+- `onSuccess()`: fired when the player has successfully solved the nonogram.
 
 - `onAnimationEnd()`: fired when when the success animation has been finished.

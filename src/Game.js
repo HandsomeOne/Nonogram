@@ -14,7 +14,7 @@ export default class Game extends Nonogram {
     super()
     config = config || {}
     Object.assign(this, config)
-    this.handleSucceed = config.onSucceed || (() => { })
+    this.handleSuccess = config.onSuccess || (() => { })
     this.handleAnimationEnd = config.onAnimationEnd || (() => { })
 
     this.rowHints = rowHints.slice()
@@ -207,7 +207,7 @@ export default class Game extends Nonogram {
       return
     }
 
-    this.handleSucceed()
+    this.handleSuccess()
     off.call(this.canvas, 'mousedown')
     off.call(this.canvas, 'mousemove')
     off.call(this.canvas, 'mouseup')

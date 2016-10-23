@@ -21,7 +21,7 @@ export default class Solver extends Nonogram {
     super()
     config = config || {}
     Object.assign(this, config)
-    this.handleSucceed = config.onSucceed || (() => { })
+    this.handleSuccess = config.onSuccess || (() => { })
     this.handleError = config.onError || (() => { })
 
     this.rowHints = rowHints.slice()
@@ -161,7 +161,7 @@ export default class Solver extends Nonogram {
         if (this.canvas) {
           this.canvas.dataset.isBusy = ''
           this.print()
-          this.handleSucceed(Date.now() - this.startTime)
+          this.handleSuccess(Date.now() - this.startTime)
         }
         return
       }
