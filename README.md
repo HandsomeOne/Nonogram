@@ -147,7 +147,6 @@ new nonogram.Editor(4, 4, 'canvas1', {
   })
 })
 ```
-Here `<HTMLCanvasElement>.nonogram` refers to the nonogram instance on it.
 
 ### `nonogram.Game`
 
