@@ -10,13 +10,10 @@ module.exports = {
       exclude: /node_modules/,
     }],
   },
-  entry: {
-    app: ["./src/index.js"]
-  },
+  entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, "test"),
-    publicPath: "/",
-    filename: "nonogram.js",
+    path: path.resolve(__dirname, 'test'),
+    filename: 'nonogram.js',
     library: 'nonogram',
     libraryTarget: 'umd',
   },
