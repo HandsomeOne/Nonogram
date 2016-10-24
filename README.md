@@ -16,12 +16,12 @@ to `<head>`. A `<canvas>` element is required for each nonogram instance.
 
 ### `class nonogram.Solver`
 
-#### `#constructor(rowHints, colHints, canvas[, config])`
+#### `#constructor(row, column, canvas[, config])`
 
 Creates a nonogram solver.
 
-- `rowHints`: a two-dimensional array, consisting of the hints of each row as an array.
-- `colHints`: a two-dimensional array, consisting of the hints of each column as an array.
+- `row`: a two-dimensional array, consisting of the hints of each row as an array.
+- `column`: a two-dimensional array, consisting of the hints of each column as an array.
 - *optional* `canvas`: a canvas element, or `id` of the canvas to print the nonogram on. If not given, a new canvas element will be created and assigned to `this.canvas` so you can put it to the document later.
 - *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
@@ -89,7 +89,7 @@ then the output is likely to be
 
 ### `class nonogram.Game`
 
-#### `#constructor(rowHints, colHints, canvas[, config])`
+#### `#constructor(row, column, canvas[, config])`
 
 Creates a nonogram game. The parameters have the same definitions as those of `nonogram.Solver`'s.
 
@@ -139,11 +139,11 @@ to create
 
 - `threshold`: if `grid` is not given, then the nonogram's grid will be randomly generated. Each cell of the grid has a chance of threshold*100% to be filled. Default is `0.5`.
 
-- `onHintChange(rowHints, colHints)`: fired when the nonogram's hints have any change. To automatically create a new solver on hint change, you can use
+- `onHintChange(row, column)`: fired when the nonogram's hints have any change. To automatically create a new solver on hint change, you can use
 ```javascript
 new nonogram.Editor(4, 4, 'canvas1', {
-  onHintChange: function (rowHints, colHints) {
-    new nonogram.Solver(rowHints, colHints, 'canvas2').solve()
+  onHintChange: function (row, column) {
+    new nonogram.Solver(row, column, 'canvas2').solve()
   })
 })
 ```

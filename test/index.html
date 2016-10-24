@@ -29,8 +29,8 @@ function newCustomNonogram() {
     canvases[0],
     {
       threshold: parseFloat($('#threshold').value),
-      onHintChange: function (rowHints, colHints) {
-        new nonogram.Game(rowHints, colHints, 'x', {
+      onHintChange: function (row, column) {
+        new nonogram.Game(row, column, 'x', {
           boldMeshGap: 3,
           onSuccess: function () {
             console.log('success')
@@ -39,12 +39,12 @@ function newCustomNonogram() {
             console.log('animation end')
           }
         })
-        new nonogram.Solver(rowHints, colHints, canvases[2], {
+        new nonogram.Solver(row, column, canvases[2], {
           onSuccess: function (time) {
             console.log(time)
           },
         }).solve()
-        new nonogram.Solver(rowHints.slice(0, 5), colHints, canvases[3], {
+        new nonogram.Solver(row.slice(0, 5), column, canvases[3], {
           onError: function (err) {
             console.log(err.message)
           },

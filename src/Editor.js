@@ -29,15 +29,17 @@ export default class Editor extends Nonogram {
         })
       })
     }
-    this.rowHints = new Array(m)
-    this.colHints = new Array(n)
+    this.hints = {
+      row: new Array(m),
+      column: new Array(n),
+    }
     for (let i = 0; i < this.m; i += 1) {
-      this.rowHints[i] = this.calculateHints('row', i)
-      this.rowHints[i].isCorrect = true
+      this.hints.row[i] = this.calculateHints('row', i)
+      this.hints.row[i].isCorrect = true
     }
     for (let j = 0; j < this.n; j += 1) {
-      this.colHints[j] = this.calculateHints('col', j)
-      this.colHints[j].isCorrect = true
+      this.hints.column[j] = this.calculateHints('column', j)
+      this.hints.column[j].isCorrect = true
     }
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
     if (!this.canvas || this.canvas.dataset.isBusy) {
@@ -54,7 +56,7 @@ export default class Editor extends Nonogram {
 
     this.draw = {}
     this.print()
-    this.handleHintChange(this.rowHints, this.colHints)
+    this.handleHintChange(this.hints.row, this.hints.column)
   }
 
   mousedown(e) {
@@ -90,11 +92,11 @@ export default class Editor extends Nonogram {
             if (i === this.draw.firstI) {
               this.draw.direction = 'row'
             } else if (j === this.draw.firstJ) {
-              this.draw.direction = 'col'
+              this.draw.direction = 'column'
             }
           }
           if ((this.draw.direction === 'row' && i === this.draw.firstI) ||
-            (this.draw.direction === 'col' && j === this.draw.firstJ)) {
+            (this.draw.direction === 'column' && j === this.draw.firstJ)) {
             this.switchCell(i, j)
             this.draw.lastI = i
             this.draw.lastJ = j
@@ -109,12 +111,12 @@ export default class Editor extends Nonogram {
   }
   switchCell(i, j) {
     this.grid[i][j] = this.draw.brush
-    this.rowHints[i] = this.calculateHints('row', i)
-    this.rowHints[i].isCorrect = true
-    this.colHints[j] = this.calculateHints('col', j)
-    this.colHints[j].isCorrect = true
+    this.hints.row[i] = this.calculateHints('row', i)
+    this.hints.row[i].isCorrect = true
+    this.hints.column[j] = this.calculateHints('column', j)
+    this.hints.column[j].isCorrect = true
     this.print()
-    this.handleHintChange(this.rowHints, this.colHints)
+    this.handleHintChange(this.hints.row, this.hints.column)
   }
   refresh() {
     for (let i = 0; i < this.m; i += 1) {
@@ -123,15 +125,15 @@ export default class Editor extends Nonogram {
       }
     }
     for (let i = 0; i < this.m; i += 1) {
-      this.rowHints[i] = this.calculateHints('row', i)
-      this.rowHints[i].isCorrect = true
+      this.hints.row[i] = this.calculateHints('row', i)
+      this.hints.row[i].isCorrect = true
     }
     for (let j = 0; j < this.n; j += 1) {
-      this.colHints[j] = this.calculateHints('col', j)
-      this.colHints[j].isCorrect = true
+      this.hints.column[j] = this.calculateHints('column', j)
+      this.hints.column[j].isCorrect = true
     }
     this.print()
-    this.handleHintChange(this.rowHints, this.colHints)
+    this.handleHintChange(this.hints.row, this.hints.column)
   }
   printController() {
     const ctx = this.canvas.getContext('2d')

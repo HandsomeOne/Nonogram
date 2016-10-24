@@ -18,7 +18,7 @@ export default class Nonogram {
       for (let j = 0; j < this.n; j += 1) {
         g[j] = this.grid[i][j]
       }
-    } else if (direction === 'col') {
+    } else if (direction === 'column') {
       for (let j = 0; j < this.m; j += 1) {
         g[j] = this.grid[j][i]
       }
@@ -29,11 +29,11 @@ export default class Nonogram {
     function removeNonPositiveElement(array, j, self) {
       self[j] = array.filter(v => v > 0)
     }
-    this.rowHints.forEach(removeNonPositiveElement)
-    this.colHints.forEach(removeNonPositiveElement)
+    this.hints.row.forEach(removeNonPositiveElement)
+    this.hints.column.forEach(removeNonPositiveElement)
   }
   getHints(direction, i) {
-    return this[`${direction}Hints`][i].slice()
+    return this.hints[direction][i].slice()
   }
   calculateHints(direction, i) {
     const hints = []
@@ -47,7 +47,7 @@ export default class Nonogram {
     return hints
   }
   checkCorrectness(direction, i) {
-    return this.calculateHints(direction, i).toString() === this[`${direction}Hints`][i].toString()
+    return this.calculateHints(direction, i).toString() === this.hints[direction][i].toString()
   }
 
   getLocation(x, y) {
@@ -174,14 +174,14 @@ export default class Nonogram {
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.font = `${d}pt "Courier New", Inconsolata, Consolas, monospace`
-      const line = this[`${direction}Hints`][i]
+      const line = this.hints[direction][i]
       ctx.fillStyle = line.isCorrect ? this.correctColor : this.wrongColor
       ctx.globalAlpha = (!line.isCorrect && line.unchangedSinceLastScanned) ? 0.5 : 1
       if (direction === 'row') {
-        ctx.fillText(this.rowHints[i][j] || 0,
+        ctx.fillText(this.hints.row[i][j] || 0,
           w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8)
-      } else if (direction === 'col') {
-        ctx.fillText(this.colHints[i][j] || 0,
+      } else if (direction === 'column') {
+        ctx.fillText(this.hints.column[i][j] || 0,
           d * (i + 0.5), h * 2 / 3 + d * j, d * 0.8)
       }
     }
@@ -191,19 +191,19 @@ export default class Nonogram {
     ctx.save()
     ctx.translate(d / 2, d / 2)
     for (let i = 0; i < this.m; i += 1) {
-      for (let j = 0; j < this.rowHints[i].length; j += 1) {
+      for (let j = 0; j < this.hints.row[i].length; j += 1) {
         printSingleHint.call(this, 'row', i, j)
       }
-      if (this.rowHints[i].length === 0) {
+      if (this.hints.row[i].length === 0) {
         printSingleHint.call(this, 'row', i, 0)
       }
     }
     for (let j = 0; j < this.n; j += 1) {
-      for (let i = 0; i < this.colHints[j].length; i += 1) {
-        printSingleHint.call(this, 'col', j, i)
+      for (let i = 0; i < this.hints.column[j].length; i += 1) {
+        printSingleHint.call(this, 'column', j, i)
       }
-      if (this.colHints[j].length === 0) {
-        printSingleHint.call(this, 'col', j, 0)
+      if (this.hints.column[j].length === 0) {
+        printSingleHint.call(this, 'column', j, 0)
       }
     }
     ctx.restore()
@@ -212,3 +212,4 @@ export default class Nonogram {
 
 Nonogram.FILLED = true
 Nonogram.UNSET = undefined
+Nonogram.EMPTY = false

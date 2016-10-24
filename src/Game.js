@@ -5,7 +5,7 @@ import { on, off } from './event'
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
 export default class Game extends Nonogram {
-  constructor(rowHints, colHints, canvas = document.createElement('canvas'), config = {}) {
+  constructor(row, column, canvas = document.createElement('canvas'), config = {}) {
     super()
     this.filledColor = $.blue
     this.emptyColor = $.red
@@ -16,17 +16,19 @@ export default class Game extends Nonogram {
     this.handleSuccess = config.onSuccess || (() => { })
     this.handleAnimationEnd = config.onAnimationEnd || (() => { })
 
-    this.rowHints = rowHints.slice()
-    this.colHints = colHints.slice()
+    this.hints = {
+      row: row.slice(),
+      column: column.slice(),
+    }
     this.removeNonPositiveHints()
-    this.m = rowHints.length
-    this.n = colHints.length
+    this.m = this.hints.row.length
+    this.n = this.hints.column.length
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
       this.grid[i] = new Array(this.n).fill(Game.UNSET)
     }
-    this.rowHints.forEach((row, i) => { row.isCorrect = this.checkCorrectness('row', i) })
-    this.colHints.forEach((col, j) => { col.isCorrect = this.checkCorrectness('col', j) })
+    this.hints.row.forEach((r, i) => { r.isCorrect = this.checkCorrectness('row', i) })
+    this.hints.column.forEach((c, j) => { c.isCorrect = this.checkCorrectness('column', j) })
     this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
     if (!this.canvas || this.canvas.dataset.isBusy) {
       return
@@ -87,11 +89,11 @@ export default class Game extends Nonogram {
             if (i === this.draw.firstI) {
               this.draw.direction = 'row'
             } else if (j === this.draw.firstJ) {
-              this.draw.direction = 'col'
+              this.draw.direction = 'column'
             }
           }
           if ((this.draw.direction === 'row' && i === this.draw.firstI) ||
-            (this.draw.direction === 'col' && j === this.draw.firstJ)) {
+            (this.draw.direction === 'column' && j === this.draw.firstJ)) {
             this.switchCell(i, j)
             this.draw.lastI = i
             this.draw.lastJ = j
@@ -115,11 +117,11 @@ export default class Game extends Nonogram {
     }
     if (brush === Game.FILLED && this.grid[i][j] !== Game.EMPTY) {
       this.grid[i][j] = (this.draw.mode === 'filling') ? Game.FILLED : Game.UNSET
-      this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i])
-      this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j])
+      this.hints.row[i].isCorrect = eekwall(this.calculateHints('row', i), this.hints.row[i])
+      this.hints.column[j].isCorrect = eekwall(this.calculateHints('column', j), this.hints.column[j])
       this.print()
-      const correct = this.rowHints.every(singleRow => singleRow.isCorrect) &&
-        this.colHints.every(singleCol => singleCol.isCorrect)
+      const correct = this.hints.row.every(singleRow => singleRow.isCorrect) &&
+        this.hints.column.every(singleCol => singleCol.isCorrect)
       if (correct) {
         this.succeed()
       }
@@ -262,5 +264,3 @@ export default class Game extends Nonogram {
     fadeTickIn.call(this)
   }
 }
-
-Game.EMPTY = false
