@@ -21,8 +21,8 @@ export default class Solver extends Nonogram {
       column: column.slice(),
     }
     this.removeNonPositiveHints()
-    this.m = row.slice().length
-    this.n = column.slice().length
+    this.m = this.hints.row.length
+    this.n = this.hints.column.length
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
       this.grid[i] = new Array(this.n)
