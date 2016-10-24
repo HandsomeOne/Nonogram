@@ -10,13 +10,13 @@ import { on, off } from './event'
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
 export default class Game extends Nonogram {
-  constructor(rowHints, colHints, canvas, config) {
+  constructor(rowHints, colHints, canvas = document.createElement('canvas'), config = {}) {
     super()
     this.filledColor = $.blue
     this.emptyColor = $.red
     this.wrongColor = $.grey
     this.isMeshed = true
-    config = config || {}
+
     Object.assign(this, config)
     this.handleSuccess = config.onSuccess || (() => { })
     this.handleAnimationEnd = config.onAnimationEnd || (() => { })

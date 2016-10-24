@@ -17,14 +17,14 @@ cellValueMap.set(TEMPORARILY_EMPTY, EMPTY)
 cellValueMap.set(INCONSTANT, UNSET)
 
 export default class Solver extends Nonogram {
-  constructor(rowHints, colHints, canvas, config) {
+  constructor(rowHints, colHints, canvas = document.createElement('canvas'), config = {}) {
     super()
     this.filledColor = $.green
     this.correctColor = $.green
     this.wrongColor = $.yellow
     this.demoMode = true
     this.delay = 50
-    config = config || {}
+
     Object.assign(this, config)
     this.handleSuccess = config.onSuccess || (() => { })
     this.handleError = config.onError || (() => { })

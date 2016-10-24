@@ -7,12 +7,12 @@ import $ from './colors'
 import { on } from './event'
 
 export default class Editor extends Nonogram {
-  constructor(m, n, canvas, config) {
+  constructor(m, n, canvas = document.createElement('canvas'), config = {}) {
     super()
     this.filledColor = $.violet
     this.correctColor = $.violet
     this.threshold = 0.5
-    config = config || {}
+
     Object.assign(this, config)
     this.handleHintChange = config.onHintChange || (() => { })
 

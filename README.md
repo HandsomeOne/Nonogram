@@ -22,7 +22,7 @@ Creates a nonogram solver.
 
 - `rowHints`: a two-dimensional array, consisting of the hints of each row as an array.
 - `colHints`: a two-dimensional array, consisting of the hints of each column as an array.
-- `canvas`: a canvas element, or `id` of the canvas to print the nonogram on.
+- *optional* `canvas`: a canvas element, or `id` of the canvas to print the nonogram on. If not given, a new canvas element will be created and assigned to `this.canvas` so you can put it to the document later.
 - *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
 #### `#solve()`
@@ -66,7 +66,7 @@ Creates a nonogram editor.
 
 - `m`: number of rows, or the length of each column.
 - `n`: number of columns, or the length of each row.
-- `canvas`: a canvas element, or `id` of the canvas to print the nonogram on.
+- *optional* `canvas`: same as that of `nonogram.Solver`.
 - *optional* `config`: an object, see [§ Configuration Items](#configuration-items).
 
 #### `#refresh()`
