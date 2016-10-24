@@ -12,6 +12,10 @@ const eekwall = (object1, object2) => object1.toString() === object2.toString()
 export default class Game extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
+    this.filledColor = $.blue
+    this.emptyColor = $.red
+    this.wrongColor = $.grey
+    this.isMeshed = true
     config = config || {}
     Object.assign(this, config)
     this.handleSuccess = config.onSuccess || (() => { })
@@ -263,9 +267,3 @@ export default class Game extends Nonogram {
     fadeTickIn.call(this)
   }
 }
-Object.assign(Game.prototype, {
-  filledColor: $.blue,
-  emptyColor: $.red,
-  wrongColor: $.grey,
-  isMeshed: true,
-})

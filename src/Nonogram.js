@@ -5,6 +5,17 @@ import {
 import $ from './colors'
 
 export default class Nonogram {
+  constructor() {
+    this.filledColor = $.grey
+    this.unsetColor = $.greyVeryLight
+    this.correctColor = $.green
+    this.wrongColor = $.red
+    this.meshColor = $.yellow
+    this.isMeshed = false
+    this.isBoldMeshOnly = false
+    this.isMeshOnTop = false
+    this.boldMeshGap = 5
+  }
   getSingleLine(direction, i) {
     const g = []
     if (direction === 'row') {
@@ -202,14 +213,3 @@ export default class Nonogram {
     ctx.restore()
   }
 }
-Object.assign(Nonogram.prototype, {
-  filledColor: $.grey,
-  unsetColor: $.greyVeryLight,
-  correctColor: $.green,
-  wrongColor: $.red,
-  meshColor: $.yellow,
-  isMeshed: false,
-  isBoldMeshOnly: false,
-  isMeshOnTop: false,
-  boldMeshGap: 5,
-})

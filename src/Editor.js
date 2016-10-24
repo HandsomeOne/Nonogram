@@ -9,6 +9,9 @@ import { on } from './event'
 export default class Editor extends Nonogram {
   constructor(m, n, canvas, config) {
     super()
+    this.filledColor = $.violet
+    this.correctColor = $.violet
+    this.threshold = 0.5
     config = config || {}
     Object.assign(this, config)
     this.handleHintChange = config.onHintChange || (() => { })
@@ -174,8 +177,3 @@ export default class Editor extends Nonogram {
     ctx.restore()
   }
 }
-Object.assign(Editor.prototype, {
-  filledColor: $.violet,
-  correctColor: $.violet,
-  threshold: 0.5,
-})

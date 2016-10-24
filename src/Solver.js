@@ -19,6 +19,11 @@ cellValueMap.set(INCONSTANT, UNSET)
 export default class Solver extends Nonogram {
   constructor(rowHints, colHints, canvas, config) {
     super()
+    this.filledColor = $.green
+    this.correctColor = $.green
+    this.wrongColor = $.yellow
+    this.demoMode = true
+    this.delay = 50
     config = config || {}
     Object.assign(this, config)
     this.handleSuccess = config.onSuccess || (() => { })
@@ -327,10 +332,3 @@ export default class Solver extends Nonogram {
     ctx.restore()
   }
 }
-Object.assign(Solver.prototype, {
-  filledColor: $.green,
-  correctColor: $.green,
-  wrongColor: $.yellow,
-  demoMode: true,
-  delay: 50,
-})
