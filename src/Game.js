@@ -1,9 +1,4 @@
 import Nonogram from './Nonogram'
-import {
-  FILLED,
-  EMPTY,
-  UNSET,
-} from './type'
 import $ from './colors'
 import { on, off } from './event'
 
@@ -28,7 +23,7 @@ export default class Game extends Nonogram {
     this.n = colHints.length
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
-      this.grid[i] = new Array(this.n).fill(UNSET)
+      this.grid[i] = new Array(this.n).fill(Game.UNSET)
     }
     this.rowHints.forEach((row, i) => { row.isCorrect = this.checkCorrectness('row', i) })
     this.colHints.forEach((col, j) => { col.isCorrect = this.checkCorrectness('col', j) })
@@ -47,7 +42,7 @@ export default class Game extends Nonogram {
       e.preventDefault()
     }
 
-    this.brush = FILLED
+    this.brush = Game.FILLED
     this.draw = {}
     this.print()
   }
@@ -67,9 +62,9 @@ export default class Game extends Nonogram {
       const cell = this.grid[this.draw.firstI][this.draw.firstJ]
       let brush = this.brush
       if (this.draw.inverted) {
-        brush = this.brush === FILLED ? EMPTY : FILLED
+        brush = this.brush === Game.FILLED ? Game.EMPTY : Game.FILLED
       }
-      if (cell === UNSET || brush === cell) {
+      if (cell === Game.UNSET || brush === cell) {
         this.draw.mode = (brush === cell) ? 'empty' : 'filling'
         this.isPressed = true
         this.switchCell(this.draw.firstI, this.draw.firstJ)
@@ -106,7 +101,7 @@ export default class Game extends Nonogram {
     }
   }
   switchBrush() {
-    this.brush = (this.brush === EMPTY) ? FILLED : EMPTY
+    this.brush = (this.brush === Game.EMPTY) ? Game.FILLED : Game.EMPTY
     this.printController()
   }
   brushUp() {
@@ -116,10 +111,10 @@ export default class Game extends Nonogram {
   switchCell(i, j) {
     let brush = this.brush
     if (this.draw.inverted) {
-      brush = this.brush === FILLED ? EMPTY : FILLED
+      brush = this.brush === Game.FILLED ? Game.EMPTY : Game.FILLED
     }
-    if (brush === FILLED && this.grid[i][j] !== EMPTY) {
-      this.grid[i][j] = (this.draw.mode === 'filling') ? FILLED : UNSET
+    if (brush === Game.FILLED && this.grid[i][j] !== Game.EMPTY) {
+      this.grid[i][j] = (this.draw.mode === 'filling') ? Game.FILLED : Game.UNSET
       this.rowHints[i].isCorrect = eekwall(this.calculateHints('row', i), this.rowHints[i])
       this.colHints[j].isCorrect = eekwall(this.calculateHints('col', j), this.colHints[j])
       this.print()
@@ -128,8 +123,8 @@ export default class Game extends Nonogram {
       if (correct) {
         this.succeed()
       }
-    } else if (brush === EMPTY && this.grid[i][j] !== FILLED) {
-      this.grid[i][j] = (this.draw.mode === 'filling') ? EMPTY : UNSET
+    } else if (brush === Game.EMPTY && this.grid[i][j] !== Game.FILLED) {
+      this.grid[i][j] = (this.draw.mode === 'filling') ? Game.EMPTY : Game.UNSET
       this.print()
     }
   }
@@ -138,11 +133,11 @@ export default class Game extends Nonogram {
     const ctx = this.canvas.getContext('2d')
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {
-      case FILLED:
+      case Game.FILLED:
         ctx.fillStyle = this.filledColor
         ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1)
         break
-      case EMPTY:
+      case Game.EMPTY:
         ctx.strokeStyle = this.emptyColor
         ctx.lineWidth = d / 15
         ctx.beginPath()
@@ -196,10 +191,10 @@ export default class Game extends Nonogram {
     ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
     ctx.save()
     ctx.translate(w * 0.7, h * 0.7)
-    if (this.brush === FILLED) {
+    if (this.brush === Game.FILLED) {
       printEmptyBrush.call(this)
       printFillingBrush.call(this)
-    } else if (this.brush === EMPTY) {
+    } else if (this.brush === Game.EMPTY) {
       printFillingBrush.call(this)
       printEmptyBrush.call(this)
     }
@@ -267,3 +262,5 @@ export default class Game extends Nonogram {
     fadeTickIn.call(this)
   }
 }
+
+Game.EMPTY = false

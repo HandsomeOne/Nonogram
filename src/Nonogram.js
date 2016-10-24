@@ -1,7 +1,3 @@
-import {
-  FILLED,
-  UNSET,
-} from './type'
 import $ from './colors'
 
 export default class Nonogram {
@@ -43,10 +39,10 @@ export default class Nonogram {
     const hints = []
     const line = this.getSingleLine(direction, i)
     line.reduce((lastIsFilled, cell) => {
-      if (cell === FILLED) {
+      if (cell === Nonogram.FILLED) {
         hints.push(lastIsFilled ? hints.pop() + 1 : 1)
       }
-      return cell === FILLED
+      return cell === Nonogram.FILLED
     }, false)
     return hints
   }
@@ -112,11 +108,11 @@ export default class Nonogram {
     const ctx = this.canvas.getContext('2d')
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {
-      case UNSET:
+      case Nonogram.UNSET:
         ctx.fillStyle = this.unsetColor
         ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9)
         break
-      case FILLED:
+      case Nonogram.FILLED:
         ctx.fillStyle = this.filledColor
         ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1)
         break
@@ -213,3 +209,6 @@ export default class Nonogram {
     ctx.restore()
   }
 }
+
+Nonogram.FILLED = true
+Nonogram.UNSET = undefined

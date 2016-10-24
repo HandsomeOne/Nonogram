@@ -1,8 +1,4 @@
 import Nonogram from './Nonogram'
-import {
-  FILLED,
-  EMPTY,
-} from './type'
 import $ from './colors'
 import { on } from './event'
 
@@ -23,13 +19,13 @@ export default class Editor extends Nonogram {
       for (let i = 0; i < this.m; i += 1) {
         this.grid[i] = new Array(this.n)
         for (let j = 0; j < this.n; j += 1) {
-          this.grid[i][j] = (Math.random() < this.threshold) ? FILLED : EMPTY
+          this.grid[i][j] = (Math.random() < this.threshold) ? Editor.FILLED : Editor.EMPTY
         }
       }
     } else {
       this.grid.forEach((a) => {
         a.forEach((e, i, arr) => {
-          arr[i] = e ? FILLED : EMPTY
+          arr[i] = e ? Editor.FILLED : Editor.EMPTY
         })
       })
     }
@@ -73,7 +69,7 @@ export default class Editor extends Nonogram {
       this.draw.firstI = Math.floor(y / d - 0.5)
       this.draw.firstJ = Math.floor(x / d - 0.5)
       const cell = this.grid[this.draw.firstI][this.draw.firstJ]
-      this.draw.brush = (cell === FILLED) ? EMPTY : FILLED
+      this.draw.brush = (cell === Editor.FILLED) ? Editor.EMPTY : Editor.FILLED
       this.isPressed = true
       this.switchCell(this.draw.firstI, this.draw.firstJ)
       this.draw.lastI = this.draw.firstI
@@ -123,7 +119,7 @@ export default class Editor extends Nonogram {
   refresh() {
     for (let i = 0; i < this.m; i += 1) {
       for (let j = 0; j < this.n; j += 1) {
-        this.grid[i][j] = (Math.random() < this.threshold) ? FILLED : EMPTY
+        this.grid[i][j] = (Math.random() < this.threshold) ? Editor.FILLED : Editor.EMPTY
       }
     }
     for (let i = 0; i < this.m; i += 1) {
