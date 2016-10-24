@@ -37,7 +37,7 @@
   <h1 id="handsomeone-s-nonogram-demo">HandsomeOne's Nonogram Demo</h1>
   <h2 id="basic-examples">Basic Examples</h2>
   <hr>
-  <h3 id="nonogramedit"><code>NonogramEdit</code></h3>
+  <h3 id="nonogramedit"><code>nonogram.Editor</code></h3>
   <div class="row">
     <div class="col-md-4">
       <canvas id="edit1"></canvas>
@@ -45,9 +45,11 @@
     <div class="col-md-8">
       <pre>
 new nonogram.Editor(4, 8, 'edit1', {
-  threshold: 0.2,
-  isMeshed: true,
-  boldMeshGap: 2,
+  theme: {
+    threshold: 0.2,
+    isMeshed: true,
+    boldMeshGap: 2,
+  },
 });</pre>
     </div>
   </div>
@@ -56,7 +58,6 @@ new nonogram.Editor(4, 8, 'edit1', {
       <pre>
 new nonogram.Editor(2, 4, 'edit2', {
   grid: [[1, 0, 1, 0], [0, 1, 0, 1]],
-  backgroundColor: '#eee',
 });</pre>
     </div>
     <div class="col-md-4">
@@ -64,7 +65,7 @@ new nonogram.Editor(2, 4, 'edit2', {
     </div>
   </div>
   <hr>
-  <h3 id="nonogramplay"><code>NonogramPlay</code></h3>
+  <h3 id="nonogramplay"><code>nonogram.Game</code></h3>
   <div class="row">
     <div class="col-md-4">
       <canvas id="play1"></canvas>
@@ -72,8 +73,10 @@ new nonogram.Editor(2, 4, 'edit2', {
     <div class="col-md-8">
       <pre>
 new nonogram.Game([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
-  filledColor: '#0c6',
-  correctColor: '#0c6',
+  theme: {
+    filledColor: '#0c6',
+    correctColor: '#0c6',
+  }
 });</pre>
     </div>
   </div>
@@ -87,7 +90,7 @@ new nonogram.Game([[1,1], [1,1]], [[2], [], [2], []], 'play2');</pre>
     </div>
   </div>
   <hr>
-  <h3 id="nonogramsolve"><code>NonogramSolve</code></h3>
+  <h3 id="nonogramsolve"><code>nonogram.Solver</code></h3>
   <div class="row">
     <div class="col-md-4">
       <canvas id="solve1"></canvas>
@@ -102,7 +105,7 @@ new nonogram.Solver([[1,1], [1,1]], [[2], [], [2], []], 'solve1', {
   <div class="row">
     <div class="col-md-3">
       <pre>
-window._rows = [
+var row = [
   [7, 2, 2, 7],
   [1, 1, 1, 2, 1, 1],
   [1, 3, 1, 3, 1, 1, 3, 1],
@@ -128,7 +131,7 @@ window._rows = [
     </div>
     <div class="col-md-3">
       <pre>
-window._cols = [
+var column = [
   [7, 1, 2, 7],
   [1, 1, 1, 1, 1, 1],
   [1, 3, 1, 1, 1, 3, 1],
@@ -155,8 +158,8 @@ window._cols = [
     <div class="col-md-2">
       <pre>
 new nonogram.Solver(
-  window._rows,
-  window._cols,
+  row,
+  column,
   'solve2').solve();</pre>
     </div>
     <div class="col-md-4">
@@ -195,35 +198,35 @@ new nonogram.Solver(
     </div>
   </div>
   <pre>
-function newCustomNonogram() {
+function f() {
   new nonogram.Editor(
-    parseInt(document.getElementById('m').value),
-    parseInt(document.getElementById('n').value),
+    +document.getElementById('m').value,
+    +document.getElementById('n').value,
     'adv-edit1',
     {
-      threshold: parseFloat(document.getElementById('threshold').value),
-      onHintChange: function (rowHints, colHints) {
-        new nonogram.Game(rowHints, colHints, 'adv-play1', { boldMeshGap: 3 });
-        new nonogram.Solver(rowHints, colHints, 'adv-solve1').solve();
-      }
+      threshold: +document.getElementById('threshold').value,
+      onHintChange: function (row, column) {
+        new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } });
+        new nonogram.Solver(row, column, 'adv-solve1').solve();
+      },
     }
   );
 }
-document.getElementById('m').addEventListener('change', newCustomNonogram);
-document.getElementById('n').addEventListener('change', newCustomNonogram);
-document.getElementById('threshold').addEventListener('change', newCustomNonogram);
-newCustomNonogram();</pre>
+document.getElementById('m').addEventListener('change', f);
+document.getElementById('n').addEventListener('change', f);
+document.getElementById('threshold').addEventListener('change', f);
+f();</pre>
   <hr>
   <h3 id="nonogram-solver">Nonogram Solver</h3>
   <p>This example shows how to solve the nonogram by given hints, which are separated by newlines and commas.</p>
-  <p class="text-primary">Put your <code>rowHints</code> in the first textarea, <code>rowHints</code> in the second textarea.
+  <p class="text-primary">Put your <code>row</code> in the first textarea, <code>row</code> in the second textarea.
   One row (or column) a line, numbers separated by any non-numerical characters.
   To represent an empty row (or column), you can use an empty line, or a line including the number <code>0</code> as well.
   However, empty lines at two ends will be dropped, since they are really unnecessary.</p>
   <p class="text-warning"><b>If the process end with an error, please check your input carefully.</b></p>
   <div class="row form-group">
     <div class="col-md-4">
-      <textarea id="txt-row-hints2" class="form-control form-group" rows="15" placeholder="rowHints...">5
+      <textarea id="txt-row-hints2" class="form-control form-group" rows="15" placeholder="row...">5
 9
 11
 13
@@ -244,7 +247,7 @@ newCustomNonogram();</pre>
       </p>
     </div>
     <div class="col-md-4">
-      <textarea id="txt-col-hints2" class="form-control form-group" rows="15" placeholder="colHints...">5
+      <textarea id="txt-col-hints2" class="form-control form-group" rows="15" placeholder="column...">5
 9
 6  3
 3  1  3  3
@@ -300,19 +303,21 @@ document.getElementById('btn-solve2').addEventListener('click', function () {
     parseArray(document.getElementById('txt-col-hints2').value),
     'adv-solve2',
     {
-      filledColor: '#0c6',
-      correctColor: '#0c6',
-      wrongColor: '#999',
-      unsetColor: '#ccc',
-      meshColor: '#09f',
-      isMeshed: true,
-      isBoldMeshOnly: true,
-      isMeshOnTop: true,
+      theme: {
+        filledColor: '#0c6',
+        correctColor: '#0c6',
+        wrongColor: '#999',
+        unsetColor: '#ccc',
+        meshColor: '#09f',
+        isMeshed: true,
+        isBoldMeshOnly: true,
+        isMeshOnTop: true,
+      },
       delay: delay,
       demoMode: !!delay,
-      onSucceed: function (time) {
+      onSuccess: function (time) {
         console.log('Solved in ' + time + 'ms.')
-      }
+      },
     }).solve();
 });</pre>
 </body>
