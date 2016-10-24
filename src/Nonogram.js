@@ -76,7 +76,9 @@ export default class Nonogram {
     if (this.canvas) {
       this.printGrid()
       this.printHints()
-      this.printController()
+      if (this.printController) {
+        this.printController()
+      }
     }
   }
   printGrid() {
@@ -170,43 +172,47 @@ export default class Nonogram {
     const h = this.canvas.height
     const d = w * 2 / 3 / (this.n + 1)
 
-    function printSingleHint(direction, i, j) {
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.font = `${d}pt "Courier New", Inconsolata, Consolas, monospace`
-      const line = this.hints[direction][i]
-      ctx.fillStyle = line.isCorrect ? this.correctColor : this.wrongColor
-      ctx.globalAlpha = (!line.isCorrect && line.unchangedSinceLastScanned) ? 0.5 : 1
-      if (direction === 'row') {
-        ctx.fillText(this.hints.row[i][j] || 0,
-          w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8)
-      } else if (direction === 'column') {
-        ctx.fillText(this.hints.column[i][j] || 0,
-          d * (i + 0.5), h * 2 / 3 + d * j, d * 0.8)
-      }
-    }
-
     ctx.clearRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1)
     ctx.clearRect(-1, h * 2 / 3 - 1, w * 2 / 3 + 1, h / 3 + 1)
     ctx.save()
     ctx.translate(d / 2, d / 2)
     for (let i = 0; i < this.m; i += 1) {
       for (let j = 0; j < this.hints.row[i].length; j += 1) {
-        printSingleHint.call(this, 'row', i, j)
+        this.printSingleHint('row', i, j)
       }
       if (this.hints.row[i].length === 0) {
-        printSingleHint.call(this, 'row', i, 0)
+        this.printSingleHint('row', i, 0)
       }
     }
     for (let j = 0; j < this.n; j += 1) {
       for (let i = 0; i < this.hints.column[j].length; i += 1) {
-        printSingleHint.call(this, 'column', j, i)
+        this.printSingleHint('column', j, i)
       }
       if (this.hints.column[j].length === 0) {
-        printSingleHint.call(this, 'column', j, 0)
+        this.printSingleHint('column', j, 0)
       }
     }
     ctx.restore()
+  }
+  printSingleHint(direction, i, j) {
+    const ctx = this.canvas.getContext('2d')
+    const w = this.canvas.width
+    const h = this.canvas.height
+    const d = w * 2 / 3 / (this.n + 1)
+
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = `${d}pt "Courier New", Inconsolata, Consolas, monospace`
+    const line = this.hints[direction][i]
+    ctx.fillStyle = line.isCorrect ? this.correctColor : this.wrongColor
+    ctx.globalAlpha = (!line.isCorrect && line.unchanged) ? 0.5 : 1
+    if (direction === 'row') {
+      ctx.fillText(this.hints.row[i][j] || 0,
+        w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8)
+    } else if (direction === 'column') {
+      ctx.fillText(this.hints.column[i][j] || 0,
+        d * (i + 0.5), h * 2 / 3 + d * j, d * 0.8)
+    }
   }
 }
 
