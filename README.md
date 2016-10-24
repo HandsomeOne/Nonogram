@@ -95,19 +95,17 @@ Creates a nonogram game. The parameters have the same definitions as those of `n
 
 ## Configuration Items
 
-### General
-
-General configuration items are related to the appearance.
-- `width` (px): a number to set the canvas' width. If not given, the canvas' current `clientWidth` (**not** the value of its `width` property) will be used.
-- `filledColor`: filled cells' color.
-- `unsetColor`: unset cells' color.
-- `correctColor`: numbers' color of correct rows or columns.
-- `wrongColor`: numbers' color of wrong rows or columns.
-- `meshColor`: meshes' color.
-- `isMeshed`: `true` or `false`, coltrols whether to print the meshes or not.
-- `isBoldMeshOnly`: default is `false`.
-- `isMeshOnTop`: default is `false`.
-- `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you don't want any bold meshes, simply set it to `0`.
+- `theme`: an plain object, controls the appearance.
+  - `width` (px): a number to set the canvas' width. If not given, the canvas' current `clientWidth` (**not** the value of its `width` property) will be used.
+  - `filledColor`: filled cells' color.
+  - `unsetColor`: unset cells' color.
+  - `correctColor`: numbers' color of correct rows or columns.
+  - `wrongColor`: numbers' color of wrong rows or columns.
+  - `meshColor`: meshes' color.
+  - `isMeshed`: `true` or `false`, coltrols whether to print the meshes or not.
+  - `isBoldMeshOnly`: default is `false`.
+  - `isMeshOnTop`: default is `false`.
+  - `boldMeshGap`: default is `5`. Controls how many cells are there between two adjacent bold meshes. If you don't want any bold meshes, simply set it to `0`.
 
 ### `nonogram.Solver`
 

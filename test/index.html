@@ -31,7 +31,9 @@ function newCustomNonogram() {
       threshold: parseFloat($('#threshold').value),
       onHintChange: function (row, column) {
         new nonogram.Game(row, column, 'x', {
-          boldMeshGap: 3,
+          theme: {
+            boldMeshGap: 0,
+          },
           onSuccess: function () {
             console.log('success')
           },

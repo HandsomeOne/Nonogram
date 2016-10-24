@@ -4,17 +4,23 @@ import $ from './colors'
 const sum = array => array.reduce((a, b) => a + b, 0)
 
 export default class Solver extends Nonogram {
-  constructor(row, column, canvas = document.createElement('canvas'), config = {}) {
+  constructor(row, column, canvas, {
+    theme,
+    demoMode = true,
+    delay = 50,
+    onSuccess = () => { },
+    onError = () => { },
+  } = {}) {
     super()
-    this.filledColor = $.green
-    this.correctColor = $.green
-    this.wrongColor = $.yellow
-    this.demoMode = true
-    this.delay = 50
+    this.theme.filledColor = $.green
+    this.theme.correctColor = $.green
+    this.theme.wrongColor = $.yellow
+    Object.assign(this.theme, theme)
 
-    Object.assign(this, config)
-    this.handleSuccess = config.onSuccess || (() => { })
-    this.handleError = config.onError || (() => { })
+    this.demoMode = demoMode
+    this.delay = delay
+    this.handleSuccess = onSuccess
+    this.handleError = onError
 
     this.hints = {
       row: row.slice(),
@@ -170,7 +176,7 @@ export default class Solver extends Nonogram {
       this.getAllSituations(this.scanner.line.length - sum(this.scanner.hints) + 1)
       this.setBackToGrid(direction, i)
     }
-    if (this.checkCorrectness(direction, i)) {
+    if (this.isLineCorrect(direction, i)) {
       this.hints[direction][i].isCorrect = true
       if (finished) {
         this.scanner.error = false
@@ -255,7 +261,7 @@ export default class Solver extends Nonogram {
     const w = this.canvas.width
     const h = this.canvas.height
     const controllerSize = Math.min(w, h) / 4
-    const filledColor = this.filledColor
+    const filledColor = this.theme.filledColor
 
     function getCycle() {
       const cycle = document.createElement('canvas')
@@ -306,7 +312,7 @@ export default class Solver extends Nonogram {
 
     ctx.save()
     ctx.translate(d / 2, d / 2)
-    ctx.fillStyle = this.scanner.error ? this.wrongColor : this.correctColor
+    ctx.fillStyle = this.scanner.error ? this.theme.wrongColor : this.theme.correctColor
     ctx.globalAlpha = 0.5
     if (this.scanner.direction === 'row') {
       ctx.fillRect(0, d * this.scanner.i, w, d)

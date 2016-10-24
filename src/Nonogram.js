@@ -2,15 +2,17 @@ import $ from './colors'
 
 export default class Nonogram {
   constructor() {
-    this.filledColor = $.grey
-    this.unsetColor = $.greyVeryLight
-    this.correctColor = $.green
-    this.wrongColor = $.red
-    this.meshColor = $.yellow
-    this.isMeshed = false
-    this.isBoldMeshOnly = false
-    this.isMeshOnTop = false
-    this.boldMeshGap = 5
+    this.theme = {
+      filledColor: $.grey,
+      unsetColor: $.greyVeryLight,
+      correctColor: $.green,
+      wrongColor: $.red,
+      meshColor: $.yellow,
+      isMeshed: false,
+      isBoldMeshOnly: false,
+      isMeshOnTop: false,
+      boldMeshGap: 5,
+    }
   }
 
   initCanvas(canvas) {
@@ -19,7 +21,7 @@ export default class Nonogram {
       this.canvas = document.createElement('canvas')
     }
 
-    this.canvas.width = this.width || this.canvas.clientWidth
+    this.canvas.width = this.theme.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
 
     if (this.canvas.nonogram) {
@@ -72,7 +74,7 @@ export default class Nonogram {
     }, false)
     return hints
   }
-  checkCorrectness(direction, i) {
+  isLineCorrect(direction, i) {
     return this.calculateHints(direction, i).toString() === this.hints[direction][i].toString()
   }
 
@@ -112,7 +114,7 @@ export default class Nonogram {
     const d = w * 2 / 3 / (this.n + 1)
 
     ctx.clearRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1)
-    if (this.isMeshed && !this.isMeshOnTop) {
+    if (this.theme.isMeshed && !this.theme.isMeshOnTop) {
       this.printMesh()
     }
     ctx.save()
@@ -126,7 +128,7 @@ export default class Nonogram {
       }
     }
     ctx.restore()
-    if (this.isMeshed && this.isMeshOnTop) {
+    if (this.theme.isMeshed && this.theme.isMeshOnTop) {
       this.printMesh()
     }
   }
@@ -135,11 +137,11 @@ export default class Nonogram {
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {
       case Nonogram.UNSET:
-        ctx.fillStyle = this.unsetColor
+        ctx.fillStyle = this.theme.unsetColor
         ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9)
         break
       case Nonogram.FILLED:
-        ctx.fillStyle = this.filledColor
+        ctx.fillStyle = this.theme.filledColor
         ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1)
         break
       default:
@@ -154,14 +156,14 @@ export default class Nonogram {
     ctx.translate(d / 2, d / 2)
     ctx.beginPath()
     for (let i = 1; i < this.m; i += 1) {
-      if (!this.isBoldMeshOnly) {
+      if (!this.theme.isBoldMeshOnly) {
         ctx.moveTo(0, i * d)
         ctx.lineTo(this.n * d, i * d)
       }
-      if (i % this.boldMeshGap === 0) {
+      if (i % this.theme.boldMeshGap === 0) {
         ctx.moveTo(0, i * d)
         ctx.lineTo(this.n * d, i * d)
-        if (!this.isBoldMeshOnly) {
+        if (!this.theme.isBoldMeshOnly) {
           ctx.moveTo(0, i * d - 1)
           ctx.lineTo(this.n * d, i * d - 1)
           ctx.moveTo(0, i * d + 1)
@@ -170,14 +172,14 @@ export default class Nonogram {
       }
     }
     for (let j = 1; j < this.n; j += 1) {
-      if (!this.isBoldMeshOnly) {
+      if (!this.theme.isBoldMeshOnly) {
         ctx.moveTo(j * d, 0)
         ctx.lineTo(j * d, this.m * d)
       }
-      if (j % this.boldMeshGap === 0) {
+      if (j % this.theme.boldMeshGap === 0) {
         ctx.moveTo(j * d, 0)
         ctx.lineTo(j * d, this.m * d)
-        if (!this.isBoldMeshOnly) {
+        if (!this.theme.isBoldMeshOnly) {
           ctx.moveTo(j * d - 1, 0)
           ctx.lineTo(j * d - 1, this.m * d)
           ctx.moveTo(j * d + 1, 0)
@@ -186,7 +188,7 @@ export default class Nonogram {
       }
     }
     ctx.lineWidth = 1
-    ctx.strokeStyle = this.meshColor
+    ctx.strokeStyle = this.theme.meshColor
     ctx.stroke()
     ctx.restore()
   }
@@ -228,7 +230,7 @@ export default class Nonogram {
     ctx.textBaseline = 'middle'
     ctx.font = `${d}pt "Courier New", Inconsolata, Consolas, monospace`
     const line = this.hints[direction][i]
-    ctx.fillStyle = line.isCorrect ? this.correctColor : this.wrongColor
+    ctx.fillStyle = line.isCorrect ? this.theme.correctColor : this.theme.wrongColor
     ctx.globalAlpha = (!line.isCorrect && line.unchanged) ? 0.5 : 1
     if (direction === 'row') {
       ctx.fillText(this.hints.row[i][j] || 0,

@@ -2,31 +2,32 @@ import Nonogram from './Nonogram'
 import $ from './colors'
 
 export default class Editor extends Nonogram {
-  constructor(m, n, canvas = document.createElement('canvas'), config = {}) {
+  constructor(m, n, canvas, {
+    theme,
+    grid,
+    threshold = 0.5,
+    onHintChange = () => { },
+  } = {}) {
     super()
-    this.filledColor = $.violet
-    this.correctColor = $.violet
-    this.threshold = 0.5
+    this.theme.filledColor = $.violet
+    this.theme.correctColor = $.violet
+    Object.assign(this.theme, theme)
 
-    Object.assign(this, config)
-    this.handleHintChange = config.onHintChange || (() => { })
+    this.threshold = threshold
+    this.handleHintChange = onHintChange
 
     this.m = m
     this.n = n
-    if (!this.grid) {
-      this.grid = new Array(this.m)
-      for (let i = 0; i < this.m; i += 1) {
-        this.grid[i] = new Array(this.n)
-        for (let j = 0; j < this.n; j += 1) {
+    this.grid = new Array(this.m)
+    for (let i = 0; i < this.m; i += 1) {
+      this.grid[i] = new Array(this.n)
+      for (let j = 0; j < this.n; j += 1) {
+        if (grid) {
+          this.grid[i][j] = grid[i][j] ? Editor.FILLED : Editor.EMPTY
+        } else {
           this.grid[i][j] = (Math.random() < this.threshold) ? Editor.FILLED : Editor.EMPTY
         }
       }
-    } else {
-      this.grid.forEach((a) => {
-        a.forEach((e, i, arr) => {
-          arr[i] = e ? Editor.FILLED : Editor.EMPTY
-        })
-      })
     }
     this.hints = {
       row: new Array(m),
@@ -137,7 +138,7 @@ export default class Editor extends Nonogram {
     const w = this.canvas.width
     const h = this.canvas.height
     const controllerSize = Math.min(w, h) / 4
-    const filledColor = this.filledColor
+    const filledColor = this.theme.filledColor
 
     function getCycle() {
       const cycle = document.createElement('canvas')

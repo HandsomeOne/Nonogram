@@ -4,16 +4,20 @@ import $ from './colors'
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
 export default class Game extends Nonogram {
-  constructor(row, column, canvas, config = {}) {
+  constructor(row, column, canvas, {
+    theme,
+    onSuccess = () => { },
+    onAnimationEnd = () => { },
+  } = {}) {
     super()
-    this.filledColor = $.blue
-    this.emptyColor = $.red
-    this.wrongColor = $.grey
-    this.isMeshed = true
+    this.theme.filledColor = $.blue
+    this.theme.emptyColor = $.red
+    this.theme.wrongColor = $.grey
+    this.theme.isMeshed = true
+    Object.assign(this.theme, theme)
 
-    Object.assign(this, config)
-    this.handleSuccess = config.onSuccess || (() => { })
-    this.handleAnimationEnd = config.onAnimationEnd || (() => { })
+    this.handleSuccess = onSuccess
+    this.handleAnimationEnd = onAnimationEnd
 
     this.hints = {
       row: row.slice(),
@@ -26,8 +30,8 @@ export default class Game extends Nonogram {
     for (let i = 0; i < this.m; i += 1) {
       this.grid[i] = new Array(this.n).fill(Game.UNSET)
     }
-    this.hints.row.forEach((r, i) => { r.isCorrect = this.checkCorrectness('row', i) })
-    this.hints.column.forEach((c, j) => { c.isCorrect = this.checkCorrectness('column', j) })
+    this.hints.row.forEach((r, i) => { r.isCorrect = this.isLineCorrect('row', i) })
+    this.hints.column.forEach((c, j) => { c.isCorrect = this.isLineCorrect('column', j) })
 
     this.initCanvas(canvas)
 
@@ -131,11 +135,11 @@ export default class Game extends Nonogram {
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {
       case Game.FILLED:
-        ctx.fillStyle = this.filledColor
+        ctx.fillStyle = this.theme.filledColor
         ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1)
         break
       case Game.EMPTY:
-        ctx.strokeStyle = this.emptyColor
+        ctx.strokeStyle = this.theme.emptyColor
         ctx.lineWidth = d / 15
         ctx.beginPath()
         ctx.moveTo(d * 0.3, d * 0.3)
@@ -161,9 +165,9 @@ export default class Game extends Nonogram {
     function printFillingBrush() {
       ctx.save()
       ctx.translate(offset, 0)
-      ctx.fillStyle = this.meshColor
+      ctx.fillStyle = this.theme.meshColor
       ctx.fillRect(0, 0, outerSize, outerSize)
-      ctx.fillStyle = this.filledColor
+      ctx.fillStyle = this.theme.filledColor
       ctx.fillRect(borderWidth, borderWidth, innerSize, innerSize)
       ctx.restore()
     }
@@ -171,7 +175,7 @@ export default class Game extends Nonogram {
     function printEmptyBrush() {
       ctx.save()
       ctx.translate(0, offset)
-      ctx.fillStyle = this.meshColor
+      ctx.fillStyle = this.theme.meshColor
       ctx.fillRect(0, 0, outerSize, outerSize)
       ctx.clearRect(borderWidth, borderWidth, innerSize, innerSize)
       ctx.strokeStyle = $.red
