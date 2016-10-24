@@ -12,6 +12,32 @@ export default class Nonogram {
     this.isMeshOnTop = false
     this.boldMeshGap = 5
   }
+
+  initCanvas(canvas) {
+    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
+    if (!(this.canvas instanceof HTMLCanvasElement)) {
+      this.canvas = document.createElement('canvas')
+    }
+
+    this.canvas.width = this.width || this.canvas.clientWidth
+    this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
+
+    if (this.canvas.nonogram) {
+      this.canvas.nonogram.listeners.forEach(([type, listener]) => {
+        this.canvas.removeEventListener(type, listener)
+      })
+    }
+
+    this.canvas.nonogram = this
+    this.initListeners()
+    this.listeners.forEach(([type, listener]) => {
+      this.canvas.addEventListener(type, listener)
+    })
+    this.canvas.oncontextmenu = (e) => { e.preventDefault() }
+  }
+  initListeners() {
+    this.listeners = []
+  }
   getSingleLine(direction, i) {
     const g = []
     if (direction === 'row') {
@@ -73,12 +99,10 @@ export default class Nonogram {
   }
 
   print() {
-    if (this.canvas) {
-      this.printGrid()
-      this.printHints()
-      if (this.printController) {
-        this.printController()
-      }
+    this.printGrid()
+    this.printHints()
+    if (this.printController) {
+      this.printController()
     }
   }
   printGrid() {

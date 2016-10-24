@@ -40,6 +40,7 @@ function newCustomNonogram() {
           }
         })
         new nonogram.Solver(row, column, canvases[2], {
+          delay: 200,
           onSuccess: function (time) {
             console.log(time)
           },

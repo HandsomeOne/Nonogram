@@ -1,11 +1,10 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
-import { on, off } from './event'
 
 const eekwall = (object1, object2) => object1.toString() === object2.toString()
 
 export default class Game extends Nonogram {
-  constructor(row, column, canvas = document.createElement('canvas'), config = {}) {
+  constructor(row, column, canvas, config = {}) {
     super()
     this.filledColor = $.blue
     this.emptyColor = $.red
@@ -29,26 +28,22 @@ export default class Game extends Nonogram {
     }
     this.hints.row.forEach((r, i) => { r.isCorrect = this.checkCorrectness('row', i) })
     this.hints.column.forEach((c, j) => { c.isCorrect = this.checkCorrectness('column', j) })
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.dataset.isBusy) {
-      return
-    }
 
-    this.canvas.width = this.width || this.canvas.clientWidth
-    this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    on.call(this.canvas, 'mousedown', this.mousedown.bind(this))
-    on.call(this.canvas, 'mousemove', this.mousemove.bind(this))
-    on.call(this.canvas, 'mouseup', this.brushUp.bind(this))
-    on.call(this.canvas, 'mouseleave', this.brushUp.bind(this))
-    this.canvas.oncontextmenu = (e) => {
-      e.preventDefault()
-    }
+    this.initCanvas(canvas)
 
     this.brush = Game.FILLED
     this.draw = {}
     this.print()
   }
 
+  initListeners() {
+    this.listeners = [
+      ['mousedown', this.mousedown.bind(this)],
+      ['mousemove', this.mousemove.bind(this)],
+      ['mouseup', this.brushUp.bind(this)],
+      ['mouseleave', this.brushUp.bind(this)],
+    ]
+  }
   mousedown(e) {
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
@@ -204,16 +199,10 @@ export default class Game extends Nonogram {
   }
 
   succeed() {
-    if (!this.canvas) {
-      return
-    }
-
     this.handleSuccess()
-    off.call(this.canvas, 'mousedown')
-    off.call(this.canvas, 'mousemove')
-    off.call(this.canvas, 'mouseup')
-    off.call(this.canvas, 'mouseleave')
-
+    this.listeners.forEach(([type, listener]) => {
+      this.canvas.removeEventListener(type, listener)
+    })
     const ctx = this.canvas.getContext('2d')
     const w = this.canvas.width
     const h = this.canvas.height

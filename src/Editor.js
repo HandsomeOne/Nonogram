@@ -1,6 +1,5 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
-import { on } from './event'
 
 export default class Editor extends Nonogram {
   constructor(m, n, canvas = document.createElement('canvas'), config = {}) {
@@ -41,24 +40,22 @@ export default class Editor extends Nonogram {
       this.hints.column[j] = this.calculateHints('column', j)
       this.hints.column[j].isCorrect = true
     }
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.dataset.isBusy) {
-      return
-    }
 
-    this.canvas.width = this.width || this.canvas.clientWidth
-    this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    on.call(this.canvas, 'mousedown', this.mousedown.bind(this))
-    on.call(this.canvas, 'mousemove', this.mousemove.bind(this))
-    on.call(this.canvas, 'mouseup', this.brushUp.bind(this))
-    on.call(this.canvas, 'mouseleave', this.brushUp.bind(this))
-    this.canvas.oncontextmenu = (e) => { e.preventDefault() }
+    this.initCanvas(canvas)
 
     this.draw = {}
     this.print()
     this.handleHintChange(this.hints.row, this.hints.column)
   }
 
+  initListeners() {
+    this.listeners = [
+      ['mousedown', this.mousedown.bind(this)],
+      ['mousemove', this.mousemove.bind(this)],
+      ['mouseup', this.brushUp.bind(this)],
+      ['mouseleave', this.brushUp.bind(this)],
+    ]
+  }
   mousedown(e) {
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left

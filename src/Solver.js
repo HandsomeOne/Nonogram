@@ -1,6 +1,5 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
-import { on } from './event'
 
 const sum = array => array.reduce((a, b) => a + b, 0)
 
@@ -37,21 +36,18 @@ export default class Solver extends Nonogram {
       c.unchanged = false
     })
 
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!this.canvas || this.canvas.dataset.isBusy) {
-      return
-    }
-
-    this.canvas.width = this.width || this.canvas.clientWidth
-    this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-    on.call(this.canvas, 'click', this.click.bind(this))
-    this.canvas.oncontextmenu = (e) => { e.preventDefault() }
+    this.initCanvas(canvas)
 
     this.print()
   }
 
+  initListeners() {
+    this.listeners = [
+      ['click', this.click.bind(this)],
+    ]
+  }
   click(e) {
-    if (this.canvas.dataset.isBusy) {
+    if (this.isBusy) {
       return
     }
 
@@ -77,7 +73,7 @@ export default class Solver extends Nonogram {
     }
   }
   refresh() {
-    if (this.canvas.dataset.isBusy) {
+    if (this.isBusy) {
       return
     }
 
@@ -98,15 +94,19 @@ export default class Solver extends Nonogram {
     this.solve()
   }
   solve() {
-    if (this.canvas.dataset.isBusy) {
+    if (this.isBusy) {
       return
     }
 
-    this.canvas.dataset.isBusy = 1
+    this.isBusy = true
     this.startTime = Date.now()
     this.scan()
   }
   scan() {
+    if (this.canvas.nonogram !== this) {
+      return
+    }
+
     this.updateScanner()
     if (this.scanner === undefined) {
       return
@@ -118,11 +118,9 @@ export default class Solver extends Nonogram {
     this.scanner.error = true
     this.solveSingleLine()
     if (this.scanner.error) {
-      if (this.canvas) {
-        this.canvas.dataset.isBusy = ''
-        this.print()
-        this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
-      }
+      this.isBusy = false
+      this.print()
+      this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
       return
     }
     if (this.demoMode) {
@@ -153,11 +151,9 @@ export default class Solver extends Nonogram {
       if (this.hints.row.every(row => row.unchanged) &&
         this.hints.column.every(col => col.unchanged)) {
         delete this.scanner
-        if (this.canvas) {
-          this.canvas.dataset.isBusy = ''
-          this.print()
-          this.handleSuccess(Date.now() - this.startTime)
-        }
+        this.isBusy = false
+        this.print()
+        this.handleSuccess(Date.now() - this.startTime)
         return
       }
     }
@@ -249,12 +245,10 @@ export default class Solver extends Nonogram {
   }
 
   print() {
-    if (this.canvas) {
-      this.printGrid()
-      this.printHints()
-      this.printController()
-      this.printScanner()
-    }
+    this.printGrid()
+    this.printHints()
+    this.printController()
+    this.printScanner()
   }
   printController() {
     const ctx = this.canvas.getContext('2d')
@@ -291,7 +285,7 @@ export default class Solver extends Nonogram {
     }
 
     ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
-    if (this.canvas.dataset.isBusy) {
+    if (this.isBusy) {
       return
     }
 
