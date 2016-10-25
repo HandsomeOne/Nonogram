@@ -3,9 +3,10 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Nonogram</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Nonogram</title>
+  <link rel="stylesheet" href="https://bootswatch.com/flatly/bootstrap.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
   <script src="nonogram.min.js"></script>
   <script>
     onload = function () {
@@ -24,24 +25,36 @@
     };
   </script>
   <style>
-    canvas {
-      width: 100%;
-    }
-    textarea {
-      resize: vertical;
-    }
+    h2, h3 { padding-top: 70px; }
+    canvas { width: 100%; }
+    textarea { resize: vertical; }
   </style>
 </head>
 
 <body class="container">
-  <h1 id="handsomeone-s-nonogram-demo">HandsomeOne's Nonogram Demo</h1>
-  <h2 id="basic-examples">Basic Examples</h2>
-  <hr>
-  <h3 id="nonogramedit"><code>nonogram.Editor</code></h3>
-  <div class="row">
-    <div class="col-md-4">
-      <canvas id="edit1"></canvas>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">nonogram.Demo</a>
+      </div>
+
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#editor">.Editor</a></li>
+          <li><a href="#game">.Game</a></li>
+          <li><a href="#solver">.Solver</a></li>
+          <li><a href="#advanced-usages">Advanced Usages</a></li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="https://github.com/HandsomeOne/Nonogram">View on GitHub</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
+
+  <h2 id="editor">nonogram.Editor</h2>
+  <div class="row">
     <div class="col-md-8">
       <pre>
 new nonogram.Editor(4, 8, 'edit1', {
@@ -51,6 +64,9 @@ new nonogram.Editor(4, 8, 'edit1', {
     boldMeshGap: 2,
   },
 });</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="edit1"></canvas>
     </div>
   </div>
   <div class="row">
@@ -64,12 +80,9 @@ new nonogram.Editor(2, 4, 'edit2', {
       <canvas id="edit2"></canvas>
     </div>
   </div>
-  <hr>
-  <h3 id="nonogramplay"><code>nonogram.Game</code></h3>
+
+  <h2 id="game">nonogram.Game</h2>
   <div class="row">
-    <div class="col-md-4">
-      <canvas id="play1"></canvas>
-    </div>
     <div class="col-md-8">
       <pre>
 new nonogram.Game([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
@@ -78,6 +91,9 @@ new nonogram.Game([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
     correctColor: '#0c6',
   }
 });</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="play1"></canvas>
     </div>
   </div>
   <div class="row">
@@ -89,17 +105,17 @@ new nonogram.Game([[1,1], [1,1]], [[2], [], [2], []], 'play2');</pre>
       <canvas id="play2"></canvas>
     </div>
   </div>
-  <hr>
-  <h3 id="nonogramsolve"><code>nonogram.Solver</code></h3>
+
+  <h2 id="solver">nonogram.Solver</h2>
   <div class="row">
-    <div class="col-md-4">
-      <canvas id="solve1"></canvas>
-    </div>
     <div class="col-md-8">
       <pre>
 new nonogram.Solver([[1,1], [1,1]], [[2], [], [2], []], 'solve1', {
   delay: 200,
 }).solve();</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="solve1"></canvas>
     </div>
   </div>
   <div class="row">
@@ -157,17 +173,20 @@ var column = [
     </div>
     <div class="col-md-2">
       <pre>
-new nonogram.Solver(
-  row,
-  column,
-  'solve2').solve();</pre>
+new 
+  nonogram.Solver(
+    row,
+    column,
+    'solve2')
+  .solve();</pre>
     </div>
     <div class="col-md-4">
       <canvas id="solve2"></canvas>
     </div>
   </div>
+
   <h2 id="advanced-usages">Advanced Usages</h2>
-  <hr>
+
   <h3 id="nonogram-generator">Create Your Own Nonogram</h3>
   <p>
     Here is an example showing how to use listeners to create <code>nonogram.Game</code> and <code>nonogram.Solver</code> instances automatically.
@@ -216,10 +235,10 @@ document.getElementById('m').addEventListener('change', f);
 document.getElementById('n').addEventListener('change', f);
 document.getElementById('threshold').addEventListener('change', f);
 f();</pre>
-  <hr>
-  <h3 id="nonogram-solver">Nonogram Solver</h3>
+
+  <h3 id="nonogram-solver">Interactive Nonogram Solver</h3>
   <p>This example shows how to solve the nonogram by given hints, which are separated by newlines and commas.</p>
-  <p class="text-primary">Put your <code>row</code> in the first textarea, <code>row</code> in the second textarea.
+  <p class="text-info">Put your <code>row</code> in the first textarea, <code>row</code> in the second textarea.
   One row (or column) a line, numbers separated by any non-numerical characters.
   To represent an empty row (or column), you can use an empty line, or a line including the number <code>0</code> as well.
   However, empty lines at two ends will be dropped, since they are really unnecessary.</p>
@@ -304,11 +323,7 @@ document.getElementById('btn-solve2').addEventListener('click', function () {
     'adv-solve2',
     {
       theme: {
-        filledColor: '#0c6',
-        correctColor: '#0c6',
-        wrongColor: '#999',
-        unsetColor: '#ccc',
-        meshColor: '#09f',
+        meshColor: '#999',
         isMeshed: true,
         isBoldMeshOnly: true,
         isMeshOnTop: true,
