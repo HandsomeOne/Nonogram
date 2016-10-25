@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   target: 'web',
   module: {
@@ -11,7 +9,7 @@ module.exports = {
   },
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'test'),
+    path: './test',
     filename: 'nonogram.js',
     library: 'nonogram',
     libraryTarget: 'umd',
