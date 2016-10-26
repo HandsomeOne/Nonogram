@@ -1,7 +1,7 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
 
-const eekwall = (object1, object2) => object1.toString() === object2.toString()
+const eekwall = (arr1, arr2) => arr1.toString() === arr2.toString()
 
 export default class Game extends Nonogram {
   constructor(row, column, canvas, {
