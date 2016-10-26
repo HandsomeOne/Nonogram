@@ -79,8 +79,9 @@ export default class Nonogram {
   }
 
   getLocation(x, y) {
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const rect = this.canvas.getBoundingClientRect()
+    const w = rect.width
+    const h = rect.height
     const w23 = w * 2 / 3
     const h23 = h * 2 / 3
     const d = w23 / (this.n + 1)
