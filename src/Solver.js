@@ -90,10 +90,12 @@ export default class Solver extends Nonogram {
     this.hints.row.forEach((r) => {
       r.isCorrect = false
       r.unchanged = false
+      delete r.possibleBlanks
     })
     this.hints.column.forEach((c) => {
       c.isCorrect = false
       c.unchanged = false
+      delete c.possibleBlanks
     })
     delete this.scanner
 
@@ -135,7 +137,6 @@ export default class Solver extends Nonogram {
       this.scan()
     }
   }
-
   updateScanner() {
     let line
     do {
@@ -165,16 +166,20 @@ export default class Solver extends Nonogram {
     }
     while (line.isCorrect || line.unchanged)
   }
-  solveSingleLine(direction = this.scanner.direction, i = this.scanner.i) {
-    this.hints[direction][i].unchanged = true
+  solveSingleLine() {
+    const { direction, i } = this.scanner
+    this.scanner.hints = this.hints[direction][i]
+    this.scanner.hints.unchanged = true
 
     this.scanner.line = this.getSingleLine(direction, i)
     const finished = this.scanner.line.every(cell => cell !== Solver.UNSET)
     if (!finished) {
-      this.scanner.hints = this.getHints(direction, i)
-      this.scanner.blanks = []
-      this.getAllSituations(this.scanner.line.length - sum(this.scanner.hints) + 1)
-      this.setBackToGrid(direction, i)
+      if (this.scanner.hints.possibleBlanks === undefined) {
+        this.scanner.hints.possibleBlanks = []
+        this.getAllSituations(this.scanner.line.length - sum(this.scanner.hints) + 1)
+      }
+      this.mergeSituation()
+      this.setBackToGrid()
     }
     if (this.isLineCorrect(direction, i)) {
       this.hints[direction][i].isCorrect = true
@@ -185,9 +190,9 @@ export default class Solver extends Nonogram {
   }
   getAllSituations(max, array = [], index = 0) {
     if (index === this.scanner.hints.length) {
-      this.scanner.blanks = array.slice(0, this.scanner.hints.length)
-      this.scanner.blanks[0] -= 1
-      this.mergeSituation()
+      const blanks = array.slice(0, this.scanner.hints.length)
+      blanks[0] -= 1
+      this.scanner.hints.possibleBlanks.push(blanks)
     }
 
     for (let i = 1; i <= max; i += 1) {
@@ -196,39 +201,45 @@ export default class Solver extends Nonogram {
     }
   }
   mergeSituation() {
-    const status = []
-    for (let i = 0; i < this.scanner.hints.length; i += 1) {
-      status.push(...new Array(this.scanner.blanks[i]).fill(Solver.TEMP_EMPTY))
-      status.push(...new Array(this.scanner.hints[i]).fill(Solver.TEMP_FILLED))
-    }
-    status.push(...new Array(this.scanner.line.length - status.length).fill(Solver.TEMP_EMPTY))
-
-    const improper = status.some((cell, i) =>
-      (cell === Solver.TEMP_EMPTY && this.scanner.line[i] === Solver.FILLED) ||
-      (cell === Solver.TEMP_FILLED && this.scanner.line[i] === Solver.EMPTY)
-    )
-    if (improper) {
-      return
-    }
-
-    this.scanner.error = false
-    status.forEach((cell, i) => {
-      if (cell === Solver.TEMP_FILLED) {
-        if (this.scanner.line[i] === Solver.TEMP_EMPTY) {
-          this.scanner.line[i] = Solver.INCONSTANT
-        } else if (this.scanner.line[i] === Solver.UNSET) {
-          this.scanner.line[i] = Solver.TEMP_FILLED
-        }
-      } else if (cell === Solver.TEMP_EMPTY) {
-        if (this.scanner.line[i] === Solver.TEMP_FILLED) {
-          this.scanner.line[i] = Solver.INCONSTANT
-        } else if (this.scanner.line[i] === Solver.UNSET) {
-          this.scanner.line[i] = Solver.TEMP_EMPTY
-        }
+    const { possibleBlanks } = this.scanner.hints
+    possibleBlanks.forEach((blanks, p) => {
+      const line = []
+      for (let i = 0; i < this.scanner.hints.length; i += 1) {
+        line.push(...new Array(blanks[i]).fill(Solver.TEMP_EMPTY))
+        line.push(...new Array(this.scanner.hints[i]).fill(Solver.TEMP_FILLED))
       }
+      line.push(...new Array(this.scanner.line.length - line.length).fill(Solver.TEMP_EMPTY))
+
+      const improper = line.some((cell, i) =>
+        (cell === Solver.TEMP_EMPTY && this.scanner.line[i] === Solver.FILLED) ||
+        (cell === Solver.TEMP_FILLED && this.scanner.line[i] === Solver.EMPTY)
+      )
+      if (improper) {
+        possibleBlanks[p] = null
+        return
+      }
+
+      this.scanner.error = false
+      line.forEach((cell, i) => {
+        if (cell === Solver.TEMP_FILLED) {
+          if (this.scanner.line[i] === Solver.TEMP_EMPTY) {
+            this.scanner.line[i] = Solver.INCONSTANT
+          } else if (this.scanner.line[i] === Solver.UNSET) {
+            this.scanner.line[i] = Solver.TEMP_FILLED
+          }
+        } else if (cell === Solver.TEMP_EMPTY) {
+          if (this.scanner.line[i] === Solver.TEMP_FILLED) {
+            this.scanner.line[i] = Solver.INCONSTANT
+          } else if (this.scanner.line[i] === Solver.UNSET) {
+            this.scanner.line[i] = Solver.TEMP_EMPTY
+          }
+        }
+      })
     })
+    this.scanner.hints.possibleBlanks = possibleBlanks.filter(e => e !== null)
   }
-  setBackToGrid(direction, i) {
+  setBackToGrid() {
+    const { direction, i } = this.scanner
     if (direction === 'row') {
       this.scanner.line.forEach((cell, j) => {
         if (Solver.cellValueMap.has(cell)) {

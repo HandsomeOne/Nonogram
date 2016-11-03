@@ -40,6 +40,13 @@ export default class Nonogram {
   initListeners() {
     this.listeners = []
   }
+  removeNonPositiveHints() {
+    function removeNonPositiveElement(array, j, self) {
+      self[j] = array.filter(v => v > 0)
+    }
+    this.hints.row.forEach(removeNonPositiveElement)
+    this.hints.column.forEach(removeNonPositiveElement)
+  }
   getSingleLine(direction, i) {
     const g = []
     if (direction === 'row') {
@@ -52,16 +59,6 @@ export default class Nonogram {
       }
     }
     return g
-  }
-  removeNonPositiveHints() {
-    function removeNonPositiveElement(array, j, self) {
-      self[j] = array.filter(v => v > 0)
-    }
-    this.hints.row.forEach(removeNonPositiveElement)
-    this.hints.column.forEach(removeNonPositiveElement)
-  }
-  getHints(direction, i) {
-    return this.hints[direction][i].slice()
   }
   calculateHints(direction, i) {
     const hints = []
