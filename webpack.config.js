@@ -4,7 +4,9 @@ module.exports = {
     loaders: [{
       test: /\.js$/,
       loader: 'babel-loader',
-      exclude: /node_modules/,
+      query: {
+        presets: ['latest'],
+      },
     }],
   },
   entry: './src/index.js',

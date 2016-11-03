@@ -1,6 +1,0 @@
-lib
-dist
-test
-docs
-node_modules
-**/webpack.config.js
