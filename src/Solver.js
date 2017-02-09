@@ -43,8 +43,9 @@ export default class Solver extends Nonogram {
     })
 
     this.initCanvas(canvas)
-
     this.print()
+
+    this.scan = this.scan.bind(this)
   }
 
   initListeners() {
@@ -132,7 +133,7 @@ export default class Solver extends Nonogram {
       return
     }
     if (this.demoMode) {
-      setTimeout(this.scan.bind(this), this.delay)
+      setTimeout(this.scan, this.delay)
     } else {
       this.scan()
     }

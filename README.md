@@ -113,7 +113,7 @@ Creates a nonogram game. The parameters have the same definitions as those of `n
 
 - `delay` (ms): default is `50`. Controls the delay between steps of the solving process.
 
-- `onSuccess(time)`: fired when the nonogram has been solved, `time` is how many milliseconds cost. 
+- `onSuccess(time)`: fired when the nonogram has been solved, `time` is how many milliseconds cost.
 
 - `onError(err)`: when some contradiction has been found, `err` tells the bad hints' location (index starts at 1).
 
