@@ -1,5 +1,7 @@
 # Nonogram
 
+[![demo](http://i.imgur.com/XRs3jk7.gif)](https://handsomeone.github.io/Nonogram)
+
 ## Usage
 
 [**Check the live demo and find out how to build your own nonogram application.**](https://handsomeone.github.io/Nonogram)
