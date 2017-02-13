@@ -1,17 +1,38 @@
-import Nonogram from './Nonogram'
+import Nonogram, { Direction, Status } from './Nonogram'
 import $ from './colors'
 
-const eekwall = (arr1, arr2) => arr1.toString() === arr2.toString()
-
 export default class Game extends Nonogram {
-  constructor(row, column, canvas, {
-    theme,
-    onSuccess = () => { },
-    onAnimationEnd = () => { },
-  } = {}) {
+  handleSuccess: () => void
+  handleAnimationEnd: () => void
+
+  brush: number
+  draw: {
+    firstI?: number,
+    firstJ?: number,
+    lastI?: number
+    lastJ?: number
+    inverted?: boolean,
+    mode?: 'empty' | 'filling'
+    direction?: Direction
+  }
+  isPressed: boolean
+
+  constructor(
+    row: number[][],
+    column: number[][],
+    canvas: string | HTMLCanvasElement,
+    {
+      theme = {},
+      onSuccess = () => { },
+      onAnimationEnd = () => { },
+    }: {
+      theme?: {},
+      onSuccess?: () => void,
+      onAnimationEnd?: () => void,
+    } = {},
+  ) {
     super()
     this.theme.filledColor = $.blue
-    this.theme.emptyColor = $.red
     this.theme.wrongColor = $.grey
     this.theme.isMeshed = true
     Object.assign(this.theme, theme)
@@ -28,14 +49,14 @@ export default class Game extends Nonogram {
     this.n = this.hints.column.length
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
-      this.grid[i] = new Array(this.n).fill(Game.UNSET)
+      this.grid[i] = new Array(this.n).fill(Status.UNSET)
     }
     this.hints.row.forEach((r, i) => { r.isCorrect = this.isLineCorrect('row', i) })
     this.hints.column.forEach((c, j) => { c.isCorrect = this.isLineCorrect('column', j) })
 
     this.initCanvas(canvas)
 
-    this.brush = Game.FILLED
+    this.brush = Status.FILLED
     this.draw = {}
     this.print()
   }
@@ -48,7 +69,7 @@ export default class Game extends Nonogram {
       ['mouseleave', this.brushUp.bind(this)],
     ]
   }
-  mousedown(e) {
+  mousedown(e: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -63,9 +84,9 @@ export default class Game extends Nonogram {
       const cell = this.grid[this.draw.firstI][this.draw.firstJ]
       let brush = this.brush
       if (this.draw.inverted) {
-        brush = this.brush === Game.FILLED ? Game.EMPTY : Game.FILLED
+        brush = this.brush === Status.FILLED ? Status.EMPTY : Status.FILLED
       }
-      if (cell === Game.UNSET || brush === cell) {
+      if (cell === Status.UNSET || brush === cell) {
         this.draw.mode = (brush === cell) ? 'empty' : 'filling'
         this.isPressed = true
         this.switchCell(this.draw.firstI, this.draw.firstJ)
@@ -74,7 +95,7 @@ export default class Game extends Nonogram {
       this.draw.lastJ = this.draw.firstJ
     }
   }
-  mousemove(e) {
+  mousemove(e: MouseEvent) {
     if (this.isPressed) {
       const rect = this.canvas.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -102,44 +123,44 @@ export default class Game extends Nonogram {
     }
   }
   switchBrush() {
-    this.brush = (this.brush === Game.EMPTY) ? Game.FILLED : Game.EMPTY
+    this.brush = (this.brush === Status.EMPTY) ? Status.FILLED : Status.EMPTY
     this.printController()
   }
   brushUp() {
     delete this.isPressed
     this.draw = {}
   }
-  switchCell(i, j) {
+  switchCell(i: number, j: number) {
     let brush = this.brush
     if (this.draw.inverted) {
-      brush = this.brush === Game.FILLED ? Game.EMPTY : Game.FILLED
+      brush = this.brush === Status.FILLED ? Status.EMPTY : Status.FILLED
     }
-    if (brush === Game.FILLED && this.grid[i][j] !== Game.EMPTY) {
-      this.grid[i][j] = (this.draw.mode === 'filling') ? Game.FILLED : Game.UNSET
-      this.hints.row[i].isCorrect = eekwall(this.calculateHints('row', i), this.hints.row[i])
-      this.hints.column[j].isCorrect = eekwall(this.calculateHints('column', j), this.hints.column[j])
+    if (brush === Status.FILLED && this.grid[i][j] !== Status.EMPTY) {
+      this.grid[i][j] = (this.draw.mode === 'filling') ? Status.FILLED : Status.UNSET
+      this.hints.row[i].isCorrect = this.isLineCorrect('row', i)
+      this.hints.column[j].isCorrect = this.isLineCorrect('column', j)
       this.print()
-      const correct = this.hints.row.every(singleRow => singleRow.isCorrect) &&
-        this.hints.column.every(singleCol => singleCol.isCorrect)
+      const correct = this.hints.row.every(singleRow => !!singleRow.isCorrect) &&
+        this.hints.column.every(singleCol => !!singleCol.isCorrect)
       if (correct) {
         this.succeed()
       }
-    } else if (brush === Game.EMPTY && this.grid[i][j] !== Game.FILLED) {
-      this.grid[i][j] = (this.draw.mode === 'filling') ? Game.EMPTY : Game.UNSET
+    } else if (brush === Status.EMPTY && this.grid[i][j] !== Status.FILLED) {
+      this.grid[i][j] = (this.draw.mode === 'filling') ? Status.EMPTY : Status.UNSET
       this.print()
     }
   }
 
-  printCell(status) {
-    const ctx = this.canvas.getContext('2d')
+  printCell(status: number) {
+    const { ctx } = this
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {
-      case Game.FILLED:
+      case Status.FILLED:
         ctx.fillStyle = this.theme.filledColor
         ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1)
         break
-      case Game.EMPTY:
-        ctx.strokeStyle = this.theme.emptyColor
+      case Status.EMPTY:
+        ctx.strokeStyle = $.red
         ctx.lineWidth = d / 15
         ctx.beginPath()
         ctx.moveTo(d * 0.3, d * 0.3)
@@ -148,14 +169,11 @@ export default class Game extends Nonogram {
         ctx.lineTo(d * 0.7, d * 0.3)
         ctx.stroke()
         break
-      default:
-        return
     }
   }
   printController() {
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const controllerSize = Math.min(w, h) / 4
     const outerSize = controllerSize * 3 / 4
     const offset = controllerSize / 4
@@ -192,10 +210,10 @@ export default class Game extends Nonogram {
     ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
     ctx.save()
     ctx.translate(w * 0.7, h * 0.7)
-    if (this.brush === Game.FILLED) {
+    if (this.brush === Status.FILLED) {
       printEmptyBrush.call(this)
       printFillingBrush.call(this)
-    } else if (this.brush === Game.EMPTY) {
+    } else if (this.brush === Status.EMPTY) {
       printFillingBrush.call(this)
       printEmptyBrush.call(this)
     }
@@ -207,9 +225,8 @@ export default class Game extends Nonogram {
     this.listeners.forEach(([type, listener]) => {
       this.canvas.removeEventListener(type, listener)
     })
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const controllerSize = Math.min(w, h) / 4
     const background = ctx.getImageData(0, 0, w, h)
 
@@ -220,7 +237,7 @@ export default class Game extends Nonogram {
       tick.width = size
       tick.height = size
 
-      const c = tick.getContext('2d')
+      const c = tick.getContext('2d') || new CanvasRenderingContext2D()
       c.translate(size / 3, size * 5 / 6)
       c.rotate(-Math.PI / 4)
       c.fillStyle = $.green
@@ -233,7 +250,7 @@ export default class Game extends Nonogram {
     const tick = getTick()
     let t = 0
 
-    function f(_) {
+    function f(_: number) {
       return 1 + Math.pow(_ - 1, 3)
     }
 

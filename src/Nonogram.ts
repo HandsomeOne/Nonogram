@@ -1,6 +1,59 @@
 import $ from './colors'
 
-export default class Nonogram {
+interface Theme {
+  filledColor: string,
+  unsetColor: string,
+  correctColor: string,
+  wrongColor: string,
+  meshColor: string,
+  isMeshed: boolean,
+  isBoldMeshOnly: boolean,
+  isMeshOnTop: boolean,
+  boldMeshGap: number,
+
+  width?: number,
+}
+
+interface NonogramCanvas extends HTMLCanvasElement {
+  nonogram: Nonogram,
+}
+
+export const enum Status {
+  EMPTY = 0,
+  FILLED = 1,
+  UNSET,
+  TEMP_FILLED,
+  TEMP_EMPTY,
+  INCONSTANT,
+}
+
+export interface LineOfHints extends Array<number> {
+  isCorrect?: boolean,
+  unchanged?: boolean,
+}
+
+export type Direction = 'row' | 'column'
+
+function eekwall(arr1: number[], arr2: number[]) {
+  return arr1.length === arr2.length &&
+          arr1.every((e, i) => e === arr2[i])
+}
+
+abstract class Nonogram {
+  theme: Theme
+  canvas: NonogramCanvas
+  ctx: CanvasRenderingContext2D
+  listeners: [string, EventListener][]
+  m: number
+  n: number
+  grid: number[][]
+  hints: {
+    row: LineOfHints[],
+    column: LineOfHints[],
+  }
+
+
+
   constructor() {
     this.theme = {
       filledColor: $.grey,
@@ -15,22 +68,23 @@ export default class Nonogram {
     }
   }
 
-  initCanvas(canvas) {
-    this.canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
-    if (!(this.canvas instanceof HTMLCanvasElement)) {
-      this.canvas = document.createElement('canvas')
+  initCanvas(canvas: string | HTMLCanvasElement) {
+    let _canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
+    if (!(_canvas instanceof HTMLCanvasElement)) {
+      _canvas = document.createElement('canvas')
     }
-
-    this.canvas.width = this.theme.width || this.canvas.clientWidth
-    this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
-
+    this.canvas = <NonogramCanvas>_canvas
     if (this.canvas.nonogram) {
       this.canvas.nonogram.listeners.forEach(([type, listener]) => {
         this.canvas.removeEventListener(type, listener)
       })
     }
-
     this.canvas.nonogram = this
+    this.canvas.width = this.theme.width || this.canvas.clientWidth
+    this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
+
+    this.ctx = this.canvas.getContext('2d') || new CanvasRenderingContext2D()
+
     this.initListeners()
     this.listeners.forEach(([type, listener]) => {
       this.canvas.addEventListener(type, listener)
@@ -41,14 +95,14 @@ export default class Nonogram {
     this.listeners = []
   }
   removeNonPositiveHints() {
-    function removeNonPositiveElement(array, j, self) {
+    function removeNonPositiveElement(array: number[], j: number, self: number[][]) {
       self[j] = array.filter(v => v > 0)
     }
     this.hints.row.forEach(removeNonPositiveElement)
     this.hints.column.forEach(removeNonPositiveElement)
   }
-  getSingleLine(direction, i) {
-    const g = []
+  getSingleLine(direction: Direction, i: number): number[] {
+    const g: number[] = []
     if (direction === 'row') {
       for (let j = 0; j < this.n; j += 1) {
         g[j] = this.grid[i][j]
@@ -60,22 +114,22 @@ export default class Nonogram {
     }
     return g
   }
-  calculateHints(direction, i) {
-    const hints = []
+  calculateHints(direction: Direction, i: number) {
+    const hints: number[] = []
     const line = this.getSingleLine(direction, i)
     line.reduce((lastIsFilled, cell) => {
-      if (cell === Nonogram.FILLED) {
+      if (cell === Status.FILLED) {
         hints.push(lastIsFilled ? hints.pop() + 1 : 1)
       }
-      return cell === Nonogram.FILLED
+      return cell === Status.FILLED
     }, false)
     return hints
   }
-  isLineCorrect(direction, i) {
-    return this.calculateHints(direction, i).toString() === this.hints[direction][i].toString()
+  isLineCorrect(direction: Direction, i: number) {
+    return eekwall(this.calculateHints(direction, i), this.hints[direction][i])
   }
 
-  getLocation(x, y) {
+  getLocation(x: number, y: number) {
     const rect = this.canvas.getBoundingClientRect()
     const w = rect.width
     const h = rect.height
@@ -101,14 +155,11 @@ export default class Nonogram {
   print() {
     this.printGrid()
     this.printHints()
-    if (this.printController) {
-      this.printController()
-    }
+    this.printController()
   }
   printGrid() {
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const d = w * 2 / 3 / (this.n + 1)
 
     ctx.clearRect(-1, -1, w * 2 / 3 + 1, h * 2 / 3 + 1)
@@ -130,24 +181,22 @@ export default class Nonogram {
       this.printMesh()
     }
   }
-  printCell(status) {
-    const ctx = this.canvas.getContext('2d')
+  printCell(status: number) {
+    const { ctx } = this
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {
-      case Nonogram.UNSET:
+      case Status.UNSET:
         ctx.fillStyle = this.theme.unsetColor
         ctx.fillRect(d * 0.05, d * 0.05, d * 0.9, d * 0.9)
         break
-      case Nonogram.FILLED:
+      case Status.FILLED:
         ctx.fillStyle = this.theme.filledColor
         ctx.fillRect(-d * 0.05, -d * 0.05, d * 1.1, d * 1.1)
         break
-      default:
-        return
     }
   }
   printMesh() {
-    const ctx = this.canvas.getContext('2d')
+    const { ctx } = this
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
 
     ctx.save()
@@ -191,9 +240,8 @@ export default class Nonogram {
     ctx.restore()
   }
   printHints() {
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const d = w * 2 / 3 / (this.n + 1)
 
     ctx.clearRect(w * 2 / 3 - 1, -1, w * 3 + 1, h * 2 / 3 + 1)
@@ -218,10 +266,9 @@ export default class Nonogram {
     }
     ctx.restore()
   }
-  printSingleHint(direction, i, j) {
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+  printSingleHint(direction: Direction, i: number, j: number) {
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const d = w * 2 / 3 / (this.n + 1)
 
     ctx.textAlign = 'center'
@@ -231,15 +278,14 @@ export default class Nonogram {
     ctx.fillStyle = line.isCorrect ? this.theme.correctColor : this.theme.wrongColor
     ctx.globalAlpha = (!line.isCorrect && line.unchanged) ? 0.5 : 1
     if (direction === 'row') {
-      ctx.fillText(this.hints.row[i][j] || 0,
+      ctx.fillText(`${this.hints.row[i][j] || 0}`,
         w * 2 / 3 + d * j, d * (i + 0.5), d * 0.8)
     } else if (direction === 'column') {
-      ctx.fillText(this.hints.column[i][j] || 0,
+      ctx.fillText(`${this.hints.column[i][j] || 0}`,
         d * (i + 0.5), h * 2 / 3 + d * j, d * 0.8)
     }
   }
+  abstract printController(): void
 }
 
-Nonogram.FILLED = true
-Nonogram.UNSET = undefined
-Nonogram.EMPTY = false
+export default Nonogram

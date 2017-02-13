@@ -1,13 +1,37 @@
-import Nonogram from './Nonogram'
+import Nonogram, { Direction, LineOfHints, Status } from './Nonogram'
 import $ from './colors'
 
 export default class Editor extends Nonogram {
-  constructor(m, n, canvas, {
-    theme,
-    grid,
-    threshold = 0.5,
-    onHintChange = () => { },
-  } = {}) {
+  threshold: number
+  handleHintChange: (row: LineOfHints[], column: LineOfHints[]) => void
+  draw: {
+    firstI?: number,
+    firstJ?: number,
+    lastI?: number
+    lastJ?: number
+    inverted?: boolean,
+    mode?: 'empty' | 'filling'
+    direction?: Direction
+    brush?: number
+  }
+  isPressed: boolean
+
+  constructor(
+    m: number,
+    n: number,
+    canvas: string | HTMLCanvasElement,
+    {
+      theme = {},
+      grid,
+      threshold = 0.5,
+      onHintChange = () => { },
+    }: {
+      theme?: {},
+      grid?: number[][],
+      threshold?: number,
+      onHintChange?: (row?: LineOfHints[], column?: LineOfHints[]) => void,
+    } = {},
+  ) {
     super()
     this.theme.filledColor = $.violet
     this.theme.correctColor = $.violet
@@ -23,9 +47,9 @@ export default class Editor extends Nonogram {
       this.grid[i] = new Array(this.n)
       for (let j = 0; j < this.n; j += 1) {
         if (grid) {
-          this.grid[i][j] = grid[i][j] ? Editor.FILLED : Editor.EMPTY
+          this.grid[i][j] = grid[i][j] ? Status.FILLED : Status.EMPTY
         } else {
-          this.grid[i][j] = (Math.random() < this.threshold) ? Editor.FILLED : Editor.EMPTY
+          this.grid[i][j] = (Math.random() < this.threshold) ? Status.FILLED : Status.EMPTY
         }
       }
     }
@@ -57,7 +81,7 @@ export default class Editor extends Nonogram {
       ['mouseleave', this.brushUp.bind(this)],
     ]
   }
-  mousedown(e) {
+  mousedown(e: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -69,14 +93,14 @@ export default class Editor extends Nonogram {
       this.draw.firstI = Math.floor(y / d - 0.5)
       this.draw.firstJ = Math.floor(x / d - 0.5)
       const cell = this.grid[this.draw.firstI][this.draw.firstJ]
-      this.draw.brush = (cell === Editor.FILLED) ? Editor.EMPTY : Editor.FILLED
+      this.draw.brush = (cell === Status.FILLED) ? Status.EMPTY : Status.FILLED
       this.isPressed = true
       this.switchCell(this.draw.firstI, this.draw.firstJ)
       this.draw.lastI = this.draw.firstI
       this.draw.lastJ = this.draw.firstJ
     }
   }
-  mousemove(e) {
+  mousemove(e: MouseEvent) {
     if (this.isPressed) {
       const rect = this.canvas.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -107,8 +131,8 @@ export default class Editor extends Nonogram {
     delete this.isPressed
     this.draw = {}
   }
-  switchCell(i, j) {
-    this.grid[i][j] = this.draw.brush
+  switchCell(i: number, j: number) {
+    this.grid[i][j] = this.draw.brush || Status.FILLED
     this.hints.row[i] = this.calculateHints('row', i)
     this.hints.row[i].isCorrect = true
     this.hints.column[j] = this.calculateHints('column', j)
@@ -119,7 +143,7 @@ export default class Editor extends Nonogram {
   refresh() {
     for (let i = 0; i < this.m; i += 1) {
       for (let j = 0; j < this.n; j += 1) {
-        this.grid[i][j] = (Math.random() < this.threshold) ? Editor.FILLED : Editor.EMPTY
+        this.grid[i][j] = (Math.random() < this.threshold) ? Status.FILLED : Status.EMPTY
       }
     }
     for (let i = 0; i < this.m; i += 1) {
@@ -134,9 +158,8 @@ export default class Editor extends Nonogram {
     this.handleHintChange(this.hints.row, this.hints.column)
   }
   printController() {
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const controllerSize = Math.min(w, h) / 4
     const filledColor = this.theme.filledColor
 
@@ -146,7 +169,7 @@ export default class Editor extends Nonogram {
       cycle.width = controllerSize
       cycle.height = controllerSize
 
-      const c = cycle.getContext('2d')
+      const c = cycle.getContext('2d') || new CanvasRenderingContext2D()
       c.translate(controllerSize / 2, controllerSize / 2)
       c.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9)
       c.lineWidth = borderWidth

@@ -5,23 +5,25 @@ const isProd = process.env.NODE_ENV === 'production'
 module.exports = {
   target: 'web',
   module: {
-    rules: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'babel-loader',
-      options: {
-        presets: [
-          ['es2015', {
-            module: false,
-          }],
-        ],
+    rules: [
+      {
+        test: /\.ts$/,
+        use: [
+          { loader: 'babel-loader',
+            options: {
+              presets: [
+                ['es2015', { modules: false }],
+              ]
+            } },
+          'awesome-typescript-loader',
+        ]
       },
-    }],
+    ],
   },
-  entry: isProd ? './src/index.js' : [
+  entry: isProd ? './src/index.ts' : [
     'webpack-dev-server/client?http://localhost:8080',
     'webpack/hot/only-dev-server',
-    './src/index.js',
+    './src/index.ts',
   ],
   output: {
     path: resolve(__dirname, isProd ? 'docs' : 'test'),
@@ -29,10 +31,10 @@ module.exports = {
     library: 'nonogram',
     libraryTarget: 'umd',
   },
-  plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
-    }),
+  resolve: {
+    extensions: ['.ts', '.js'],
+  },
+  plugins: isProd ? [] : [
     new webpack.HotModuleReplacementPlugin(),
   ],
   devServer: {

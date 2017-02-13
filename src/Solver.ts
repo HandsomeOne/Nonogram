@@ -1,16 +1,57 @@
-import Nonogram from './Nonogram'
+import Nonogram, { LineOfHints, Direction, Status } from './Nonogram'
 import $ from './colors'
 
-const sum = array => array.reduce((a, b) => a + b, 0)
+interface SolverLineOfHints extends LineOfHints {
+  possibleBlanks?: number[][],
+}
+
+interface Scanner {
+  disabled: boolean,
+  direction: Direction,
+  i: number,
+  line: number[]
+  hints: SolverLineOfHints,
+  error: boolean,
+}
+
+const sum = (array: number[]) => array.reduce((a, b) => a + b, 0)
+
+const cellValueMap = new Map<number, number>()
+cellValueMap.set(Status.TEMP_FILLED, Status.FILLED)
+cellValueMap.set(Status.TEMP_EMPTY, Status.EMPTY)
+cellValueMap.set(Status.INCONSTANT, Status.UNSET)
 
 export default class Solver extends Nonogram {
-  constructor(row, column, canvas, {
-    theme,
-    demoMode = true,
-    delay = 50,
-    onSuccess = () => { },
-    onError = () => { },
-  } = {}) {
+  demoMode: boolean
+  delay: number
+  handleSuccess: (time: number) => void
+  handleError: (e: Error) => void
+  isBusy: boolean
+  scanner: Scanner
+  hints: {
+    row: SolverLineOfHints[],
+    column: SolverLineOfHints[],
+  }
+  startTime: number
+
+  constructor(
+    row: number[][],
+    column: number[][],
+    canvas: string | HTMLCanvasElement,
+    {
+      theme = {},
+      demoMode = true,
+      delay = 50,
+      onSuccess = () => { },
+      onError = () => { },
+    }: {
+      theme?: {},
+      demoMode?: boolean,
+      delay?: number,
+      onSuccess?: (time?: number) => void,
+      onError?: (e?: Error) => void,
+    } = {},
+  ) {
     super()
     this.theme.filledColor = $.green
     this.theme.correctColor = $.green
@@ -31,7 +72,7 @@ export default class Solver extends Nonogram {
     this.n = this.hints.column.length
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
-      this.grid[i] = new Array(this.n)
+      this.grid[i] = new Array(this.n).fill(Status.UNSET)
     }
     this.hints.row.forEach((r) => {
       r.isCorrect = false
@@ -42,10 +83,18 @@ export default class Solver extends Nonogram {
       c.unchanged = false
     })
 
+    this.scan = this.scan.bind(this)
+    this.scanner = {
+      disabled: true,
+      direction: 'row',
+      i: 0,
+      line: [],
+      hints: [],
+      error: false,
+    }
+
     this.initCanvas(canvas)
     this.print()
-
-    this.scan = this.scan.bind(this)
   }
 
   initListeners() {
@@ -53,10 +102,8 @@ export default class Solver extends Nonogram {
       ['click', this.click.bind(this)],
     ]
   }
-  click(e) {
-    if (this.isBusy) {
-      return
-    }
+  click(e: MouseEvent) {
+    if (this.isBusy) return
 
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
@@ -64,13 +111,12 @@ export default class Solver extends Nonogram {
     const d = rect.width * 2 / 3 / (this.n + 1)
     const location = this.getLocation(x, y)
     if (location === 'grid') {
-      if (this.scanner && this.scanner.error) {
-        return
-      }
+      if (this.scanner && this.scanner.error) return
+
       const i = Math.floor(y / d - 0.5)
       const j = Math.floor(x / d - 0.5)
-      if (this.grid[i][j] === Solver.UNSET) {
-        this.grid[i][j] = Solver.FILLED
+      if (this.grid[i][j] === Status.UNSET) {
+        this.grid[i][j] = Status.FILLED
         this.hints.row[i].unchanged = false
         this.hints.column[j].unchanged = false
         this.solve()
@@ -80,9 +126,7 @@ export default class Solver extends Nonogram {
     }
   }
   refresh() {
-    if (this.isBusy) {
-      return
-    }
+    if (this.isBusy) return
 
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
@@ -98,28 +142,22 @@ export default class Solver extends Nonogram {
       c.unchanged = false
       delete c.possibleBlanks
     })
-    delete this.scanner
+    this.scanner.disabled = true
 
     this.solve()
   }
   solve() {
-    if (this.isBusy) {
-      return
-    }
+    if (this.isBusy) return
 
     this.isBusy = true
     this.startTime = Date.now()
     this.scan()
   }
   scan() {
-    if (this.canvas.nonogram !== this) {
-      return
-    }
+    if (this.canvas.nonogram !== this) return
 
     this.updateScanner()
-    if (this.scanner === undefined) {
-      return
-    }
+    if (this.scanner.disabled) return
 
     if (this.demoMode) {
       this.print()
@@ -141,10 +179,14 @@ export default class Solver extends Nonogram {
   updateScanner() {
     let line
     do {
-      if (this.scanner === undefined) {
+      if (this.scanner.disabled) {
         this.scanner = {
+          disabled: false,
           direction: 'row',
           i: 0,
+          line: [],
+          hints: [],
+          error: false,
         }
       } else {
         this.scanner.error = false
@@ -156,9 +198,9 @@ export default class Solver extends Nonogram {
       }
       line = this.hints[this.scanner.direction][this.scanner.i]
 
-      if (this.hints.row.every(row => row.unchanged) &&
-        this.hints.column.every(col => col.unchanged)) {
-        delete this.scanner
+      if (this.hints.row.every(row => !!row.unchanged) &&
+        this.hints.column.every(col => !!col.unchanged)) {
+        this.scanner.disabled = true
         this.isBusy = false
         this.print()
         this.handleSuccess(Date.now() - this.startTime)
@@ -168,16 +210,17 @@ export default class Solver extends Nonogram {
     while (line.isCorrect || line.unchanged)
   }
   solveSingleLine() {
+    this.scanner = <Scanner>this.scanner
     const { direction, i } = this.scanner
     this.scanner.hints = this.hints[direction][i]
     this.scanner.hints.unchanged = true
 
     this.scanner.line = this.getSingleLine(direction, i)
-    const finished = this.scanner.line.every(cell => cell !== Solver.UNSET)
+    const finished = this.scanner.line.every(cell => cell !== Status.UNSET)
     if (!finished) {
       if (this.scanner.hints.possibleBlanks === undefined) {
         this.scanner.hints.possibleBlanks = []
-        this.getAllSituations(this.scanner.line.length - sum(this.scanner.hints) + 1)
+        this.findAllSituations(this.scanner.line.length - sum(this.scanner.hints) + 1)
       }
       this.mergeSituation()
       this.setBackToGrid()
@@ -189,50 +232,52 @@ export default class Solver extends Nonogram {
       }
     }
   }
-  getAllSituations(max, array = [], index = 0) {
+  findAllSituations(max: number, array: number[] = [], index = 0) {
     if (index === this.scanner.hints.length) {
       const blanks = array.slice(0, this.scanner.hints.length)
       blanks[0] -= 1
-      this.scanner.hints.possibleBlanks.push(blanks)
+      if (this.scanner.hints.possibleBlanks) {
+        this.scanner.hints.possibleBlanks.push(blanks)
+      }
     }
 
     for (let i = 1; i <= max; i += 1) {
       array[index] = i
-      this.getAllSituations(max - array[index], array, index + 1)
+      this.findAllSituations(max - array[index], array, index + 1)
     }
   }
   mergeSituation() {
-    const { possibleBlanks } = this.scanner.hints
+    const possibleBlanks = this.scanner.hints.possibleBlanks || []
     possibleBlanks.forEach((blanks, p) => {
       const line = []
       for (let i = 0; i < this.scanner.hints.length; i += 1) {
-        line.push(...new Array(blanks[i]).fill(Solver.TEMP_EMPTY))
-        line.push(...new Array(this.scanner.hints[i]).fill(Solver.TEMP_FILLED))
+        line.push(...new Array(blanks[i]).fill(Status.TEMP_EMPTY))
+        line.push(...new Array(this.scanner.hints[i]).fill(Status.TEMP_FILLED))
       }
-      line.push(...new Array(this.scanner.line.length - line.length).fill(Solver.TEMP_EMPTY))
+      line.push(...new Array(this.scanner.line.length - line.length).fill(Status.TEMP_EMPTY))
 
       const improper = line.some((cell, i) =>
-        (cell === Solver.TEMP_EMPTY && this.scanner.line[i] === Solver.FILLED) ||
-        (cell === Solver.TEMP_FILLED && this.scanner.line[i] === Solver.EMPTY)
+        (cell === Status.TEMP_EMPTY && this.scanner.line[i] === Status.FILLED) ||
+        (cell === Status.TEMP_FILLED && this.scanner.line[i] === Status.EMPTY)
       )
       if (improper) {
-        possibleBlanks[p] = null
+        delete possibleBlanks[p]
         return
       }
 
       this.scanner.error = false
       line.forEach((cell, i) => {
-        if (cell === Solver.TEMP_FILLED) {
-          if (this.scanner.line[i] === Solver.TEMP_EMPTY) {
-            this.scanner.line[i] = Solver.INCONSTANT
-          } else if (this.scanner.line[i] === Solver.UNSET) {
-            this.scanner.line[i] = Solver.TEMP_FILLED
+        if (cell === Status.TEMP_FILLED) {
+          if (this.scanner.line[i] === Status.TEMP_EMPTY) {
+            this.scanner.line[i] = Status.INCONSTANT
+          } else if (this.scanner.line[i] === Status.UNSET) {
+            this.scanner.line[i] = Status.TEMP_FILLED
           }
-        } else if (cell === Solver.TEMP_EMPTY) {
-          if (this.scanner.line[i] === Solver.TEMP_FILLED) {
-            this.scanner.line[i] = Solver.INCONSTANT
-          } else if (this.scanner.line[i] === Solver.UNSET) {
-            this.scanner.line[i] = Solver.TEMP_EMPTY
+        } else if (cell === Status.TEMP_EMPTY) {
+          if (this.scanner.line[i] === Status.TEMP_FILLED) {
+            this.scanner.line[i] = Status.INCONSTANT
+          } else if (this.scanner.line[i] === Status.UNSET) {
+            this.scanner.line[i] = Status.TEMP_EMPTY
           }
         }
       })
@@ -243,18 +288,18 @@ export default class Solver extends Nonogram {
     const { direction, i } = this.scanner
     if (direction === 'row') {
       this.scanner.line.forEach((cell, j) => {
-        if (Solver.cellValueMap.has(cell)) {
-          if (this.grid[i][j] !== Solver.cellValueMap.get(cell)) {
-            this.grid[i][j] = Solver.cellValueMap.get(cell)
+        if (cellValueMap.has(cell)) {
+          if (this.grid[i][j] !== cellValueMap.get(cell)) {
+            this.grid[i][j] = <number>cellValueMap.get(cell)
             this.hints.column[j].unchanged = false
           }
         }
       })
     } else if (direction === 'column') {
       this.scanner.line.forEach((cell, j) => {
-        if (Solver.cellValueMap.has(cell)) {
-          if (this.grid[j][i] !== Solver.cellValueMap.get(cell)) {
-            this.grid[j][i] = Solver.cellValueMap.get(cell)
+        if (cellValueMap.has(cell)) {
+          if (this.grid[j][i] !== cellValueMap.get(cell)) {
+            this.grid[j][i] = <number>cellValueMap.get(cell)
             this.hints.row[j].unchanged = false
           }
         }
@@ -269,9 +314,8 @@ export default class Solver extends Nonogram {
     this.printScanner()
   }
   printController() {
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const controllerSize = Math.min(w, h) / 4
     const filledColor = this.theme.filledColor
 
@@ -281,7 +325,7 @@ export default class Solver extends Nonogram {
       cycle.width = controllerSize
       cycle.height = controllerSize
 
-      const c = cycle.getContext('2d')
+      const c = cycle.getContext('2d') || new CanvasRenderingContext2D()
       c.translate(controllerSize / 2, controllerSize / 2)
       c.rotate(Math.PI)
       c.arc(0, 0, controllerSize / 2 - borderWidth / 2, Math.PI / 2, Math.PI / 3.9)
@@ -303,9 +347,7 @@ export default class Solver extends Nonogram {
     }
 
     ctx.clearRect(w * 2 / 3 - 1, h * 2 / 3 - 1, w / 3 + 1, h / 3 + 1)
-    if (this.isBusy) {
-      return
-    }
+    if (this.isBusy) return
 
     ctx.save()
     ctx.translate(w * 0.7, h * 0.7)
@@ -313,13 +355,10 @@ export default class Solver extends Nonogram {
     ctx.restore()
   }
   printScanner() {
-    if (this.scanner === undefined) {
-      return
-    }
+    if (this.scanner.disabled) return
 
-    const ctx = this.canvas.getContext('2d')
-    const w = this.canvas.width
-    const h = this.canvas.height
+    const { ctx } = this
+    const { width: w, height: h } = this.canvas
     const d = w * 2 / 3 / (this.n + 1)
 
     ctx.save()
@@ -334,12 +373,3 @@ export default class Solver extends Nonogram {
     ctx.restore()
   }
 }
-
-Solver.TEMP_FILLED = 1
-Solver.TEMP_EMPTY = -1
-Solver.INCONSTANT = 0
-
-Solver.cellValueMap = new Map()
-Solver.cellValueMap.set(Solver.TEMP_FILLED, Solver.FILLED)
-Solver.cellValueMap.set(Solver.TEMP_EMPTY, Solver.EMPTY)
-Solver.cellValueMap.set(Solver.INCONSTANT, Solver.UNSET)
