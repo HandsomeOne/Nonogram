@@ -26,7 +26,7 @@ export default class Game extends Nonogram {
       onSuccess = () => { },
       onAnimationEnd = () => { },
     }: {
-      theme?: {}
+      theme?: Partial<Theme>
       onSuccess?: () => void
       onAnimationEnd?: () => void
     } = {},

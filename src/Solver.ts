@@ -45,7 +45,7 @@ export default class Solver extends Nonogram {
       onSuccess = () => { },
       onError = () => { },
     }: {
-      theme?: {}
+      theme?: Partial<Theme>
       demoMode?: boolean
       delay?: number
       onSuccess?: (time?: number) => void

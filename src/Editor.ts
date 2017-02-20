@@ -26,7 +26,7 @@ export default class Editor extends Nonogram {
       threshold = 0.5,
       onHintChange = () => { },
     }: {
-      theme?: {}
+      theme?: Partial<Theme>
       grid?: Status[][]
       threshold?: number
       onHintChange?: (row?: LineOfHints[], column?: LineOfHints[]) => void
