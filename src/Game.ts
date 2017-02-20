@@ -1,17 +1,17 @@
-import Nonogram, { Direction, Status } from './Nonogram'
+import Nonogram from './Nonogram'
 import $ from './colors'
 
 export default class Game extends Nonogram {
   handleSuccess: () => void
   handleAnimationEnd: () => void
 
-  brush: number
+  brush: Status
   draw: {
-    firstI?: number,
-    firstJ?: number,
+    firstI?: number
+    firstJ?: number
     lastI?: number
     lastJ?: number
-    inverted?: boolean,
+    inverted?: boolean
     mode?: 'empty' | 'filling'
     direction?: Direction
   }
@@ -26,9 +26,9 @@ export default class Game extends Nonogram {
       onSuccess = () => { },
       onAnimationEnd = () => { },
     }: {
-      theme?: {},
-      onSuccess?: () => void,
-      onAnimationEnd?: () => void,
+      theme?: {}
+      onSuccess?: () => void
+      onAnimationEnd?: () => void
     } = {},
   ) {
     super()
@@ -151,7 +151,7 @@ export default class Game extends Nonogram {
     }
   }
 
-  printCell(status: number) {
+  printCell(status: Status) {
     const { ctx } = this
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {

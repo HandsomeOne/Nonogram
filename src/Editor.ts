@@ -1,18 +1,18 @@
-import Nonogram, { Direction, LineOfHints, Status } from './Nonogram'
+import Nonogram from './Nonogram'
 import $ from './colors'
 
 export default class Editor extends Nonogram {
   threshold: number
   handleHintChange: (row: LineOfHints[], column: LineOfHints[]) => void
   draw: {
-    firstI?: number,
-    firstJ?: number,
+    firstI?: number
+    firstJ?: number
     lastI?: number
     lastJ?: number
-    inverted?: boolean,
+    inverted?: boolean
     mode?: 'empty' | 'filling'
     direction?: Direction
-    brush?: number
+    brush?: Status
   }
   isPressed: boolean
 
@@ -26,10 +26,10 @@ export default class Editor extends Nonogram {
       threshold = 0.5,
       onHintChange = () => { },
     }: {
-      theme?: {},
-      grid?: number[][],
-      threshold?: number,
-      onHintChange?: (row?: LineOfHints[], column?: LineOfHints[]) => void,
+      theme?: {}
+      grid?: Status[][]
+      threshold?: number
+      onHintChange?: (row?: LineOfHints[], column?: LineOfHints[]) => void
     } = {},
   ) {
     super()

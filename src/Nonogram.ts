@@ -1,42 +1,12 @@
 import $ from './colors'
 
-interface Theme {
-  filledColor: string,
-  unsetColor: string,
-  correctColor: string,
-  wrongColor: string,
-  meshColor: string,
-  isMeshed: boolean,
-  isBoldMeshOnly: boolean,
-  isMeshOnTop: boolean,
-  boldMeshGap: number,
-
-  width?: number,
-}
-
 interface NonogramCanvas extends HTMLCanvasElement {
-  nonogram: Nonogram,
+  nonogram: Nonogram
 }
 
-export const enum Status {
-  EMPTY = 0,
-  FILLED = 1,
-  UNSET,
-  TEMP_FILLED,
-  TEMP_EMPTY,
-  INCONSTANT,
-}
-
-export interface LineOfHints extends Array<number> {
-  isCorrect?: boolean,
-  unchanged?: boolean,
-}
-
-export type Direction = 'row' | 'column'
-
-function eekwall(arr1: number[], arr2: number[]) {
+function eekwall(arr1: any[], arr2: any[]) {
   return arr1.length === arr2.length &&
-          arr1.every((e, i) => e === arr2[i])
+    arr1.every((e, i) => e === arr2[i])
 }
 
 abstract class Nonogram {
@@ -46,13 +16,11 @@ abstract class Nonogram {
   listeners: [string, EventListener][]
   m: number
   n: number
-  grid: number[][]
+  grid: Status[][]
   hints: {
-    row: LineOfHints[],
-    column: LineOfHints[],
+    row: LineOfHints[]
+    column: LineOfHints[]
   }
-
-
 
   constructor() {
     this.theme = {
@@ -101,7 +69,7 @@ abstract class Nonogram {
     this.hints.row.forEach(removeNonPositiveElement)
     this.hints.column.forEach(removeNonPositiveElement)
   }
-  getSingleLine(direction: Direction, i: number): number[] {
+  getSingleLine(direction: Direction, i: number): Status[] {
     const g: number[] = []
     if (direction === 'row') {
       for (let j = 0; j < this.n; j += 1) {
@@ -181,7 +149,7 @@ abstract class Nonogram {
       this.printMesh()
     }
   }
-  printCell(status: number) {
+  printCell(status: Status) {
     const { ctx } = this
     const d = this.canvas.width * 2 / 3 / (this.n + 1)
     switch (status) {

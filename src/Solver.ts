@@ -1,22 +1,22 @@
-import Nonogram, { LineOfHints, Direction, Status } from './Nonogram'
+import Nonogram from './Nonogram'
 import $ from './colors'
 
 interface SolverLineOfHints extends LineOfHints {
-  possibleBlanks?: number[][],
+  possibleBlanks?: number[][]
 }
 
 interface Scanner {
-  disabled: boolean,
-  direction: Direction,
-  i: number,
-  line: number[]
-  hints: SolverLineOfHints,
-  error: boolean,
+  disabled: boolean
+  direction: Direction
+  i: number
+  line: Status[]
+  hints: SolverLineOfHints
+  error: boolean
 }
 
 const sum = (array: number[]) => array.reduce((a, b) => a + b, 0)
 
-const cellValueMap = new Map<number, number>()
+const cellValueMap = new Map<Status, Status>()
 cellValueMap.set(Status.TEMP_FILLED, Status.FILLED)
 cellValueMap.set(Status.TEMP_EMPTY, Status.EMPTY)
 cellValueMap.set(Status.INCONSTANT, Status.UNSET)
@@ -29,8 +29,8 @@ export default class Solver extends Nonogram {
   isBusy: boolean
   scanner: Scanner
   hints: {
-    row: SolverLineOfHints[],
-    column: SolverLineOfHints[],
+    row: SolverLineOfHints[]
+    column: SolverLineOfHints[]
   }
   startTime: number
 
@@ -45,11 +45,11 @@ export default class Solver extends Nonogram {
       onSuccess = () => { },
       onError = () => { },
     }: {
-      theme?: {},
-      demoMode?: boolean,
-      delay?: number,
-      onSuccess?: (time?: number) => void,
-      onError?: (e?: Error) => void,
+      theme?: {}
+      demoMode?: boolean
+      delay?: number
+      onSuccess?: (time?: number) => void
+      onError?: (e?: Error) => void
     } = {},
   ) {
     super()
@@ -249,7 +249,7 @@ export default class Solver extends Nonogram {
   mergeSituation() {
     const possibleBlanks = this.scanner.hints.possibleBlanks || []
     possibleBlanks.forEach((blanks, p) => {
-      const line = []
+      const line: Status[] = []
       for (let i = 0; i < this.scanner.hints.length; i += 1) {
         line.push(...new Array(blanks[i]).fill(Status.TEMP_EMPTY))
         line.push(...new Array(this.scanner.hints[i]).fill(Status.TEMP_FILLED))
