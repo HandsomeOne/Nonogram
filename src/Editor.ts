@@ -95,7 +95,7 @@ export default class Editor extends Nonogram {
       const cell = this.grid[this.draw.firstI][this.draw.firstJ]
       this.draw.brush = (cell === Status.FILLED) ? Status.EMPTY : Status.FILLED
       this.isPressed = true
-      this.switchCell(this.draw.firstI, this.draw.firstJ)
+      this.paintCell(this.draw.firstI, this.draw.firstJ)
       this.draw.lastI = this.draw.firstI
       this.draw.lastJ = this.draw.firstJ
     }
@@ -119,7 +119,7 @@ export default class Editor extends Nonogram {
           }
           if ((this.draw.direction === 'row' && i === this.draw.firstI) ||
             (this.draw.direction === 'column' && j === this.draw.firstJ)) {
-            this.switchCell(i, j)
+            this.paintCell(i, j)
             this.draw.lastI = i
             this.draw.lastJ = j
           }
@@ -131,8 +131,8 @@ export default class Editor extends Nonogram {
     delete this.isPressed
     this.draw = {}
   }
-  switchCell(i: number, j: number) {
-    this.grid[i][j] = this.draw.brush || Status.FILLED
+  paintCell(i: number, j: number) {
+    this.grid[i][j] = <Status>this.draw.brush
     this.hints.row[i] = this.calculateHints('row', i)
     this.hints.row[i].isCorrect = true
     this.hints.column[j] = this.calculateHints('column', j)

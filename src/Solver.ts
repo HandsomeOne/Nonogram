@@ -130,7 +130,7 @@ export default class Solver extends Nonogram {
 
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
-      this.grid[i] = new Array(this.n)
+      this.grid[i] = new Array(this.n).fill(Status.UNSET)
     }
     this.hints.row.forEach((r) => {
       r.isCorrect = false
