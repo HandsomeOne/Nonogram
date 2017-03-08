@@ -75,13 +75,13 @@ export default class Editor extends Nonogram {
 
   initListeners() {
     this.listeners = [
-      ['mousedown', this.mousedown.bind(this)],
-      ['mousemove', this.mousemove.bind(this)],
-      ['mouseup', this.brushUp.bind(this)],
-      ['mouseleave', this.brushUp.bind(this)],
+      ['mousedown', this.mousedown],
+      ['mousemove', this.mousemove],
+      ['mouseup', this.brushUp],
+      ['mouseleave', this.brushUp],
     ]
   }
-  mousedown(e: MouseEvent) {
+  mousedown = (e: MouseEvent) => {
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -100,7 +100,7 @@ export default class Editor extends Nonogram {
       this.draw.lastJ = this.draw.firstJ
     }
   }
-  mousemove(e: MouseEvent) {
+  mousemove = (e: MouseEvent) => {
     if (this.isPressed) {
       const rect = this.canvas.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -127,7 +127,7 @@ export default class Editor extends Nonogram {
       }
     }
   }
-  brushUp() {
+  brushUp = () => {
     delete this.isPressed
     this.draw = {}
   }

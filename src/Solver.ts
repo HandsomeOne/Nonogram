@@ -83,7 +83,6 @@ export default class Solver extends Nonogram {
       c.unchanged = false
     })
 
-    this.scan = this.scan.bind(this)
     this.scanner = {
       disabled: true,
       direction: 'row',
@@ -99,10 +98,10 @@ export default class Solver extends Nonogram {
 
   initListeners() {
     this.listeners = [
-      ['click', this.click.bind(this)],
+      ['click', this.click],
     ]
   }
-  click(e: MouseEvent) {
+  click = (e: MouseEvent) => {
     if (this.isBusy) return
 
     const rect = this.canvas.getBoundingClientRect()
@@ -153,7 +152,7 @@ export default class Solver extends Nonogram {
     this.startTime = Date.now()
     this.scan()
   }
-  scan() {
+  scan = () => {
     if (this.canvas.nonogram !== this) return
 
     this.updateScanner()

@@ -63,13 +63,13 @@ export default class Game extends Nonogram {
 
   initListeners() {
     this.listeners = [
-      ['mousedown', this.mousedown.bind(this)],
-      ['mousemove', this.mousemove.bind(this)],
-      ['mouseup', this.brushUp.bind(this)],
-      ['mouseleave', this.brushUp.bind(this)],
+      ['mousedown', this.mousedown],
+      ['mousemove', this.mousemove],
+      ['mouseup', this.brushUp],
+      ['mouseleave', this.brushUp],
     ]
   }
-  mousedown(e: MouseEvent) {
+  mousedown = (e: MouseEvent) => {
     const rect = this.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -95,7 +95,7 @@ export default class Game extends Nonogram {
       this.draw.lastJ = this.draw.firstJ
     }
   }
-  mousemove(e: MouseEvent) {
+  mousemove = (e: MouseEvent) => {
     if (this.isPressed) {
       const rect = this.canvas.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -126,7 +126,7 @@ export default class Game extends Nonogram {
     this.brush = (this.brush === Status.EMPTY) ? Status.FILLED : Status.EMPTY
     this.printController()
   }
-  brushUp() {
+  brushUp = () => {
     delete this.isPressed
     this.draw = {}
   }
@@ -254,7 +254,7 @@ export default class Game extends Nonogram {
       return 1 + Math.pow(_ - 1, 3)
     }
 
-    function fadeTickIn() {
+    const fadeTickIn = () => {
       ctx.putImageData(background, 0, 0)
       t += 0.03
       ctx.globalAlpha = f(t)
@@ -265,12 +265,12 @@ export default class Game extends Nonogram {
         (2 - f(t)) * controllerSize,
         (2 - f(t)) * controllerSize)
       if (t <= 1) {
-        requestAnimationFrame(fadeTickIn.bind(this))
+        requestAnimationFrame(fadeTickIn)
       } else {
         this.handleAnimationEnd()
       }
     }
 
-    fadeTickIn.call(this)
+    fadeTickIn()
   }
 }
