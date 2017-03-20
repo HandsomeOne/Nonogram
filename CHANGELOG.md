@@ -21,3 +21,7 @@
 ### 0.5.0
 
 - now using TypeScript
+
+### 0.6.0
+
+- now using `WebWorker`
