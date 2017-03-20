@@ -9,9 +9,6 @@ interface Scanner {
   disabled: boolean
   direction: Direction
   i: number
-  line: Status[]
-  hints: SolverLineOfHints
-  error: boolean
 }
 
 const cellValueMap = new Map<Status, Status>()
@@ -27,6 +24,7 @@ export default class Solver extends Nonogram {
   handleSuccess: (time: number) => void
   handleError: (e: Error) => void
   isBusy: boolean
+  isError: boolean
   scanner: Scanner
   hints: {
     row: SolverLineOfHints[]
@@ -87,9 +85,6 @@ export default class Solver extends Nonogram {
       disabled: true,
       direction: 'row',
       i: 0,
-      line: [],
-      hints: [],
-      error: false,
     }
 
     this.initCanvas(canvas)
@@ -110,7 +105,7 @@ export default class Solver extends Nonogram {
     const d = rect.width * 2 / 3 / (this.n + 1)
     const location = this.getLocation(x, y)
     if (location === 'grid') {
-      if (this.scanner && this.scanner.error) return
+      if (this.isError) return
 
       const i = Math.floor(y / d - 0.5)
       const j = Math.floor(x / d - 0.5)
@@ -142,6 +137,7 @@ export default class Solver extends Nonogram {
       delete c.possibleBlanks
     })
     this.scanner.disabled = true
+    this.print()
 
     this.solve()
   }
@@ -161,8 +157,44 @@ export default class Solver extends Nonogram {
     if (this.demoMode) {
       this.print()
     }
-    this.scanner.error = true
-    this.solveSingleLine()
+    this.isError = true
+
+    const { direction, i } = this.scanner
+    const hints = this.hints[direction][i]
+    hints.unchanged = true
+
+    const line = this.getSingleLine(direction, i)
+    const finished = line.every(cell => cell !== Status.UNSET)
+    if (!finished) {
+      this.worker.onmessage = (e) => {
+        this.hints[direction][i].possibleBlanks = e.data.possibleBlanks
+        this.isError = e.data.isError
+        this.setBackToGrid(e.data.line)
+        this.afterScan()
+      }
+      this.worker.postMessage({ line, hints })
+    } else {
+      this.afterScan()
+    }
+  }
+  afterScan() {
+    const { direction, i } = this.scanner
+    if (this.isLineCorrect(direction, i)) {
+      this.hints[direction][i].isCorrect = true
+      this.isError = false
+    }
+
+    if (this.isError) {
+      this.isBusy = false
+      this.print()
+      this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
+      return
+    }
+    if (this.demoMode) {
+      setTimeout(this.scan, this.delay)
+    } else {
+      this.scan()
+    }
   }
   updateScanner() {
     let line
@@ -172,12 +204,9 @@ export default class Solver extends Nonogram {
           disabled: false,
           direction: 'row',
           i: 0,
-          line: [],
-          hints: [],
-          error: false,
         }
       } else {
-        this.scanner.error = false
+        this.isError = false
         this.scanner.i += 1
         if (this.hints[this.scanner.direction][this.scanner.i] === undefined) {
           this.scanner.direction = (this.scanner.direction === 'row') ? 'column' : 'row'
@@ -197,65 +226,10 @@ export default class Solver extends Nonogram {
     }
     while (line.isCorrect || line.unchanged)
   }
-  solveSingleLine() {
-    const { direction, i } = this.scanner
-    this.scanner.hints = this.hints[direction][i]
-    this.scanner.hints.unchanged = true
-
-    this.scanner.line = this.getSingleLine(direction, i)
-    const finished = this.scanner.line.every(cell => cell !== Status.UNSET)
-    if (!finished) {
-      this.worker.onmessage = (e) => {
-        console.log(e.data)
-        Object.assign(this.scanner, e.data)
-        this.setBackToGrid()
-        if (this.isLineCorrect(direction, i)) {
-          this.hints[direction][i].isCorrect = true
-          if (finished) {
-            this.scanner.error = false
-          }
-        }
-
-        if (this.scanner.error) {
-          this.isBusy = false
-          this.print()
-          this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
-          return
-        }
-        if (this.demoMode) {
-          setTimeout(this.scan, this.delay)
-        } else {
-          this.scan()
-        }
-
-      }
-      this.worker.postMessage({
-        line: this.scanner.line,
-        hints: this.scanner.hints,
-      })
-    } else if (this.isLineCorrect(direction, i)) {
-      this.hints[direction][i].isCorrect = true
-      if (finished) {
-        this.scanner.error = false
-      }
-
-      if (this.scanner.error) {
-        this.isBusy = false
-        this.print()
-        this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
-        return
-      }
-      if (this.demoMode) {
-        setTimeout(this.scan, this.delay)
-      } else {
-        this.scan()
-      }
-    }
-  }
-  setBackToGrid() {
+  setBackToGrid(line: Status[]) {
     const { direction, i } = this.scanner
     if (direction === 'row') {
-      this.scanner.line.forEach((cell, j) => {
+      line.forEach((cell, j) => {
         if (cellValueMap.has(cell)) {
           if (this.grid[i][j] !== cellValueMap.get(cell)) {
             this.grid[i][j] = <number>cellValueMap.get(cell)
@@ -264,7 +238,7 @@ export default class Solver extends Nonogram {
         }
       })
     } else if (direction === 'column') {
-      this.scanner.line.forEach((cell, j) => {
+      line.forEach((cell, j) => {
         if (cellValueMap.has(cell)) {
           if (this.grid[j][i] !== cellValueMap.get(cell)) {
             this.grid[j][i] = <number>cellValueMap.get(cell)
@@ -331,7 +305,7 @@ export default class Solver extends Nonogram {
 
     ctx.save()
     ctx.translate(d / 2, d / 2)
-    ctx.fillStyle = this.scanner.error ? this.theme.wrongColor : this.theme.correctColor
+    ctx.fillStyle = this.isError ? this.theme.wrongColor : this.theme.correctColor
     ctx.globalAlpha = 0.5
     if (this.scanner.direction === 'row') {
       ctx.fillRect(0, d * this.scanner.i, w, d)

@@ -88,13 +88,19 @@ abstract class Nonogram {
     line.reduce((lastIsFilled, cell) => {
       if (cell === Status.FILLED) {
         hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
+      } else if (cell !== Status.EMPTY) {
+        throw new Error
       }
       return cell === Status.FILLED
     }, false)
     return hints
   }
   isLineCorrect(direction: Direction, i: number) {
-    return eekwall(this.calculateHints(direction, i), this.hints[direction][i])
+    try {
+      return eekwall(this.calculateHints(direction, i), this.hints[direction][i])
+    } catch (e) {
+      return false
+    }
   }
 
   getLocation(x: number, y: number) {
