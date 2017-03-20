@@ -14,14 +14,14 @@ interface Scanner {
   error: boolean
 }
 
-const sum = (array: number[]) => array.reduce((a, b) => a + b, 0)
-
 const cellValueMap = new Map<Status, Status>()
 cellValueMap.set(Status.TEMP_FILLED, Status.FILLED)
 cellValueMap.set(Status.TEMP_EMPTY, Status.EMPTY)
 cellValueMap.set(Status.INCONSTANT, Status.UNSET)
 
 export default class Solver extends Nonogram {
+  worker = new Worker('worker.js')
+
   demoMode: boolean
   delay: number
   handleSuccess: (time: number) => void
@@ -163,17 +163,6 @@ export default class Solver extends Nonogram {
     }
     this.scanner.error = true
     this.solveSingleLine()
-    if (this.scanner.error) {
-      this.isBusy = false
-      this.print()
-      this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
-      return
-    }
-    if (this.demoMode) {
-      setTimeout(this.scan, this.delay)
-    } else {
-      this.scan()
-    }
   }
   updateScanner() {
     let line
@@ -209,7 +198,6 @@ export default class Solver extends Nonogram {
     while (line.isCorrect || line.unchanged)
   }
   solveSingleLine() {
-    this.scanner = <Scanner>this.scanner
     const { direction, i } = this.scanner
     this.scanner.hints = this.hints[direction][i]
     this.scanner.hints.unchanged = true
@@ -217,71 +205,52 @@ export default class Solver extends Nonogram {
     this.scanner.line = this.getSingleLine(direction, i)
     const finished = this.scanner.line.every(cell => cell !== Status.UNSET)
     if (!finished) {
-      if (this.scanner.hints.possibleBlanks === undefined) {
-        this.scanner.hints.possibleBlanks = []
-        this.findAllSituations(this.scanner.line.length - sum(this.scanner.hints) + 1)
+      this.worker.onmessage = (e) => {
+        console.log(e.data)
+        Object.assign(this.scanner, e.data)
+        this.setBackToGrid()
+        if (this.isLineCorrect(direction, i)) {
+          this.hints[direction][i].isCorrect = true
+          if (finished) {
+            this.scanner.error = false
+          }
+        }
+
+        if (this.scanner.error) {
+          this.isBusy = false
+          this.print()
+          this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
+          return
+        }
+        if (this.demoMode) {
+          setTimeout(this.scan, this.delay)
+        } else {
+          this.scan()
+        }
+
       }
-      this.mergeSituation()
-      this.setBackToGrid()
-    }
-    if (this.isLineCorrect(direction, i)) {
+      this.worker.postMessage({
+        line: this.scanner.line,
+        hints: this.scanner.hints,
+      })
+    } else if (this.isLineCorrect(direction, i)) {
       this.hints[direction][i].isCorrect = true
       if (finished) {
         this.scanner.error = false
       }
-    }
-  }
-  findAllSituations(max: number, array: number[] = [], index = 0) {
-    if (index === this.scanner.hints.length) {
-      const blanks = array.slice(0, this.scanner.hints.length)
-      blanks[0] -= 1
-      if (this.scanner.hints.possibleBlanks) {
-        this.scanner.hints.possibleBlanks.push(blanks)
-      }
-    }
 
-    for (let i = 1; i <= max; i += 1) {
-      array[index] = i
-      this.findAllSituations(max - array[index], array, index + 1)
-    }
-  }
-  mergeSituation() {
-    const possibleBlanks = this.scanner.hints.possibleBlanks || []
-    possibleBlanks.forEach((blanks, p) => {
-      const line: Status[] = []
-      for (let i = 0; i < this.scanner.hints.length; i += 1) {
-        line.push(...new Array(blanks[i]).fill(Status.TEMP_EMPTY))
-        line.push(...new Array(this.scanner.hints[i]).fill(Status.TEMP_FILLED))
-      }
-      line.push(...new Array(this.scanner.line.length - line.length).fill(Status.TEMP_EMPTY))
-
-      const improper = line.some((cell, i) =>
-        (cell === Status.TEMP_EMPTY && this.scanner.line[i] === Status.FILLED) ||
-        (cell === Status.TEMP_FILLED && this.scanner.line[i] === Status.EMPTY)
-      )
-      if (improper) {
-        delete possibleBlanks[p]
+      if (this.scanner.error) {
+        this.isBusy = false
+        this.print()
+        this.handleError(new Error(`Bad hints at ${this.scanner.direction} ${this.scanner.i + 1}`))
         return
       }
-
-      this.scanner.error = false
-      line.forEach((cell, i) => {
-        if (cell === Status.TEMP_FILLED) {
-          if (this.scanner.line[i] === Status.TEMP_EMPTY) {
-            this.scanner.line[i] = Status.INCONSTANT
-          } else if (this.scanner.line[i] === Status.UNSET) {
-            this.scanner.line[i] = Status.TEMP_FILLED
-          }
-        } else if (cell === Status.TEMP_EMPTY) {
-          if (this.scanner.line[i] === Status.TEMP_FILLED) {
-            this.scanner.line[i] = Status.INCONSTANT
-          } else if (this.scanner.line[i] === Status.UNSET) {
-            this.scanner.line[i] = Status.TEMP_EMPTY
-          }
-        }
-      })
-    })
-    this.scanner.hints.possibleBlanks = possibleBlanks.filter(e => e !== null)
+      if (this.demoMode) {
+        setTimeout(this.scan, this.delay)
+      } else {
+        this.scan()
+      }
+    }
   }
   setBackToGrid() {
     const { direction, i } = this.scanner
