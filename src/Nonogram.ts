@@ -87,7 +87,7 @@ abstract class Nonogram {
     const line = this.getSingleLine(direction, i)
     line.reduce((lastIsFilled, cell) => {
       if (cell === Status.FILLED) {
-        hints.push(lastIsFilled ? hints.pop() + 1 : 1)
+        hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
       }
       return cell === Status.FILLED
     }, false)

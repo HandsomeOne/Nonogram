@@ -3,9 +3,14 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "target": "es6"
+    "lib": [
+      "webworker",
+      "es2015",
+      "scripthost"
+    ]
   },
   "include": [
-    "./src/*"
+    "./worker.ts",
+    "../*.d.ts"
   ]
 }
