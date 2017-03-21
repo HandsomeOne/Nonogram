@@ -262,7 +262,7 @@ f();</pre>
 5</textarea>
       <input type="range" id="delay" class="form-control form-group" min="0" max="500" step="50" title="delay" value="50">
       <p class="text-primary">
-        Delay: 0~500ms. If set to 0, then <code>demoMode</code> will be turned off.
+        Delay: 0~500ms.
       </p>
     </div>
     <div class="col-md-4">
@@ -328,7 +328,6 @@ document.getElementById('btn-solve2').addEventListener('click', function () {
         isMeshOnTop: true,
       },
       delay: delay,
-      demoMode: !!delay,
       onSuccess: function (time) {
         console.log('Solved in ' + time + 'ms.')
       },
