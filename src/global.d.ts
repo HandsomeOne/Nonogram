@@ -26,3 +26,18 @@ interface Theme {
   boldMeshGap: number
   width?: number
 }
+
+interface Scanner {
+  direction: Direction
+  i: number
+}
+
+interface SolverMessage {
+  type: 'error' | 'finish' | 'update'
+  grid: Status[][]
+  scanner?: Scanner
+  hints: {
+    row: LineOfHints[]
+    column: LineOfHints[]
+  }
+}
