@@ -4,7 +4,6 @@ import $ from './colors'
 export default class Solver extends Nonogram {
   worker = new Worker('worker.js')
 
-  demoMode: boolean
   delay: number
   handleSuccess: (time: number) => void
   handleError: (e: Error) => void
@@ -22,7 +21,6 @@ export default class Solver extends Nonogram {
     canvas: string | HTMLCanvasElement,
     {
       theme = {},
-      demoMode = true,
       delay = 50,
       onSuccess = () => { },
       onError = () => { },
@@ -34,7 +32,6 @@ export default class Solver extends Nonogram {
     this.theme.wrongColor = $.yellow
     Object.assign(this.theme, theme)
 
-    this.demoMode = demoMode
     this.delay = delay
     this.handleSuccess = onSuccess
     this.handleError = onError
@@ -128,7 +125,6 @@ export default class Solver extends Nonogram {
       this.print()
     }
     this.worker.postMessage({
-      demoMode: this.demoMode,
       delay: this.delay,
       grid: this.grid,
       hints: this.hints,

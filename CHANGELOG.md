@@ -25,3 +25,8 @@
 ### 0.6.0
 
 - now using `WebWorker`
+
+### 0.7.0
+
+- enhance `worker.ts`
+- remove `demoMode`, `!!delay` now has the same meaning

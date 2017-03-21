@@ -1,7 +1,3 @@
-interface SolverLineOfHints extends LineOfHints {
-  possibleBlanks?: number[][]
-}
-
 const sum = (array: number[]) => array.reduce((a, b) => a + b, 0)
 
 const cellValueMap = new Map<Status, Status>()
@@ -18,26 +14,32 @@ function eekwall(arr1: any[], arr2: any[]) {
 class Solver {
   grid: Status[][]
   hints: {
-    row: SolverLineOfHints[]
-    column: SolverLineOfHints[]
+    row: LineOfHints[]
+    column: LineOfHints[]
   }
   isError: Boolean
   scanner: Scanner
-  currentHints: SolverLineOfHints
+  currentHints: LineOfHints
   currentLine: Status[]
-  demoMode: boolean
   delay: number
   message: SolverMessage
+  possibleBlanks: {
+    row: number[][][]
+    column: number[][][]
+  }
 
   constructor(data: any) {
     this.hints = data.hints
-    this.demoMode = data.demoMode
     this.delay = data.delay
     this.grid = data.grid
 
     this.scanner = {
       direction: 'row',
       i: -1,
+    }
+    this.possibleBlanks = {
+      row: [],
+      column: [],
     }
     this.scan()
   }
@@ -81,7 +83,7 @@ class Solver {
   scan = () => {
     if (!this.updateScanner()) return
 
-    if (this.demoMode) {
+    if (this.delay) {
       this.message = {
         type: 'update',
         grid: this.grid,
@@ -118,7 +120,7 @@ class Solver {
       postMessage(this.message)
       return
     }
-    if (this.demoMode) {
+    if (this.delay) {
       setTimeout(this.scan, this.delay)
     } else {
       this.scan()
@@ -175,8 +177,9 @@ class Solver {
 
   solveSingleLine() {
     this.isError = true
-    if (this.currentHints.possibleBlanks === undefined) {
-      this.currentHints.possibleBlanks = []
+    const { direction, i } = this.scanner
+    if (this.possibleBlanks[direction][i] === undefined) {
+      this.possibleBlanks[direction][i] = []
       this.findAll(this.currentLine.length - sum(this.currentHints) + 1)
     }
     this.merge()
@@ -185,8 +188,9 @@ class Solver {
     if (index === this.currentHints.length) {
       const blanks = array.slice(0, this.currentHints.length)
       blanks[0] -= 1
-      if (this.currentHints.possibleBlanks) {
-        this.currentHints.possibleBlanks.push(blanks)
+      const { direction, i } = this.scanner
+      if (this.possibleBlanks[direction][i]) {
+        this.possibleBlanks[direction][i].push(blanks)
       }
     }
 
@@ -196,7 +200,8 @@ class Solver {
     }
   }
   merge() {
-    const possibleBlanks = this.currentHints.possibleBlanks || []
+    const { direction, i } = this.scanner
+    const possibleBlanks = this.possibleBlanks[direction][i]
     possibleBlanks.forEach((blanks, p) => {
       const line: Status[] = []
       for (let i = 0; i < this.currentHints.length; i += 1) {
@@ -231,7 +236,7 @@ class Solver {
         }
       })
     })
-    this.currentHints.possibleBlanks = possibleBlanks.filter(e => e)
+    this.possibleBlanks[direction][i] = possibleBlanks.filter(e => e)
   }
 }
 

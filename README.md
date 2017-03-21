@@ -111,8 +111,6 @@ Creates a nonogram game. The parameters have the same definitions as those of `n
 
 ### `nonogram.Solver`
 
-- `demoMode`: default is `true`, and the `solve` method will print a step-by-step solution. If set to `false`, only the final result will be printed.
-
 - `delay` (ms): default is `50`. Controls the delay between steps of the solving process.
 
 - `onSuccess(time)`: fired when the nonogram has been solved, `time` is how many milliseconds cost.
