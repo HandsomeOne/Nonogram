@@ -1,6 +1,6 @@
 {
   "name": "nonogram",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Edit, play and solve nonograms.",
   "main": "docs/nonogram.min.js",
   "scripts": {
@@ -29,5 +29,8 @@
     "typescript": "^2.1.6",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.3.0"
+  },
+  "dependencies": {
+    "worker-loader": "^0.8.0"
   }
 }

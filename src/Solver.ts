@@ -1,8 +1,10 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
 
+import SolverWorker from './worker/worker'
+
 export default class Solver extends Nonogram {
-  worker = new Worker('worker.js')
+  worker: Worker = new SolverWorker()
 
   delay: number
   handleSuccess: (time: number) => void
