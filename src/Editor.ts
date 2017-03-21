@@ -22,14 +22,9 @@ export default class Editor extends Nonogram {
     canvas: string | HTMLCanvasElement,
     {
       theme = {},
-      grid,
+      grid = [],
       threshold = 0.5,
       onHintChange = () => { },
-    }: {
-      theme?: Partial<Theme>
-      grid?: Status[][]
-      threshold?: number
-      onHintChange?: (row?: LineOfHints[], column?: LineOfHints[]) => void
     } = {},
   ) {
     super()
@@ -46,8 +41,8 @@ export default class Editor extends Nonogram {
     for (let i = 0; i < this.m; i += 1) {
       this.grid[i] = new Array(this.n)
       for (let j = 0; j < this.n; j += 1) {
-        if (grid) {
-          this.grid[i][j] = grid[i][j] ? Status.FILLED : Status.EMPTY
+        if (grid.length) {
+          this.grid[i][j] = (<Status[][]>grid)[i][j] ? Status.FILLED : Status.EMPTY
         } else {
           this.grid[i][j] = (Math.random() < this.threshold) ? Status.FILLED : Status.EMPTY
         }

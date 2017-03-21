@@ -25,10 +25,6 @@ export default class Game extends Nonogram {
       theme = {},
       onSuccess = () => { },
       onAnimationEnd = () => { },
-    }: {
-      theme?: Partial<Theme>
-      onSuccess?: () => void
-      onAnimationEnd?: () => void
     } = {},
   ) {
     super()
@@ -61,6 +57,17 @@ export default class Game extends Nonogram {
     this.print()
   }
 
+  calculateHints(direction: Direction, i: number) {
+    const hints: number[] = []
+    const line = this.getSingleLine(direction, i)
+    line.reduce((lastIsFilled, cell) => {
+      if (cell === Status.FILLED) {
+        hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
+      }
+      return cell === Status.FILLED
+    }, false)
+    return hints
+  }
   initListeners() {
     this.listeners = [
       ['mousedown', this.mousedown],
