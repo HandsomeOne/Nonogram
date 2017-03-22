@@ -83,6 +83,7 @@ export default class Solver extends Nonogram {
     }
   }
   private refresh() {
+    this.isError = false
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
       this.grid[i] = new Array(this.n).fill(Status.UNSET)
