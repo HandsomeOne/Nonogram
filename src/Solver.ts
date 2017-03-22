@@ -83,7 +83,6 @@ export default class Solver extends Nonogram {
     }
   }
   private refresh() {
-    this.isError = false
     this.grid = new Array(this.m)
     for (let i = 0; i < this.m; i += 1) {
       this.grid[i] = new Array(this.n).fill(Status.UNSET)
@@ -122,6 +121,7 @@ export default class Solver extends Nonogram {
             `Bad hints at ${direction} ${i + 1}`
           ))
         } else if (data.type === 'finish') {
+          this.isError = false
           this.handleSuccess(Date.now() - this.startTime)
         }
       }
