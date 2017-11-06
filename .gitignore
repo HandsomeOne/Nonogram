@@ -2,7 +2,5 @@
 *.log
 .DS_Store
 .vscode
-dist
-docs
 test/*.js
 test/*.js.map

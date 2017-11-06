@@ -1,0 +1,356 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Nonogram</title>
+  <link rel="stylesheet" href="https://bootswatch.com/3/journal/bootstrap.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
+  <script src="nonogram.min.js"></script>
+  <script>
+    onload = function () {
+      var pres = document.querySelectorAll('pre');
+      for (var i in pres) {
+        eval(pres[i].innerHTML);
+      }
+      var canvases = document.querySelectorAll('canvas');
+      for (var i in canvases) {
+        canvases[i].title = canvases[i].id;
+      }
+      document.getElementById('parse-json').addEventListener('click', function () {
+        document.getElementById('txt-row-hints2').value = document.getElementById('txt-row-hints2').value.replace(/(\]|\})[^\d\]\}]+/g, '\n').replace(/[^\d\n]+/g, '  ').replace(/[ \t]*\n[ \t]*/g, '\n').trim();
+        document.getElementById('txt-col-hints2').value = document.getElementById('txt-col-hints2').value.replace(/(\]|\})[^\d\]\}]+/g, '\n').replace(/[^\d\n]+/g, '  ').replace(/[ \t]*\n[ \t]*/g, '\n').trim();
+      });
+    };
+  </script>
+  <style>
+    h2, h3 { padding-top: 70px; }
+    canvas { width: 100%; }
+    textarea { resize: vertical; }
+    pre { border: 0; }
+    #timecost span {
+      animation: fadein 0.5s;
+    }
+    @keyframes fadein {
+      from { opacity: 0 }
+      to { opacity: 1 }
+    }
+  </style>
+</head>
+
+<body class="container">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">nonogram.Demo</a>
+      </div>
+
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#editor">.Editor</a></li>
+          <li><a href="#game">.Game</a></li>
+          <li><a href="#solver">.Solver</a></li>
+          <li><a href="#advanced-usages">Advanced Usages</a></li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="https://github.com/HandsomeOne/Nonogram">View on GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <h2 id="editor">nonogram.Editor</h2>
+  <div class="row">
+    <div class="col-md-8">
+      <pre>
+new nonogram.Editor(4, 8, 'edit1', {
+  theme: {
+    threshold: 0.2,
+    isMeshed: true,
+    boldMeshGap: 2,
+  },
+});</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="edit1"></canvas>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-8">
+      <pre>
+new nonogram.Editor(2, 4, 'edit2', {
+  grid: [[1, 0, 1, 0], [0, 1, 0, 1]],
+});</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="edit2"></canvas>
+    </div>
+  </div>
+
+  <h2 id="game">nonogram.Game</h2>
+  <div class="row">
+    <div class="col-md-8">
+      <pre>
+new nonogram.Game([[1,1], [1,1]], [[1], [1], [1], [1]], 'play1', {
+  theme: {
+    filledColor: '#0c6',
+    correctColor: '#0c6',
+  }
+});</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="play1"></canvas>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-8">
+      <pre>
+new nonogram.Game([[1,1], [1,1]], [[2], [], [2], []], 'play2');</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="play2"></canvas>
+    </div>
+  </div>
+
+  <h2 id="solver">nonogram.Solver</h2>
+  <div class="row">
+    <div class="col-md-8">
+      <pre>
+new nonogram.Solver([[1,1], [1,1]], [[2], [], [2], []], 'solve1', {
+  delay: 200,
+}).solve();</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="solve1"></canvas>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <pre>
+var row = [
+  [7, 2, 2, 7],
+  [1, 1, 1, 2, 1, 1],
+  [1, 3, 1, 3, 1, 1, 3, 1],
+  [1, 3, 1, 2, 1, 1, 3, 1],
+  [1, 3, 1, 2, 1, 3, 1],
+  [1, 1, 2, 2, 1, 1],
+  [7, 1, 1, 1, 7],
+  [2],
+  [2, 3, 2, 1, 4],
+  [1, 1, 3, 3, 2, 1],
+  [3, 1, 3, 2, 2],
+  [1, 1, 1, 3, 1, 1],
+  [1, 5, 1, 1, 1, 1],
+  [1, 1, 1, 1, 3, 1],
+  [7, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 3, 1, 1, 1, 2, 2],
+  [1, 3, 1, 2, 1, 2, 1, 1],
+  [1, 3, 1, 1, 1, 2],
+  [1, 1, 2, 1, 1],
+  [7, 1, 3, 1]
+];</pre>
+    </div>
+    <div class="col-md-3">
+      <pre>
+var column = [
+  [7, 1, 2, 7],
+  [1, 1, 1, 1, 1, 1],
+  [1, 3, 1, 1, 1, 3, 1],
+  [1, 3, 1, 1, 1, 1, 3, 1],
+  [1, 3, 1, 1, 1, 1, 3, 1],
+  [1, 1, 2, 1, 1],
+  [7, 1, 1, 1, 7],
+  [4],
+  [4, 2, 2, 2, 2, 2],
+  [1, 2, 1, 1, 1, 2, 3],
+  [1, 2, 2, 2],
+  [2, 3, 1, 1, 1, 1, 1],
+  [3, 3, 2, 3, 1, 1],
+  [1, 1, 3, 2],
+  [7, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1],
+  [1, 3, 1, 3, 2, 3],
+  [1, 3, 1, 2, 2, 1, 1],
+  [1, 3, 1, 1, 1, 1, 1],
+  [1, 1, 5, 3],
+  [7, 1, 1, 2, 1]
+];</pre>
+    </div>
+    <div class="col-md-2">
+      <pre>
+new
+  nonogram.Solver(
+    row,
+    column,
+    'solve2')
+  .solve();</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="solve2"></canvas>
+    </div>
+  </div>
+
+  <h2 id="advanced-usages">Advanced Usages</h2>
+
+  <h3 id="nonogram-generator">Create Your Own Nonogram</h3>
+  <p>
+    Here is an example showing how to use listeners to create <code>nonogram.Game</code> and <code>nonogram.Solver</code> instances automatically.
+  </p>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="form-group">
+        <label for="m">Number of rows</label>
+        <input type="number" id="m" class="form-control" min="1" max="20" step="1" value="6" required="">
+      </div>
+      <div class="form-group">
+        <label for="n">Number of columns</label>
+        <input type="number" id="n" class="form-control" min="1" max="20" step="1" value="6" required="">
+      </div>
+      <div class="form-group">
+        <label for="threshold">threshold</label>
+        <input type="range" id="threshold" class="form-control" min="0" max="1" step="0.01" value="0.5">
+      </div>
+    </div>
+    <div class="col-md-3">
+      <canvas id="adv-edit1"></canvas>
+    </div>
+    <div class="col-md-3">
+      <canvas id="adv-solve1"></canvas>
+    </div>
+    <div class="col-md-3">
+      <canvas id="adv-play1"></canvas>
+    </div>
+  </div>
+  <pre>
+function f() {
+  new nonogram.Editor(
+    +document.getElementById('m').value,
+    +document.getElementById('n').value,
+    'adv-edit1',
+    {
+      threshold: +document.getElementById('threshold').value,
+      onHintChange: function (row, column) {
+        new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } });
+        new nonogram.Solver(row, column, 'adv-solve1').solve();
+      },
+    }
+  );
+}
+document.getElementById('m').addEventListener('change', f);
+document.getElementById('n').addEventListener('change', f);
+document.getElementById('threshold').addEventListener('change', f);
+f();</pre>
+
+  <h3 id="nonogram-solver">Interactive Nonogram Solver</h3>
+  <p>This example shows how to solve the nonogram by given hints, which are separated by newlines and commas.</p>
+  <p class="text-info">Put your rows in the first textarea, columns in the second textarea.
+  One row (or column) a line, numbers separated by any non-numerical characters.
+  To represent an empty row (or column), you can use an empty line, or a line including the number <code>0</code> as well.
+  However, empty lines at two ends will be dropped, since they are really unnecessary.</p>
+  <p class="text-warning"><b>If the process end with an error, please check your input carefully.</b></p>
+  <div class="row form-group">
+    <div class="col-md-4">
+      <textarea id="txt-row-hints2" class="form-control form-group" rows="15" placeholder="row...">5  5
+3  1  2
+1  5  2
+1  4  5  1
+8  4  1
+3  4  1
+2  3  1
+2  3  1
+3  2  1
+1  2
+7  1
+1  1  1  2
+1  1  1  1  1  1
+1  2  1  1  1
+2  8  1
+4  4  1  4
+1  1  1  1  1
+3  3  1  3
+1  2  1  1  1  2
+1  3  1  6  1</textarea>
+      <input type="range" id="delay" class="form-control form-group" min="0" max="500" step="50" title="delay" value="50">
+      <p class="text-info">
+        Delay: 0~500ms. Setting delay=0 disables step-by-step solution, with a much smaller time cost.
+      </p>
+    </div>
+    <div class="col-md-4">
+      <textarea id="txt-col-hints2" class="form-control form-group" rows="15" placeholder="column...">2
+2  1  1  1
+1  1  1  1  1
+1  2  3  1
+1  2  2  2
+1  2  2  2
+1  3  3  1  1
+1  2  1  2  2
+1  6  1  2  1
+2  3  1  6
+1  2  1  6  1
+1  4  1  1  2
+1  7  1  1  1  1  1
+1  7  1  1  1
+2  5  2  2  1  1
+2  1  1  1
+10  1  2
+3  1  2
+4  1
+1  1</textarea>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <button id="parse-json" class="btn btn-info btn-block">Parse</button>
+          </div>
+          <p class="text-info">
+            Parse JSON-like strings or anything.
+          </p>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <button id="btn-solve2" class="btn btn-primary btn-block">Solve!</button>
+          </div>
+          <p class="text-success" id="timecost">
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <canvas id="adv-solve2"></canvas>
+    </div>
+  </div>
+  <pre>
+function parseArray(str) {
+  str = str.replace(/[^\d\n]+/g, ' ').trim();
+  var hints = str.split('\n');
+  hints.forEach(function (str, i, hints) {
+    var t = str.match(/\d+/g) || [];
+    t = t.map(parseFloat);
+    hints[i] = t.filter(Math.sign);
+  });
+  return hints;
+}
+document.getElementById('btn-solve2').addEventListener('click', function () {
+  var delay = +document.getElementById('delay').value;
+  new nonogram.Solver(
+    parseArray(document.getElementById('txt-row-hints2').value),
+    parseArray(document.getElementById('txt-col-hints2').value),
+    'adv-solve2',
+    {
+      theme: {
+        isMeshed: true,
+        isBoldMeshOnly: true,
+        isMeshOnTop: true,
+      },
+      delay: delay,
+      onSuccess: function (time) {
+        document.getElementById('timecost').innerHTML =
+        '<span>Solved in ' + time + 'ms.</span>'
+      },
+    }).solve();
+});</pre>
+</body>
+
+</html>
