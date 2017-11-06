@@ -1,5 +1,6 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
+import Status from './status'
 
 export default class Editor extends Nonogram {
   threshold: number

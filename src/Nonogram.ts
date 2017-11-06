@@ -1,4 +1,5 @@
 import $ from './colors'
+import Status from './status'
 
 interface NonogramCanvas extends HTMLCanvasElement {
   nonogram: Nonogram

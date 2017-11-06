@@ -1,12 +1,3 @@
-declare const enum Status {
-  EMPTY = 0,
-  FILLED = 1,
-  UNSET,
-  TEMP_FILLED,
-  TEMP_EMPTY,
-  INCONSTANT,
-}
-
 type Direction = 'row' | 'column'
 
 interface LineOfHints extends Array<number> {
@@ -34,10 +25,18 @@ interface Scanner {
 
 interface SolverMessage {
   type: 'error' | 'finish' | 'update'
-  grid: Status[][]
+  grid: number[][]
   scanner?: Scanner
   hints: {
     row: LineOfHints[]
     column: LineOfHints[]
   }
+}
+
+declare module "worker!*" {
+  const worker: {
+    prototype: Worker
+    new(): Worker
+  }
+  export default worker
 }

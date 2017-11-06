@@ -1,7 +1,8 @@
 import Nonogram from './Nonogram'
 import $ from './colors'
+import Status from './status'
 
-import SolverWorker from './worker/worker'
+import SolverWorker from 'worker!./worker.ts'
 
 export default class Solver extends Nonogram {
   worker: Worker = new SolverWorker()
