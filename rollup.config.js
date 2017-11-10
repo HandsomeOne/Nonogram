@@ -4,7 +4,7 @@ import bundleWorker from 'rollup-plugin-bundle-worker'
 export default {
   input: 'src/index.ts',
   output: {
-    file: 'test/nonogram.js',
+    file: 'docs/nonogram.js',
     format: 'iife',
   },
   name: 'nonogram',
