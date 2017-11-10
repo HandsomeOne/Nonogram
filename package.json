@@ -1,6 +1,6 @@
 {
   "name": "nonogram",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Edit, play and solve nonograms.",
   "main": "docs/nonogram.min.js",
   "scripts": {
