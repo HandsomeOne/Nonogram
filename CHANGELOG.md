@@ -30,3 +30,7 @@
 
 - enhance `worker.ts`
 - remove `demoMode`, `!!delay` now has the same meaning
+
+### 0.8.0
+
+- use rollup instead of webpack
