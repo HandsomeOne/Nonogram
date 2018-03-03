@@ -238,11 +238,12 @@ new
   </div>
   <pre>
 function f() {
-  new nonogram.Editor(
+  window.advEditor1 = new nonogram.Editor(
     +document.getElementById('m').value,
     +document.getElementById('n').value,
     'adv-edit1',
     { threshold: +document.getElementById('threshold').value,
+      grid: window.advEditor1 ? window.advEditor1.grid : undefined,
       onHintChange(row, column) {
         new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } })
         new nonogram.Solver(row, column, 'adv-solve1').solve()
