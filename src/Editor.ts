@@ -43,7 +43,7 @@ export default class Editor extends Nonogram {
       this.grid[i] = new Array(this.n)
       for (let j = 0; j < this.n; j += 1) {
         if (grid.length) {
-          this.grid[i][j] = (<Status[][]>grid)[i][j] ? Status.FILLED : Status.EMPTY
+          this.grid[i][j] = (grid[i] && (<Status[][]>grid)[i][j]) ? Status.FILLED : Status.EMPTY
         } else {
           this.grid[i][j] = (Math.random() < this.threshold) ? Status.FILLED : Status.EMPTY
         }
