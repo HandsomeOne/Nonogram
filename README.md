@@ -9,7 +9,7 @@
 You just need to attach
 
 ```html
-<script src="https://cdn.rawgit.com/HandsomeOne/Nonogram/gh-pages/nonogram.min.js"></script>
+<script src="https://handsomeone.github.io/Nonogram/nonogram.min.js"></script>
 ```
 
 to `<head>`. A `<canvas>` element is required for each nonogram instance.
