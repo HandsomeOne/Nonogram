@@ -11,8 +11,6 @@ const WorkerStatus = {
 }
 type status = number
 
-const sum = (array: number[]) => array.reduce((a, b) => a + b, 0)
-
 const cellValueMap = new Map<status, status>()
 cellValueMap.set(WorkerStatus.TEMP_FILLED, WorkerStatus.FILLED)
 cellValueMap.set(WorkerStatus.TEMP_EMPTY, WorkerStatus.EMPTY)
@@ -193,23 +191,28 @@ class Solver {
     const { direction, i } = this.scanner
     if (this.possibleBlanks[direction][i] === undefined) {
       this.possibleBlanks[direction][i] = []
-      this.findAll(this.currentLine.length - sum(this.currentHints) + 1)
+      this.findAll(this.currentLine.length)
     }
     this.merge()
   }
+  // This method finds all possible starting positions of empty series of cells, for a given line & hints
   findAll(max: number, array: number[] = [], index = 0) {
     if (index === this.currentHints.length) {
-      const blanks = array.slice(0, this.currentHints.length)
-      blanks[0] -= 1
+      // Those "blanks" array match the "currentHints" array.
+      // They indicate the shift (blanks count) from the last series of filled cells (or start of line)
+      // before starting the corresponding series of filled cells from "currentHints".
+      const blanks = array.slice(0, this.currentHints.length) // makes a copy, because "array" will continue to be modified during findAll recursion
       const { direction, i } = this.scanner
-      if (this.possibleBlanks[direction][i]) {
-        this.possibleBlanks[direction][i].push(blanks)
-      }
+      this.possibleBlanks[direction][i].push(blanks)
     }
-
-    for (let i = 1; i <= max; i += 1) {
-      array[index] = i
-      this.findAll(max - array[index], array, index + 1)
+     // Min gap between filled cells is 1, so we start at 1,
+     // except for first series of the line where we start at the grid border
+    for (let i = index ? 1 : 0; i <= max; i += 1) {
+      array[index] = i;
+      const newMax = max - i - this.currentHints[index];
+      if (newMax >= 0) {
+        this.findAll(newMax, array, index + 1);
+      }
     }
   }
   merge() {
